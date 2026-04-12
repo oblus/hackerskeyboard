@@ -1,0 +1,18 @@
+                        -HD:\Downloads\hackerskeyboard-master\app
+-DCMAKE_SYSTEM_NAME=Android
+-DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+-DCMAKE_SYSTEM_VERSION=23
+-DANDROID_PLATFORM=android-23
+-DANDROID_ABI=x86
+-DCMAKE_ANDROID_ARCH_ABI=x86
+-DANDROID_NDK=D:\Downloads\android-studio-SDK\ndk\28.2.13676358
+-DCMAKE_ANDROID_NDK=D:\Downloads\android-studio-SDK\ndk\28.2.13676358
+-DCMAKE_TOOLCHAIN_FILE=D:\Downloads\android-studio-SDK\ndk\28.2.13676358\build\cmake\android.toolchain.cmake
+-DCMAKE_MAKE_PROGRAM=D:\Downloads\android-studio-SDK\cmake\3.22.1\bin\ninja.exe
+-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=D:\Downloads\hackerskeyboard-master\app\build\intermediates\cxx\Debug\4d2dw36g\obj\x86
+-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=D:\Downloads\hackerskeyboard-master\app\build\intermediates\cxx\Debug\4d2dw36g\obj\x86
+-DCMAKE_BUILD_TYPE=Debug
+-BD:\Downloads\hackerskeyboard-master\app\.cxx\Debug\4d2dw36g\x86
+-GNinja
+                        Build command args: []
+                        Version: 2

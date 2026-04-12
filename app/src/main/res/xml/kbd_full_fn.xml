@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/* 
+**
+** Copyright 2011, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
+-->
+
+<Keyboard
+    xmlns:android="http://schemas.android.com/apk/res/android" xmlns:hk="http://schemas.android.com/apk/res-auto"
+    hk:keyWidth="7.1428571485%p"
+    hk:horizontalGap="0px"
+    hk:verticalGap="@dimen/key_bottom_gap"
+    hk:layoutRows="5"
+    hk:layoutColumns="14"
+>
+    <Row
+        hk:rowEdgeFlags="top"
+    >
+        <Key
+            hk:codes="@integer/key_f1"
+            hk:keyWidth="10.7142855%p"
+            hk:keyEdgeFlags="left" 
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_fkey_f1"
+            hk:keyWidth="8.035714%p"            
+            hk:isModifier="true"
+            hk:keyLabel="F1" />            
+        <Key
+            hk:codes="@integer/key_fkey_f2"
+            hk:keyWidth="8.035714%p"            
+            hk:isModifier="true"
+            hk:keyLabel="F2" />         
+        <Key
+            hk:codes="@integer/key_fkey_f3"
+            hk:keyWidth="8.035714%p"            
+            hk:isModifier="true"
+            hk:keyLabel="F3" />
+        <Key
+            hk:codes="@integer/key_fkey_f4"
+            hk:keyWidth="8.035714%p"            
+            hk:isModifier="true"
+            hk:keyLabel="F4" />
+        <Key
+            hk:keyWidth="8.035714%p"            
+            hk:keyLabel="7" />
+        <Key
+            hk:keyWidth="8.035714%p"            
+            hk:keyLabel="8" />
+        <Key
+            hk:keyWidth="8.035714%p"            
+            hk:keyLabel="9" />
+        <Key
+            hk:keyWidth="8.035714%p"            
+            hk:keyLabel="/" />
+        <Key
+            hk:codes="@integer/key_home"
+            hk:keyWidth="10.7142855%p"
+            hk:isModifier="true"
+            hk:isRepeatable="true"            
+            hk:keyLabel="Home" />
+        <Key
+            hk:codes="@integer/key_delete"
+            hk:keyIcon="@drawable/sym_keyboard_delete"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_delete"
+            hk:keyWidth="14.2857142%p"
+            hk:isModifier="true"
+            hk:isRepeatable="true"
+            hk:keyEdgeFlags="right" />
+    </Row>
+    <Row>
+        <Key
+            hk:codes="@integer/key_tab"
+            hk:keyIcon="@drawable/sym_keyboard_tab"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_tab"
+            hk:keyWidth="10.7142855%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="left" />
+        <Key
+            hk:codes="@integer/key_fkey_f5"
+            hk:keyWidth="8.035714%p"            
+            hk:isModifier="true"
+            hk:keyLabel="F5" />
+        <Key
+            hk:codes="@integer/key_fkey_f6"
+            hk:keyWidth="8.035714%p"            
+            hk:isModifier="true"
+            hk:keyLabel="F6" />
+        <Key
+            hk:codes="@integer/key_fkey_f7"
+            hk:keyWidth="8.035714%p"            
+            hk:isModifier="true"
+            hk:keyLabel="F7" />
+        <Key
+            hk:codes="@integer/key_fkey_f8"
+            hk:keyWidth="8.035714%p"            
+            hk:isModifier="true"
+            hk:keyLabel="F8" />
+
+        <Key
+            hk:keyWidth="8.035714%p"
+            hk:keyLabel="4" />
+        <Key
+            hk:keyWidth="8.035714%p"
+            hk:keyLabel="5" />
+        <Key
+            hk:keyWidth="8.035714%p"
+            hk:keyLabel="6" />
+        <Key
+            hk:keyWidth="8.035714%p"
+            hk:keyLabel="*" />
+
+        <Key
+            hk:codes="@integer/key_end"
+            hk:keyWidth="10.7142855%p"
+            hk:isModifier="true"            
+            hk:keyLabel="End"
+            hk:isRepeatable="true" />
+
+        <Key
+            hk:codes="@integer/key_insert"
+            hk:keyLabel="Ins"
+            hk:isRepeatable="true"            
+            hk:isModifier="true" />
+
+        <Key
+            hk:codes="@integer/key_forward_del"
+            hk:keyLabel="Del"
+            hk:isRepeatable="true"            
+            hk:isModifier="true"            
+            hk:keyEdgeFlags="right" />
+    </Row>
+    <Row>
+        <Key
+            hk:keyLabel="Ctrl"
+            hk:keyWidth="10.7142855%p"
+            hk:codes="@integer/key_ctrl_left"
+            hk:isSticky="true"
+            hk:keyEdgeFlags="left" 
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_fkey_f9"
+            hk:keyWidth="8.035714%p"
+            hk:isModifier="true"
+            hk:keyLabel="F9" />
+        <Key
+            hk:codes="@integer/key_fkey_f10"
+            hk:keyWidth="8.035714%p"
+            hk:isModifier="true"
+            hk:keyLabel="F10" />
+        <Key
+            hk:codes="@integer/key_fkey_f11"
+            hk:keyWidth="8.035714%p"
+            hk:isModifier="true"
+            hk:keyLabel="F11" />
+        <Key
+            hk:codes="@integer/key_fkey_f12"
+            hk:keyWidth="8.035714%p"
+            hk:isModifier="true"
+            hk:keyLabel="F12" />
+
+        <Key
+            hk:keyWidth="8.035714%p"
+            hk:keyLabel="1" />
+        <Key
+            hk:keyWidth="8.035714%p"
+            hk:keyLabel="2" />
+        <Key
+            hk:keyWidth="8.035714%p"
+            hk:keyLabel="3" />
+        <Key
+            hk:keyWidth="8.035714%p"
+            hk:keyLabel="-" />
+
+        <Key
+            hk:codes="@integer/key_page_up"
+            hk:keyWidth="10.7142855%p"
+            hk:isModifier="true"
+            hk:isRepeatable="true"            
+            hk:keyLabel="PgUp" />
+
+        <Key
+            hk:codes="@integer/key_return"
+            hk:keyIcon="@drawable/sym_keyboard_return"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_return"
+            hk:keyWidth="14.2857142%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="right" />
+    </Row>
+    <Row>
+        <Key
+            hk:codes="@integer/key_shift"
+            hk:keyIcon="@drawable/sym_keyboard_shift"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_shift"
+            hk:keyWidth="10.7142855%p"
+            hk:isModifier="true"
+            hk:isSticky="true"
+            hk:keyEdgeFlags="left" />
+
+        <Key
+            hk:codes="@integer/key_sysrq"
+            hk:keyWidth="8.035714%p"
+            hk:isModifier="true"
+            hk:keyLabel="SyRq" />
+        <Key
+            hk:codes="@integer/key_scroll_lock"
+            hk:keyWidth="8.035714%p"
+            hk:isModifier="true"
+            hk:keyLabel="ScrL" />
+        <Key
+            hk:codes="@integer/key_break"
+            hk:keyWidth="8.035714%p"
+            hk:isModifier="true"
+            hk:keyLabel="Brk" />
+        <Key
+            hk:codes="@integer/key_num_lock"
+            hk:keyWidth="8.035714%p"
+            hk:isModifier="true"
+            hk:keyLabel="NumL" />
+
+        <Key
+            hk:keyWidth="8.035714%p"
+            hk:keyLabel="0" />
+        <Key
+            hk:keyWidth="8.035714%p"
+            hk:keyLabel="," />
+        <Key
+            hk:keyWidth="8.035714%p"
+            hk:keyLabel="." />
+        <Key
+            hk:keyWidth="8.035714%p"
+            hk:keyLabel="+" />
+
+        <Key
+            hk:codes="@integer/key_page_down"
+            hk:keyWidth="10.7142857143%p"
+            hk:isModifier="true"
+            hk:isRepeatable="true"
+            hk:keyLabel="PgDn" />
+
+        <Key
+            hk:codes="@integer/key_dpad_up"
+            hk:isRepeatable="true"            
+            hk:keyLabel="&#x25b3;" 
+            hk:isCursor="true"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_shift"
+            hk:keyIcon="@drawable/sym_keyboard_shift"
+            hk:keyEdgeFlags="right" 
+            hk:isModifier="true" />
+    </Row>
+    <Row
+        hk:rowEdgeFlags="bottom"
+    >
+        <Key
+            hk:keyLabel="Esc"
+            hk:codes="@integer/key_escape"
+            hk:keyWidth="10.7142855%p"
+            hk:keyEdgeFlags="left" 
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_settings"
+            hk:keyIcon="@drawable/sym_keyboard_settings"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_settings"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_alt_left"
+            hk:keyLabel="Alt"
+            hk:isSticky="true"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_meta_left"
+            hk:keyLabel="&#x2756;"
+            hk:isSticky="true"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_space"
+            hk:shiftLabel="@string/key_space_shift"
+            hk:keyIcon="@drawable/sym_keyboard_space"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_space"
+            hk:keyWidth="32.1428571372%p"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_fn"
+            hk:keyLabel="Fn"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_dpad_center"
+            hk:isModifier="true"
+            hk:isCursor="true"
+            hk:keyLabel="&#x25cb;" />
+        <Key
+            hk:codes="@integer/key_dpad_left"
+            hk:isModifier="true"
+            hk:isRepeatable="true"            
+            hk:isCursor="true"
+            hk:keyLabel="&#x25c1;" />
+        <Key
+            hk:codes="@integer/key_dpad_down"
+            hk:isModifier="true"
+            hk:isRepeatable="true"
+            hk:isCursor="true"
+            hk:keyLabel="&#x25bd;" />
+        <Key
+            hk:codes="@integer/key_dpad_right"
+            hk:isModifier="true"            
+            hk:keyLabel="&#x25b7;"
+            hk:isRepeatable="true"            
+            hk:isCursor="true"
+            hk:keyEdgeFlags="right" />
+    </Row>
+</Keyboard>

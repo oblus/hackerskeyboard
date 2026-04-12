@@ -1,0 +1,7 @@
+# ninja log v5
+52	484	7975560233831749	CMakeFiles/jni_pckeyboard.dir/src/main/cpp/char_utils.cpp.o	38390df8d8c4f4d3
+1531	2097	7975560249569533	../../../../build/intermediates/cxx/Debug/4d2dw36g/obj/arm64-v8a/libjni_pckeyboard.so	29aacd8aa50e22ca
+26	1487	7975560243837425	CMakeFiles/jni_pckeyboard.dir/src/main/cpp/org_pocketworkstation_pckeyboard_BinaryDictionary.cpp.o	17ea8fc8129d926a
+2	1529	7975560244231757	CMakeFiles/jni_pckeyboard.dir/src/main/cpp/dictionary.cpp.o	69e7a3cd2ef2926
+32	2729	7975572300026467	CMakeFiles/jni_pckeyboard.dir/src/main/cpp/org_n0pocketworkstation_pckeyboard_BinaryDictionary.cpp.o	8cfc419c1689b96b
+2733	4751	7975572325067417	../../../../build/intermediates/cxx/Debug/4d2dw36g/obj/arm64-v8a/libjni_pckeyboard.so	45ba87cbdbfa59a5

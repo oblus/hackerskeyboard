@@ -1,0 +1,3 @@
+D:/Downloads/hackerskeyboard-master/app/.cxx/Debug/4d2dw36g/x86_64/CMakeFiles/jni_pckeyboard.dir
+D:/Downloads/hackerskeyboard-master/app/.cxx/Debug/4d2dw36g/x86_64/CMakeFiles/edit_cache.dir
+D:/Downloads/hackerskeyboard-master/app/.cxx/Debug/4d2dw36g/x86_64/CMakeFiles/rebuild_cache.dir
