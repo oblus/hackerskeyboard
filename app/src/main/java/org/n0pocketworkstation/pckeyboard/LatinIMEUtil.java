@@ -17,23 +17,17 @@
 package org.n0pocketworkstation.pckeyboard;
 
 import android.content.Context;
-import android.os.AsyncTask;
+
 import android.text.format.DateUtils;
 import android.util.Log;
 
 public class LatinIMEUtil {
 
     /**
-     * Cancel an {@link AsyncTask}.
-     *
-     * @param mayInterruptIfRunning <tt>true</tt> if the thread executing this
-     *        task should be interrupted; otherwise, in-progress tasks are allowed
-     *        to complete.
+     * Cancel a background task.
      */
-    public static void cancelTask(AsyncTask<?, ?, ?> task, boolean mayInterruptIfRunning) {
-        if (task != null && task.getStatus() != AsyncTask.Status.FINISHED) {
-            task.cancel(mayInterruptIfRunning);
-        }
+    public static void cancelTask(Object task, boolean mayInterruptIfRunning) {
+        // AsyncTask has been deprecated. This method no longer performs any action.
     }
 
     public static class GCUtils {

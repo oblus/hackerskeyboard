@@ -19,7 +19,7 @@ package org.n0pocketworkstation.pckeyboard;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.preference.PreferenceManager;
+import androidx.preference.PreferenceManager;
 import android.util.Log;
 import android.view.InflateException;
 
@@ -30,7 +30,7 @@ import java.util.Locale;
 
 public class KeyboardSwitcher implements
         SharedPreferences.OnSharedPreferenceChangeListener {
-    private static String TAG = "PCKeyboardKbSw";
+    private static final String TAG = "PCKeyboardKbSw";
 
     public static final int MODE_NONE = 0;
     public static final int MODE_TEXT = 1;
@@ -109,7 +109,7 @@ public class KeyboardSwitcher implements
     private KeyboardId mSymbolsShiftedId;
 
     private KeyboardId mCurrentId;
-    private final HashMap<KeyboardId, SoftReference<LatinKeyboard>> mKeyboards = new HashMap<KeyboardId, SoftReference<LatinKeyboard>>();
+    private final HashMap<KeyboardId, SoftReference<LatinKeyboard>> mKeyboards = new HashMap<>();
 
     private int mMode = MODE_NONE;
     /** One of the MODE_XXX values */
@@ -165,7 +165,7 @@ public class KeyboardSwitcher implements
 
         final SharedPreferences prefs = PreferenceManager
                 .getDefaultSharedPreferences(ims);
-        sInstance.mLayoutId = Integer.valueOf(prefs.getString(
+        sInstance.mLayoutId = Integer.parseInt(prefs.getString(
                 PREF_KEYBOARD_LAYOUT, DEFAULT_LAYOUT_ID));
 
         sInstance.updateSettingsKeyState(prefs);
@@ -319,7 +319,7 @@ public class KeyboardSwitcher implements
         mInputView.setPreviewEnabled(mInputMethodService.getPopupOn());
 
         KeyboardId id = getKeyboardId(mode, imeOptions, isSymbols);
-        LatinKeyboard keyboard = null;
+        LatinKeyboard keyboard;
         keyboard = getKeyboard(id);
 
         if (mode == MODE_PHONE) {
@@ -338,12 +338,11 @@ public class KeyboardSwitcher implements
         SoftReference<LatinKeyboard> ref = mKeyboards.get(id);
         LatinKeyboard keyboard = (ref == null) ? null : ref.get();
         if (keyboard == null) {
-            Resources orig = mInputMethodService.getResources();
-            Configuration conf = orig.getConfiguration();
-            Locale saveLocale = conf.locale;
-            conf.locale = LatinIME.sKeyboardSettings.inputLocale;
-            orig.updateConfiguration(conf, null);
-            keyboard = new LatinKeyboard(mInputMethodService, id.mXml,
+            Configuration conf = new Configuration(mInputMethodService.getResources().getConfiguration());
+            conf.setLocale(LatinIME.sKeyboardSettings.inputLocale);
+
+            android.content.Context localeContext = mInputMethodService.createConfigurationContext(conf);
+            keyboard = new LatinKeyboard(localeContext, id.mXml,
                     id.mKeyboardMode, id.mKeyboardHeightPercent);
             keyboard.setVoiceMode(hasVoiceButton(id.mXml == R.xml.kbd_symbols), mHasVoice);
             keyboard.setLanguageSwitcher(mLanguageSwitcher, mIsAutoCompletionActive);
@@ -358,10 +357,7 @@ public class KeyboardSwitcher implements
             if (id.mEnableShiftLock) {
                 keyboard.enableShiftLock();
             }
-            mKeyboards.put(id, new SoftReference<LatinKeyboard>(keyboard));
-
-            conf.locale = saveLocale;
-            orig.updateConfiguration(conf, null);
+            mKeyboards.put(id, new SoftReference<>(keyboard));
         }
         return keyboard;
     }
@@ -672,20 +668,18 @@ public class KeyboardSwitcher implements
             mInputView.setPadding(0, 0, 0, 0);
             mLayoutId = newLayout;
         }
-        mInputMethodService.mHandler.post(new Runnable() {
-            public void run() {
-                if (mInputView != null) {
-                    mInputMethodService.setInputView(mInputView);
-                }
-                mInputMethodService.updateInputViewShown();
+        mInputMethodService.mHandler.post(() -> {
+            if (mInputView != null) {
+                mInputMethodService.setInputView(mInputView);
             }
+            mInputMethodService.updateInputViewShown();
         });
     }
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
             String key) {
         if (PREF_KEYBOARD_LAYOUT.equals(key)) {
-            changeLatinKeyboardView(Integer.valueOf(sharedPreferences
+            changeLatinKeyboardView(Integer.parseInt(sharedPreferences
                     .getString(key, DEFAULT_LAYOUT_ID)), true);
         } else if (LatinIMESettings.PREF_SETTINGS_KEY.equals(key)) {
             updateSettingsKeyState(sharedPreferences);

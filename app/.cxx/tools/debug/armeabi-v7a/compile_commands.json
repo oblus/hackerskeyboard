@@ -1,16 +1,16 @@
 [
 {
-  "directory": "D:/Downloads/hackerskeyboard-master/app/.cxx/Debug/4d2dw36g/armeabi-v7a",
+  "directory": "D:/Downloads/hackerskeyboard-master/app/.cxx/Debug/4z1j5z55/armeabi-v7a",
   "command": "D:\\Downloads\\android-studio-SDK\\ndk\\28.2.13676358\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang++.exe --target=armv7-none-linux-androideabi23 --sysroot=D:/Downloads/android-studio-SDK/ndk/28.2.13676358/toolchains/llvm/prebuilt/windows-x86_64/sysroot -Djni_pckeyboard_EXPORTS -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -march=armv7-a -mthumb -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -o CMakeFiles\\jni_pckeyboard.dir\\src\\main\\cpp\\org_n0pocketworkstation_pckeyboard_BinaryDictionary.cpp.o -c D:\\Downloads\\hackerskeyboard-master\\app\\src\\main\\cpp\\org_n0pocketworkstation_pckeyboard_BinaryDictionary.cpp",
   "file": "D:\\Downloads\\hackerskeyboard-master\\app\\src\\main\\cpp\\org_n0pocketworkstation_pckeyboard_BinaryDictionary.cpp"
 },
 {
-  "directory": "D:/Downloads/hackerskeyboard-master/app/.cxx/Debug/4d2dw36g/armeabi-v7a",
+  "directory": "D:/Downloads/hackerskeyboard-master/app/.cxx/Debug/4z1j5z55/armeabi-v7a",
   "command": "D:\\Downloads\\android-studio-SDK\\ndk\\28.2.13676358\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang++.exe --target=armv7-none-linux-androideabi23 --sysroot=D:/Downloads/android-studio-SDK/ndk/28.2.13676358/toolchains/llvm/prebuilt/windows-x86_64/sysroot -Djni_pckeyboard_EXPORTS -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -march=armv7-a -mthumb -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -o CMakeFiles\\jni_pckeyboard.dir\\src\\main\\cpp\\dictionary.cpp.o -c D:\\Downloads\\hackerskeyboard-master\\app\\src\\main\\cpp\\dictionary.cpp",
   "file": "D:\\Downloads\\hackerskeyboard-master\\app\\src\\main\\cpp\\dictionary.cpp"
 },
 {
-  "directory": "D:/Downloads/hackerskeyboard-master/app/.cxx/Debug/4d2dw36g/armeabi-v7a",
+  "directory": "D:/Downloads/hackerskeyboard-master/app/.cxx/Debug/4z1j5z55/armeabi-v7a",
   "command": "D:\\Downloads\\android-studio-SDK\\ndk\\28.2.13676358\\toolchains\\llvm\\prebuilt\\windows-x86_64\\bin\\clang++.exe --target=armv7-none-linux-androideabi23 --sysroot=D:/Downloads/android-studio-SDK/ndk/28.2.13676358/toolchains/llvm/prebuilt/windows-x86_64/sysroot -Djni_pckeyboard_EXPORTS -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -D_FORTIFY_SOURCE=2 -march=armv7-a -mthumb -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -o CMakeFiles\\jni_pckeyboard.dir\\src\\main\\cpp\\char_utils.cpp.o -c D:\\Downloads\\hackerskeyboard-master\\app\\src\\main\\cpp\\char_utils.cpp",
   "file": "D:\\Downloads\\hackerskeyboard-master\\app\\src\\main\\cpp\\char_utils.cpp"
 }

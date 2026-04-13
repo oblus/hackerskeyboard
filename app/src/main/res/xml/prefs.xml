@@ -16,14 +16,15 @@
 
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     	xmlns:hk="http://schemas.android.com/apk/res-auto"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:title="@string/english_ime_settings"
         android:key="english_ime_settings">
 
-    <PreferenceCategory
+    <PreferenceCategory app:iconSpaceReserved="false"
             android:title="@string/title_keyboard_view_settings"
             android:key="graphics_settings">
 
-    <org.n0pocketworkstation.pckeyboard.SeekBarPreferenceString
+    <org.n0pocketworkstation.pckeyboard.SeekBarPreferenceString app:iconSpaceReserved="false"
             android:defaultValue="@string/default_height_portrait"
             hk:minValue="15"
             hk:maxValue="75"
@@ -34,7 +35,7 @@
             android:persistent="true"
             />
 
-    <org.n0pocketworkstation.pckeyboard.SeekBarPreferenceString
+    <org.n0pocketworkstation.pckeyboard.SeekBarPreferenceString app:iconSpaceReserved="false"
             android:defaultValue="@string/default_height_landscape"
             hk:minValue="15"
             hk:maxValue="75"
@@ -45,7 +46,7 @@
             android:persistent="true"
             />
 
-    <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference
+    <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference app:iconSpaceReserved="false"
             android:key="pref_keyboard_mode_portrait"
             android:title="@string/title_keyboard_mode_portrait"
             android:entryValues="@array/keyboard_mode_values"
@@ -54,7 +55,7 @@
             android:persistent="true"
             />
 
-    <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference
+    <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference app:iconSpaceReserved="false"
             android:key="pref_keyboard_mode_landscape"
             android:title="@string/title_keyboard_mode_landscape"
             android:entryValues="@array/keyboard_mode_values"
@@ -70,9 +71,10 @@
             android:defaultValue="@bool/default_suggestions_in_landscape"
             android:summaryOn="@string/summary_suggestions_in_landscape_true"
             android:summaryOff="@string/summary_suggestions_in_landscape_false"
+            app:iconSpaceReserved="false"
             />
 
-    <PreferenceScreen
+    <PreferenceScreen app:iconSpaceReserved="false"
             android:title="@string/pref_screen_view_title"
             android:summary="@string/pref_screen_view_title_summary">
         <intent android:action="org.n0pocketworkstation.pckeyboard.PREFS_VIEW"/>
@@ -80,11 +82,11 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory
+    <PreferenceCategory app:iconSpaceReserved="false"
             android:title="@string/title_key_layout_options"
             android:key="layout_settings">
 
-    <ListPreference
+    <ListPreference app:iconSpaceReserved="false"
             android:key="settings_key"
             android:title="@string/prefs_settings_key"
             android:persistent="true"
@@ -93,7 +95,7 @@
             android:defaultValue="@string/settings_key_mode_auto"
             />
 
-    <ListPreference
+    <ListPreference app:iconSpaceReserved="false"
             android:key="voice_mode"
             android:title="@string/voice_input"
             android:persistent="true"
@@ -102,7 +104,7 @@
             android:defaultValue="@string/voice_mode_symbols"
             />
 
-    <PreferenceScreen
+    <PreferenceScreen app:iconSpaceReserved="false"
             android:title="@string/language_selection_title"
             android:summary="@string/language_selection_summary">
         <intent
@@ -110,18 +112,18 @@
     </PreferenceScreen>
     </PreferenceCategory>
 
-    <PreferenceCategory
+    <PreferenceCategory app:iconSpaceReserved="false"
             android:title="@string/title_key_behavior_settings"
             android:key="key_settings">
 
-    <CheckBoxPreference
+    <CheckBoxPreference app:iconSpaceReserved="false"
             android:key="auto_cap"
             android:title="@string/auto_cap"
             android:persistent="true"
             android:defaultValue="@bool/default_auto_cap"
             />
 
-    <CheckBoxPreference
+    <CheckBoxPreference app:iconSpaceReserved="false"
             android:key="pref_caps_lock"
             android:title="@string/title_caps_lock"
             android:persistent="true"
@@ -130,7 +132,7 @@
             android:summaryOff="@string/summary_caps_lock_false"
             />
     
-    <CheckBoxPreference
+    <CheckBoxPreference app:iconSpaceReserved="false"
             android:key="pref_shift_lock_modifiers"
             android:title="@string/title_shift_lock_modifiers"
             android:persistent="true"
@@ -139,7 +141,7 @@
             android:summaryOff="@string/summary_shift_lock_modifiers_false"
             />
 
-    <CheckBoxPreference
+    <CheckBoxPreference app:iconSpaceReserved="false"
             android:key="pref_reverse_tab_key"
             android:title="@string/title_reverse_tab_key"
             android:summary="@string/summary_reverse_tab_key"
@@ -147,26 +149,26 @@
             android:defaultValue="false"
             />
 
-    <CheckBoxPreference
+    <CheckBoxPreference app:iconSpaceReserved="false"
         android:key="pref_swap_action_keys"
         android:title="Modern Action Keys"
         android:summary="Swaps the location of the Enter and Backspace keys to match modern mobile keyboards."
         android:defaultValue="false" />
     
-    <PreferenceScreen
+    <PreferenceScreen app:iconSpaceReserved="false"
             android:title="@string/pref_screen_feedback_title"
             android:summary="@string/pref_screen_feedback_title_summary">
         <intent
                 android:action="org.n0pocketworkstation.pckeyboard.PREFS_FEEDBACK"/>
     </PreferenceScreen>
 
-    <PreferenceScreen
+    <PreferenceScreen app:iconSpaceReserved="false"
             android:title="@string/pref_screen_actions_title"
             android:summary="@string/pref_screen_actions_title_summary">
         <intent android:action="org.n0pocketworkstation.pckeyboard.PREFS_ACTIONS"/>
     </PreferenceScreen>
 
-    <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference
+    <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference app:iconSpaceReserved="false"
             android:key="pref_ctrl_a_override"
             android:title="@string/title_ctrl_a_override"
             android:persistent="true"
@@ -175,7 +177,7 @@
             android:defaultValue="@string/default_ctrl_a_override"
             />
 
-    <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference
+    <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference app:iconSpaceReserved="false"
             android:key="pref_chording_ctrl_key"
             android:title="@string/title_chording_ctrl_key"
             android:persistent="true"
@@ -184,7 +186,7 @@
             android:defaultValue="@string/default_chording_ctrl_key"
             />
 
-    <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference
+    <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference app:iconSpaceReserved="false"
             android:key="pref_chording_alt_key"
             android:title="@string/title_chording_alt_key"
             android:persistent="true"
@@ -193,7 +195,7 @@
             android:defaultValue="@string/default_chording_alt_key"
             />
 
-    <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference
+    <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference app:iconSpaceReserved="false"
             android:key="pref_chording_meta_key"
             android:title="@string/title_chording_meta_key"
             android:persistent="true"
@@ -202,7 +204,7 @@
             android:defaultValue="@string/default_chording_meta_key"
             />
 
-    <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference
+    <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference app:iconSpaceReserved="false"
             android:key="pref_slide_keys_int"
             android:title="@string/title_slide_keys"
             android:persistent="true" 
@@ -212,11 +214,11 @@
             />
     </PreferenceCategory>
 
-    <PreferenceCategory
+    <PreferenceCategory app:iconSpaceReserved="false"
             android:title="@string/title_long_press_alternate_keys"
             android:key="altchar_settings">
 
-    <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference
+    <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference app:iconSpaceReserved="false"
             android:key="pref_popup_content"
             android:title="@string/title_popup_content"
             android:persistent="true"
@@ -225,7 +227,7 @@
             android:defaultValue="@string/default_popup_content"
             />
 
-    <org.n0pocketworkstation.pckeyboard.SeekBarPreferenceString
+    <org.n0pocketworkstation.pckeyboard.SeekBarPreferenceString app:iconSpaceReserved="false"
             android:defaultValue="@string/default_long_press_duration"
             hk:minValue="100"
             hk:maxValue="2000"
@@ -238,11 +240,11 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory
+    <PreferenceCategory app:iconSpaceReserved="false"
             android:title="@string/prediction_category"
             android:key="prediction_settings">
 
-        <CheckBoxPreference
+        <CheckBoxPreference app:iconSpaceReserved="false"
             android:key="quick_fixes"
             android:title="@string/quick_fixes"
             android:summary="@string/quick_fixes_summary"
@@ -250,7 +252,7 @@
             android:defaultValue="@bool/default_quick_fixes"
             />
 
-        <CheckBoxPreference
+        <CheckBoxPreference app:iconSpaceReserved="false"
             android:key="show_suggestions"
             android:title="@string/show_suggestions"
             android:summary="@string/show_suggestions_summary"
@@ -258,7 +260,20 @@
             android:defaultValue="@bool/default_suggestions"
             />
 
-        <CheckBoxPreference
+        <org.n0pocketworkstation.pckeyboard.SeekBarPreferenceString app:iconSpaceReserved="false"
+            android:key="pref_min_letters_suggestion"
+            android:title="@string/title_min_letters_suggestion"
+            android:summary="@string/summary_min_letters_suggestion"
+            android:persistent="true"
+            android:defaultValue="2"
+            hk:minValue="2"
+            hk:maxValue="16"
+            hk:displayFormat="%.0f"
+            hk:showSummaryValue="false"
+            android:dependency="show_suggestions"
+            />
+
+        <CheckBoxPreference app:iconSpaceReserved="false"
             android:key="auto_complete"
             android:title="@string/auto_complete"
             android:summary="@string/auto_complete_summary"
@@ -267,24 +282,24 @@
             android:dependency="show_suggestions"
             />
 
-        <org.n0pocketworkstation.pckeyboard.AutoSummaryEditTextPreference
+        <org.n0pocketworkstation.pckeyboard.AutoSummaryEditTextPreference app:iconSpaceReserved="false"
             android:key="pref_suggested_punctuation"
             android:title="@string/title_suggested_punctuation"
             android:defaultValue="@string/suggested_punctuations"
             />
 
-        <Preference
+        <Preference app:iconSpaceReserved="false"
             android:key="pref_detected_dictionaries"
             android:title="@string/title_detected_dictionaries"
             android:persistent="false"
             />
     </PreferenceCategory>
 
-    <PreferenceCategory
+    <PreferenceCategory app:iconSpaceReserved="false"
             android:title="@string/title_input_mode_settings"
             android:key="input_mode_settings">
 
-    <CheckBoxPreference
+    <CheckBoxPreference app:iconSpaceReserved="false"
             android:key="recorrection_enabled"
             android:title="@string/prefs_enable_recorrection"
             android:summary="@string/prefs_enable_recorrection_summary"
@@ -292,7 +307,7 @@
             android:defaultValue="@bool/default_recorrection_enabled"
             />
 
-    <CheckBoxPreference
+    <CheckBoxPreference app:iconSpaceReserved="false"
             android:key="fullscreen_override"
             android:title="@string/title_fullscreen_override"
             android:persistent="true" 
@@ -301,7 +316,7 @@
             android:summaryOff="@string/summary_fullscreen_override_false"
             />
 
-    <CheckBoxPreference
+    <CheckBoxPreference app:iconSpaceReserved="false"
             android:key="force_keyboard_on"
             android:title="@string/title_force_keyboard_on"
             android:persistent="true" 
@@ -310,7 +325,7 @@
             android:summaryOff="@string/summary_force_keyboard_on_false"
             />
 
-    <CheckBoxPreference
+    <CheckBoxPreference app:iconSpaceReserved="false"
             android:key="keyboard_notification"
             android:title="@string/title_keyboard_notification"
             android:persistent="true" 
@@ -320,11 +335,11 @@
             />
     </PreferenceCategory>
 
-    <PreferenceCategory
+    <PreferenceCategory app:iconSpaceReserved="false"
             android:title="@string/title_application_category"
             android:key="application_settings">
 
-        <CheckBoxPreference
+        <CheckBoxPreference app:iconSpaceReserved="false"
             android:key="connectbot_tab_hack"
             android:title="@string/title_connectbot_tab_hack"
             android:persistent="true" 
@@ -335,11 +350,11 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory
+    <PreferenceCategory app:iconSpaceReserved="false"
             android:title="@string/title_debugging"
             android:key="debugging">
 
-    <CheckBoxPreference
+    <CheckBoxPreference app:iconSpaceReserved="false"
             android:key="pref_touch_pos"
             android:title="@string/title_touch_pos"
             android:persistent="true" 
@@ -348,12 +363,12 @@
             android:summaryOff="@string/summary_touch_pos_false"
             />
 
-    <Preference
+    <Preference app:iconSpaceReserved="false"
             android:key="input_connection_info"
             android:title="@string/title_input_connection_details"
             />
 
-    <Preference
+    <Preference app:iconSpaceReserved="false"
             android:key="label_version"
             android:title="@string/title_version"
             android:summary="@string/auto_version"

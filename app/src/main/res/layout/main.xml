@@ -20,6 +20,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:gravity="start|center_vertical"
                 android:text="@string/main_setup_configure_imes" />
 
             <Button
@@ -27,6 +28,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:gravity="start|center_vertical"
                 android:text="@string/main_setup_input_lang" />
         </LinearLayout>
 
@@ -40,6 +42,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:gravity="start|center_vertical"
                 android:text="@string/main_setup_set_ime" />
 
             <Button
@@ -47,6 +50,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:gravity="start|center_vertical"
                 android:text="@string/main_setup_get_dicts" />
         </LinearLayout>
 
@@ -61,6 +65,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:gravity="start|center_vertical"
                 android:text="@string/main_setup_settings" />
 
             <EditText
@@ -68,7 +73,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:gravity="center"
+                android:gravity="start|center_vertical"
                 android:hint="@string/main_setup_test"
                 android:inputType="text"
                 android:maxLines="1" />

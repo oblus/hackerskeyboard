@@ -4,7 +4,7 @@ import java.util.Locale;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.preference.DialogPreference;
+import androidx.preference.DialogPreference;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.SeekBar;
@@ -27,6 +27,7 @@ public class SeekBarPreference extends DialogPreference {
     private boolean mAsPercent;
     private boolean mLogScale;
     private String mDisplayFormat;
+    private boolean mShowSummaryValue;
 
     public SeekBarPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
@@ -43,6 +44,7 @@ public class SeekBarPreference extends DialogPreference {
         mAsPercent = a.getBoolean(R.styleable.SeekBarPreference_asPercent, false);
         mLogScale = a.getBoolean(R.styleable.SeekBarPreference_logScale, false);
         mDisplayFormat = a.getString(R.styleable.SeekBarPreference_displayFormat);
+        mShowSummaryValue = a.getBoolean(R.styleable.SeekBarPreference_showSummaryValue, true);
     }
 
     @Override
@@ -51,8 +53,8 @@ public class SeekBarPreference extends DialogPreference {
     }
 
     @Override
-    protected void onSetInitialValue(boolean restorePersistedValue, Object defaultValue) {     
-        if (restorePersistedValue) {
+    protected void onSetInitialValue(Object defaultValue) {
+        if (defaultValue == null) {
             setVal(getPersistedFloat(0.0f));
         } else {
             setVal((Float) defaultValue);
@@ -96,13 +98,14 @@ public class SeekBarPreference extends DialogPreference {
     private float percentToSteppedVal(int percent, float min, float max, float step, boolean logScale) {
         float val;
         if (logScale) {
-            val = (float) Math.exp(percentToSteppedVal(percent, (float) Math.log(min), (float) Math.log(max), step, false));
+            float logMin = (float) Math.log(min);
+            float logMax = (float) Math.log(max);
+            val = (float) Math.exp(logMin + (percent * (logMax - logMin) / 100));
         } else {
-            float delta = percent * (max - min) / 100;
-            if (step != 0.0f) {
-                delta = Math.round(delta / step) * step;
-            }
-            val = min + delta;
+            val = min + (percent * (max - min) / 100);
+        }
+        if (step != 0.0f) {
+            val = Math.round((val - min) / step) * step + min;
         }
         // Hack: Round number to 2 significant digits so that it looks nicer.
         val = Float.valueOf(String.format(Locale.US, "%.2g", val));
@@ -110,6 +113,7 @@ public class SeekBarPreference extends DialogPreference {
     }
 
     private int getPercent(float val, float min, float max) {
+        if (max == min) return 0;
         return (int) (100 * (val - min) / (max - min));
     }
     
@@ -121,8 +125,7 @@ public class SeekBarPreference extends DialogPreference {
         }
     }
 
-    @Override
-    protected void onBindDialogView(View view) {
+    public void onBindDialogView(View view) {
         mSeek = (SeekBar) view.findViewById(R.id.seekBarPref);
         mMinText = (TextView) view.findViewById(R.id.seekMin);
         mMaxText = (TextView) view.findViewById(R.id.seekMax);
@@ -141,15 +144,14 @@ public class SeekBarPreference extends DialogPreference {
                     float newVal = percentToSteppedVal(progress, mMin, mMax, mStep, mLogScale);
                     if (newVal != mVal) {
                         onChange(newVal);
+                        setVal(newVal);
+                        // Don't call setProgress here to avoid recursion/jitter, 
+                        // but we might need to if we want snapping.
                     }
-                    setVal(newVal);
-                    mSeek.setProgress(getProgressVal());
                 }
                 showVal();
             }
         });
-        
-        super.onBindDialogView(view);
     }
 
     public void onChange(float val) {
@@ -158,10 +160,12 @@ public class SeekBarPreference extends DialogPreference {
 
     @Override
     public CharSequence getSummary() {
+        if (!mShowSummaryValue) {
+            return super.getSummary();
+        }
         return formatFloatDisplay(mVal);
     }
     
-    @Override
     protected void onDialogClosed(boolean positiveResult) {
         if (!positiveResult) {
             restoreVal();

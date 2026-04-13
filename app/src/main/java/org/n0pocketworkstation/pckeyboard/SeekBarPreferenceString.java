@@ -35,11 +35,11 @@ public class SeekBarPreferenceString extends SeekBarPreference {
     }
 
     @Override
-    protected void onSetInitialValue(boolean restorePersistedValue, Object defaultValue) {
-        if (restorePersistedValue) {
+    protected void onSetInitialValue(Object defaultValue) {
+        if (defaultValue == null) {
             setVal(floatFromString(getPersistedString("0.0")));
         } else {
-            setVal(Float.valueOf((Float) defaultValue));
+            setVal((Float) defaultValue);
         }
         savePrevVal();
     }

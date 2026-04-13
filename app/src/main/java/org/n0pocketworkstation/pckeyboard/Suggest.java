@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Locale;
 
 import android.content.Context;
+import androidx.core.os.ConfigurationCompat;
 import android.text.AutoText;
 import android.text.TextUtils;
 import android.util.Log;
@@ -108,7 +109,7 @@ public class Suggest implements Dictionary.WordCallback {
     public Suggest(Context context, int[] dictionaryResId) {
         mMainDict = new BinaryDictionary(context, dictionaryResId, DIC_MAIN);
         if (!hasMainDictionary()) {
-            Locale locale = context.getResources().getConfiguration().locale;
+            Locale locale = ConfigurationCompat.getLocales(context.getResources().getConfiguration()).get(0);
             BinaryDictionary plug = PluginManager.getDictionary(context, locale.getLanguage());
             if (plug != null) {
                 mMainDict.close();

@@ -27,6 +27,7 @@ import org.n0pocketworkstation.pckeyboard.Keyboard.Key;
 
 import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
 import android.util.AttributeSet;
@@ -541,7 +542,7 @@ public class LatinKeyboardView extends LatinKeyboardBaseView {
         if (DEBUG_AUTO_PLAY) {
             findKeys();
             if (mHandler2 == null) {
-                mHandler2 = new Handler() {
+                mHandler2 = new Handler(Looper.getMainLooper()) {
                     @Override
                     public void handleMessage(Message msg) {
                         removeMessages(MSG_TOUCH_DOWN);

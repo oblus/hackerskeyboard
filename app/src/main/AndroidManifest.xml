@@ -1,6 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
-        package="org.n0pocketworkstation.pckeyboard">
+        xmlns:tools="http://schemas.android.com/tools">
+
 
     <uses-permission android:name="android.permission.VIBRATE"/>
     <uses-permission android:name="android.permission.READ_USER_DICTIONARY" />
@@ -41,7 +41,8 @@
             android:hardwareAccelerated="false"
             android:killAfterRestore="false"
             android:icon="@mipmap/ic_launcher"
-            android:roundIcon="@mipmap/ic_launcher_round">
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:theme="@style/AppTheme">
 
         <service
             android:name="org.n0pocketworkstation.pckeyboard.LatinIME"

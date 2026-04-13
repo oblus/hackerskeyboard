@@ -18,6 +18,7 @@ package org.n0pocketworkstation.pckeyboard;
 
 import android.content.Context;
 import android.content.res.Resources;
+import androidx.core.content.ContextCompat;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
@@ -96,7 +97,7 @@ public class CandidateView extends View {
      */
     public CandidateView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        mSelectionHighlight = context.getResources().getDrawable(
+        mSelectionHighlight = ContextCompat.getDrawable(context,
                 R.drawable.list_selector_background_pressed);
 
         LayoutInflater inflate =
@@ -105,17 +106,18 @@ public class CandidateView extends View {
         Resources res = context.getResources();
         mPreviewPopup = new PopupWindow(context);
         mPreviewText = (TextView) inflate.inflate(R.layout.candidate_preview, null);
-        mPreviewPopup.setWindowLayoutMode(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT);
+        mPreviewPopup.setWidth(LayoutParams.WRAP_CONTENT);
+        mPreviewPopup.setHeight(LayoutParams.WRAP_CONTENT);
         mPreviewPopup.setContentView(mPreviewText);
         mPreviewPopup.setBackgroundDrawable(null);
         mPreviewPopup.setAnimationStyle(R.style.KeyPreviewAnimation);
         // Enable clipping for Android P, keep disabled for older versions.
         boolean clippingEnabled = (Build.VERSION.SDK_INT >= 28 /* Build.VERSION_CODES.P */);
         mPreviewPopup.setClippingEnabled(clippingEnabled);
-        mColorNormal = res.getColor(R.color.candidate_normal);
-        mColorRecommended = res.getColor(R.color.candidate_recommended);
-        mColorOther = res.getColor(R.color.candidate_other);
-        mDivider = res.getDrawable(R.drawable.keyboard_suggest_strip_divider);
+        mColorNormal = ContextCompat.getColor(context, R.color.candidate_normal);
+        mColorRecommended = ContextCompat.getColor(context, R.color.candidate_recommended);
+        mColorOther = ContextCompat.getColor(context, R.color.candidate_other);
+        mDivider = ContextCompat.getDrawable(context, R.drawable.keyboard_suggest_strip_divider);
         mAddToDictionaryHint = res.getString(R.string.hint_add_to_dictionary);
 
         mPaint = new Paint();
@@ -127,7 +129,7 @@ public class CandidateView extends View {
         mDescent = (int) mPaint.descent();
         mMinTouchableWidth = (int)res.getDimension(R.dimen.candidate_min_touchable_width);
         
-        mGestureDetector = new GestureDetector(
+        mGestureDetector = new GestureDetector(context,
                 new CandidateStripGestureListener(mMinTouchableWidth));
         setWillNotDraw(false);
         setHorizontalScrollBarEnabled(false);

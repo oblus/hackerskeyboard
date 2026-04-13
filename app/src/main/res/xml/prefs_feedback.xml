@@ -14,18 +14,18 @@
      limitations under the License.
 -->
 
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:android="http://schemas.android.com/apk/res/android"
     	xmlns:hk="http://schemas.android.com/apk/res-auto"
         android:title="@string/pref_screen_feedback_title"
         android:key="feedback_settings">
 
-    <CheckBoxPreference
+    <CheckBoxPreference app:iconSpaceReserved="false"
             android:key="vibrate_on"
             android:title="@string/vibrate_on_keypress"
             android:persistent="true"
             />
 
-    <org.n0pocketworkstation.pckeyboard.VibratePreference
+    <org.n0pocketworkstation.pckeyboard.VibratePreference app:iconSpaceReserved="false"
             android:defaultValue="40"
             hk:minValue="5"
             hk:maxValue="200"
@@ -36,13 +36,13 @@
             android:persistent="true"
             />
 
-    <CheckBoxPreference
+    <CheckBoxPreference app:iconSpaceReserved="false"
             android:key="sound_on"
             android:title="@string/sound_on_keypress"
             android:persistent="true" 
             />
 
-    <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference
+    <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference app:iconSpaceReserved="false"
             android:key="pref_click_method"
             android:title="@string/title_click_method"
             android:entryValues="@array/click_method_values"
@@ -51,7 +51,7 @@
             android:persistent="true"
             />
     
-    <org.n0pocketworkstation.pckeyboard.SeekBarPreferenceString
+    <org.n0pocketworkstation.pckeyboard.SeekBarPreferenceString app:iconSpaceReserved="false"
             android:defaultValue="@string/default_click_volume"
             hk:minValue="0"
             hk:maxValue="1"
@@ -61,7 +61,7 @@
             android:persistent="true"
             />
 
-    <CheckBoxPreference
+    <CheckBoxPreference app:iconSpaceReserved="false"
             android:key="popup_on"
             android:title="@string/popup_on_keypress"
             android:persistent="true"

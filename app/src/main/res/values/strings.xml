@@ -103,7 +103,12 @@
     <string name="show_suggestions">Show suggestions</string>
     <!-- Description for show suggestions -->
     <string name="show_suggestions_summary">Display suggested words while typing</string>
-    
+
+    <!-- Option for minimum letters for suggestions -->
+    <string name="title_min_letters_suggestion">Minimum number letters</string>
+    <!-- Description for minimum letters for suggestions -->
+    <string name="summary_min_letters_suggestion">Enter minimum number from which suggestion shows</string>
+
     <!-- Option to enable auto completion -->
     <string name="auto_complete">Auto-complete</string>
     <!-- Description for auto completion -->

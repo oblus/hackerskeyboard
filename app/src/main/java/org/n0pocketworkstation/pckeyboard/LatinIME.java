@@ -19,6 +19,7 @@ package org.n0pocketworkstation.pckeyboard;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -38,10 +39,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
 import android.os.Vibrator;
-import android.preference.PreferenceManager;
+import android.os.VibrationEffect;
+import androidx.core.app.NotificationCompat;
+import androidx.core.os.ConfigurationCompat;
+import androidx.preference.PreferenceManager;
 import android.provider.Settings;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
@@ -111,6 +116,7 @@ public class LatinIME extends InputMethodService implements
     private static final String PREF_AUTO_CAP = "auto_cap";
     private static final String PREF_QUICK_FIXES = "quick_fixes";
     private static final String PREF_SHOW_SUGGESTIONS = "show_suggestions";
+    private static final String PREF_MIN_LETTERS_SUGGESTION = "pref_min_letters_suggestion";
     private static final String PREF_AUTO_COMPLETE = "auto_complete";
     // private static final String PREF_BIGRAM_SUGGESTIONS =
     // "bigram_suggestion";
@@ -349,7 +355,7 @@ public class LatinIME extends InputMethodService implements
         }
     }
 
-    /* package */Handler mHandler = new Handler() {
+    /* package */Handler mHandler = new Handler(Looper.getMainLooper()) {
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
@@ -382,11 +388,15 @@ public class LatinIME extends InputMethodService implements
         mLanguageSwitcher.loadLocales(prefs);
         mKeyboardSwitcher = KeyboardSwitcher.getInstance();
         mKeyboardSwitcher.setLanguageSwitcher(mLanguageSwitcher);
-        mSystemLocale = conf.locale.toString();
-        mLanguageSwitcher.setSystemLocale(conf.locale);
+        Locale systemLocale = ConfigurationCompat.getLocales(conf).get(0);
+        if (systemLocale == null) {
+            systemLocale = Locale.getDefault();
+        }
+        mSystemLocale = systemLocale.toString();
+        mLanguageSwitcher.setSystemLocale(systemLocale);
         String inputLanguage = mLanguageSwitcher.getInputLanguage();
         if (inputLanguage == null) {
-            inputLanguage = conf.locale.toString();
+            inputLanguage = systemLocale.toString();
         }
         Resources res = getResources();
         mReCorrectionEnabled = prefs.getBoolean(PREF_RECORRECTION_ENABLED,
@@ -511,7 +521,14 @@ public class LatinIME extends InputMethodService implements
             String title = "Show Hacked Keyboard GEM";
             String body = "Select this to open the keyboard. Disable in settings.";
 
-            Notification notification = new Notification.Builder(this)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,
+                        "Hacker's Keyboard", NotificationManager.IMPORTANCE_LOW);
+                channel.setDescription("Keyboard status notification");
+                mNotificationManager.createNotificationChannel(channel);
+            }
+
+            Notification notification = new NotificationCompat.Builder(this, NOTIFICATION_CHANNEL_ID)
                     .setSmallIcon(R.drawable.icon_hk_notification)
                     .setTicker("Keyboard notification enabled.")
                     .setContentTitle(title)
@@ -520,7 +537,8 @@ public class LatinIME extends InputMethodService implements
                     .setOngoing(true)
                     .addAction(R.drawable.icon_hk_notification, getString(R.string.notification_action_settings),
                             configPendingIntent)
-                    .getNotification();
+                    .setPriority(NotificationCompat.PRIORITY_LOW)
+                    .build();
 
             mNotificationManager.notify(NOTIFICATION_ONGOING_ID, notification);
 
@@ -585,32 +603,45 @@ public class LatinIME extends InputMethodService implements
         return dict;
     }
 
-    private void initSuggest(String locale) {
-        mInputLocale = locale;
+    private void initSuggest(String localeStr) {
+        mInputLocale = localeStr;
 
-        Resources orig = getResources();
-        Configuration conf = orig.getConfiguration();
-        Locale saveLocale = conf.locale;
-        conf.locale = new Locale(locale);
-        orig.updateConfiguration(conf, orig.getDisplayMetrics());
+        Configuration conf = new Configuration(getResources().getConfiguration());
+        Locale.Builder localeBuilder = new Locale.Builder();
+        if (localeStr.contains("_")) {
+            String[] parts = localeStr.split("_", 3);
+            if (parts.length >= 1) localeBuilder.setLanguage(parts[0]);
+            if (parts.length >= 2) localeBuilder.setRegion(parts[1]);
+            if (parts.length >= 3) localeBuilder.setVariant(parts[2]);
+        } else {
+            localeBuilder.setLanguage(localeStr);
+        }
+        Locale locale = localeBuilder.build();
+        conf.setLocale(locale);
+        Context localizedContext = createConfigurationContext(conf);
+        Resources localizedRes = localizedContext.getResources();
+
         if (mSuggest != null) {
             mSuggest.close();
         }
         SharedPreferences sp = PreferenceManager
                 .getDefaultSharedPreferences(this);
-        mQuickFixes = sp.getBoolean(PREF_QUICK_FIXES, getResources()
+        mQuickFixes = sp.getBoolean(PREF_QUICK_FIXES, localizedRes
                 .getBoolean(R.bool.default_quick_fixes));
 
-        int[] dictionaries = getDictionary(orig);
+        int[] dictionaries = getDictionary(localizedRes);
         mSuggest = new Suggest(this, dictionaries);
-        updateAutoTextEnabled(saveLocale);
+
+        Locale systemLocale = ConfigurationCompat.getLocales(getResources().getConfiguration()).get(0);
+        if (systemLocale == null) {
+            systemLocale = Locale.getDefault();
+        }
+        updateAutoTextEnabled(systemLocale);
+
         if (mUserDictionary != null)
             mUserDictionary.close();
         mUserDictionary = new UserDictionary(this, mInputLocale);
-        //if (mContactsDictionary == null) {
-        //    mContactsDictionary = new ContactsDictionary(this,
-        //            Suggest.DIC_CONTACTS);
-        //}
+
         if (mAutoDictionary != null) {
             mAutoDictionary.close();
         }
@@ -623,16 +654,13 @@ public class LatinIME extends InputMethodService implements
                 mInputLocale, Suggest.DIC_USER);
         mSuggest.setUserBigramDictionary(mUserBigramDictionary);
         mSuggest.setUserDictionary(mUserDictionary);
-        //mSuggest.setContactsDictionary(mContactsDictionary);
+
         mSuggest.setAutoDictionary(mAutoDictionary);
         updateCorrectionMode();
-        mWordSeparators = mResources.getString(R.string.word_separators);
-        mSentenceSeparators = mResources
+        mWordSeparators = localizedRes.getString(R.string.word_separators);
+        mSentenceSeparators = localizedRes
                 .getString(R.string.sentence_separators);
         initSuggestPuncList();
-
-        conf.locale = saveLocale;
-        orig.updateConfiguration(conf, orig.getDisplayMetrics());
     }
 
     @Override
@@ -679,13 +707,14 @@ public class LatinIME extends InputMethodService implements
         // locale (mSystemLocale), then reload the input locale list from the
         // latin ime settings (shared prefs) and reset the input locale
         // to the first one.
-        final String systemLocale = conf.locale.toString();
-        if (!TextUtils.equals(systemLocale, mSystemLocale)) {
-            mSystemLocale = systemLocale;
+        final Locale locale = ConfigurationCompat.getLocales(conf).get(0);
+        final String systemLocaleStr = locale != null ? locale.toString() : Locale.getDefault().toString();
+        if (!TextUtils.equals(systemLocaleStr, mSystemLocale)) {
+            mSystemLocale = systemLocaleStr;
             if (mLanguageSwitcher != null) {
                 mLanguageSwitcher.loadLocales(PreferenceManager
                         .getDefaultSharedPreferences(this));
-                mLanguageSwitcher.setSystemLocale(conf.locale);
+                mLanguageSwitcher.setSystemLocale(locale);
                 toggleLanguage(true, true);
             } else {
                 reloadKeyboards();
@@ -717,6 +746,7 @@ public class LatinIME extends InputMethodService implements
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public AbstractInputMethodImpl onCreateInputMethodInterface() {
     	return new MyInputMethodImpl();
     }
@@ -2543,11 +2573,17 @@ public class LatinIME extends InputMethodService implements
         if ((mSuggest == null || !isPredictionOn())) {
             return;
         }
-        
+
         if (!mPredicting) {
             setNextSuggestions();
             return;
         }
+
+        if (mWord.size() < sKeyboardSettings.minLettersSuggestion) {
+            showSuggestions(null, "", false, false);
+            return;
+        }
+
         showSuggestions(mWord);
     }
 
@@ -2604,7 +2640,7 @@ public class LatinIME extends InputMethodService implements
             CharSequence typedWord, boolean typedWordValid,
             boolean correctionAvailable) {
         setSuggestions(stringList, false, typedWordValid, correctionAvailable);
-        if (stringList.size() > 0) {
+        if (stringList != null && stringList.size() > 0) {
             if (correctionAvailable && !typedWordValid && stringList.size() > 1) {
                 mBestWord = stringList.get(1);
             } else {
@@ -3056,6 +3092,8 @@ public class LatinIME extends InputMethodService implements
             mSuggestionForceOff = false;
             mSuggestionForceOn = false;
             needReload = true;
+        } else if (PREF_MIN_LETTERS_SUGGESTION.equals(key)) {
+            // Already handled by sKeyboardSettings.sharedPreferenceChanged
         } else if (PREF_HEIGHT_PORTRAIT.equals(key)) {
             mHeightPortrait = getHeight(sharedPreferences,
                     PREF_HEIGHT_PORTRAIT, res.getString(R.string.default_height_portrait));
@@ -3361,17 +3399,34 @@ public class LatinIME extends InputMethodService implements
         vibrate(mVibrateLen);
     }
 
+    @SuppressWarnings("deprecation")
     void vibrate(int len) {
-        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
-        if (v != null) {
-            v.vibrate(len);
+        if (len <= 0) {
+            if (mKeyboardSwitcher.getInputView() != null) {
+                mKeyboardSwitcher.getInputView().performHapticFeedback(
+                        HapticFeedbackConstants.KEYBOARD_TAP,
+                        HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
+            }
             return;
         }
 
-        if (mKeyboardSwitcher.getInputView() != null) {
-            mKeyboardSwitcher.getInputView().performHapticFeedback(
-                    HapticFeedbackConstants.KEYBOARD_TAP,
-                    HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
+        Vibrator v = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            android.os.VibratorManager vm = (android.os.VibratorManager) getSystemService(Context.VIBRATOR_MANAGER_SERVICE);
+            if (vm != null) {
+                v = vm.getDefaultVibrator();
+            }
+        }
+        if (v == null) {
+            v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        }
+
+        if (v != null && v.hasVibrator()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                v.vibrate(VibrationEffect.createOneShot(len, VibrationEffect.DEFAULT_AMPLITUDE));
+            } else {
+                v.vibrate((long) len);
+            }
         }
     }
     
@@ -3422,7 +3477,7 @@ public class LatinIME extends InputMethodService implements
     }
 
     // Version 2: The "Worker" one that handles the Intent
-    protected void launchSettings(Class<? extends android.preference.PreferenceActivity> settingsClass) {
+    protected void launchSettings(Class<? extends android.app.Activity> settingsClass) {
         // Break the infinite loop by NOT calling handleClose() here.
         // The keyboard will naturally close itself when the new Activity takes over the screen.
 
@@ -3468,7 +3523,11 @@ public class LatinIME extends InputMethodService implements
         // mBigramSuggestionEnabled = sp.getBoolean(
         // PREF_BIGRAM_SUGGESTIONS, true) & mShowSuggestions;
         updateCorrectionMode();
-        updateAutoTextEnabled(mResources.getConfiguration().locale);
+        Locale locale = ConfigurationCompat.getLocales(mResources.getConfiguration()).get(0);
+        if (locale == null) {
+            locale = Locale.getDefault();
+        }
+        updateAutoTextEnabled(locale);
         mLanguageSwitcher.loadLocales(sp);
         mAutoCapActive = mAutoCapPref && mLanguageSwitcher.allowAutoCap();
         mDeadKeysActive = mLanguageSwitcher.allowDeadKeys();
@@ -3542,6 +3601,7 @@ public class LatinIME extends InputMethodService implements
         updateShiftKeyState(getCurrentInputEditorInfo());
     }
 
+    @SafeVarargs
     public static <E> ArrayList<E> newArrayList(E... elements) {
         int capacity = (elements.length * 110) / 100 + 5;
         ArrayList<E> list = new ArrayList<E>(capacity);

@@ -22,7 +22,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.Html;
+import androidx.core.text.HtmlCompat;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
@@ -42,7 +42,7 @@ public class Main extends Activity {
         setContentView(R.layout.main);
         String html = getString(R.string.main_body);
         html += "<p><i>Version: " + getString(R.string.auto_version) + "</i></p>";
-        Spanned content = Html.fromHtml(html);
+        Spanned content = HtmlCompat.fromHtml(html, HtmlCompat.FROM_HTML_MODE_LEGACY);
         TextView description = (TextView) findViewById(R.id.main_description);
         description.setMovementMethod(LinkMovementMethod.getInstance());
         description.setText(content, BufferType.SPANNABLE);

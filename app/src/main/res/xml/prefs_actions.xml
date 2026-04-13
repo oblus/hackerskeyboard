@@ -13,15 +13,15 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:android="http://schemas.android.com/apk/res/android"
     android:key="prefs_actions"
     android:title="@string/pref_screen_actions_title" >
 
-    <PreferenceCategory
+    <PreferenceCategory app:iconSpaceReserved="false"
         android:key="swipe_actions"
         android:title="@string/title_swipe_gestures" >
 
-        <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference
+        <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference app:iconSpaceReserved="false"
             android:defaultValue="@string/default_swipe_up"
             android:entries="@array/swipe_action_entries"
             android:entryValues="@array/swipe_action_values"
@@ -29,7 +29,7 @@
             android:persistent="true"
             android:title="@string/title_swipe_up" />
 
-        <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference
+        <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference app:iconSpaceReserved="false"
             android:defaultValue="@string/default_swipe_down"
             android:entries="@array/swipe_action_entries"
             android:entryValues="@array/swipe_action_values"
@@ -37,7 +37,7 @@
             android:persistent="true"
             android:title="@string/title_swipe_down" />
 
-        <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference
+        <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference app:iconSpaceReserved="false"
             android:defaultValue="@string/default_swipe_left"
             android:entries="@array/swipe_action_entries"
             android:entryValues="@array/swipe_action_values"
@@ -45,7 +45,7 @@
             android:persistent="true"
             android:title="@string/title_swipe_left" />
 
-        <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference
+        <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference app:iconSpaceReserved="false"
             android:defaultValue="@string/default_swipe_right"
             android:entries="@array/swipe_action_entries"
             android:entryValues="@array/swipe_action_values"
@@ -54,11 +54,11 @@
             android:title="@string/title_swipe_right" />
     </PreferenceCategory>
 
-    <PreferenceCategory
+    <PreferenceCategory app:iconSpaceReserved="false"
         android:key="key_actions"
         android:title="@string/title_hardware_key_actions" >
 
-        <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference
+        <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference app:iconSpaceReserved="false"
             android:defaultValue="@string/default_vol_up"
             android:entries="@array/swipe_action_entries"
             android:entryValues="@array/swipe_action_values"
@@ -66,7 +66,7 @@
             android:persistent="true"
             android:title="@string/title_vol_up" />
 
-        <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference
+        <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference app:iconSpaceReserved="false"
             android:defaultValue="@string/default_vol_down"
             android:entries="@array/swipe_action_entries"
             android:entryValues="@array/swipe_action_values"

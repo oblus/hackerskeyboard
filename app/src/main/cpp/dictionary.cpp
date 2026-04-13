@@ -21,8 +21,8 @@
 #include <string.h>
 //#define LOG_TAG "dictionary.cpp"
 //#include <cutils/log.h>
-#define LOGI
-
+#define LOGI(...) do {} while (0)
+/*macro performs no action, and it avoids any evaluation of the arguments*/
 #include "dictionary.h"
 #include "basechars.h"
 #include "char_utils.h"
@@ -342,12 +342,13 @@ Dictionary::getWordsRec(int pos, int depth, int maxDepth, bool completion, int s
                     mWord[depth] = c;
                     if (mInputLength == inputIndex + 1) {
                         if (terminal) {
-                            if (//INCLUDE_TYPED_WORD_IF_VALID ||
-                                !sameAsTyped(mWord, depth + 1)) {
-                                int finalFreq = freq * snr * addedWeight;
-                                if (mSkipPos < 0) finalFreq *= mFullWordMultiplier;
-                                addWord(mWord, depth + 1, finalFreq);
-                            }
+                // Following condition was causing "left operand of comma operator has no effect"
+            // if INCLUDE_TYPED_WORD_IF_VALID was defined.
+            if (!sameAsTyped(mWord, depth + 1)) {
+                int finalFreq = freq * snr * addedWeight;
+                if (mSkipPos < 0) finalFreq *= mFullWordMultiplier;
+                addWord(mWord, depth + 1, finalFreq);
+            }
                         }
                         if (childrenAddress != 0) {
                             getWordsRec(childrenAddress, depth + 1,
@@ -453,17 +454,18 @@ Dictionary::searchForTerminalNode(int addressLookingFor, int frequency)
         if (depth >= 0) {
             word[depth] = (unsigned short) followingChar;
         }
-        pos = followDownBranchAddress; // pos start at count
-        int count = mDict[pos] & 0xFF;
+        int pos_current = followDownBranchAddress; // pos start at count
+        int count = mDict[pos_current] & 0xFF;
         LOGI("count - %d\n",count);
-        pos++;
+        pos_current++;
         for (int i = 0; i < count; i++) {
             // pos at data
-            pos++;
+            pos_current++;
             // pos now at flag
-            if (!getFirstBitOfByte(&pos)) { // non-terminal
+            int pos_flag = pos_current;
+            if (!getFirstBitOfByte(&pos_current)) { // non-terminal
                 if (!followDownAddressSearchStop) {
-                    int addr = getBigramAddress(&pos, false);
+                    int addr = getBigramAddress(&pos_current, false);
                     if (addr > addressLookingFor) {
                         followDownAddressSearchStop = true;
                         if (firstAddress) {
@@ -474,24 +476,24 @@ Dictionary::searchForTerminalNode(int addressLookingFor, int frequency)
                         }
                     } else {
                         followDownBranchAddress = addr;
-                        followingChar = (char)(0xFF & mDict[pos-1]);
+                        followingChar = (char)(0xFF & mDict[pos_current-1]);
                         if (firstAddress) {
                             firstAddress = false;
                             haveToSearchAll = false;
                         }
                     }
                 }
-                pos += 3;
-            } else if (getFirstBitOfByte(&pos)) { // terminal
-                if (addressLookingFor == (pos-1)) { // found !!
+                pos_current += 3;
+            } else if (getFirstBitOfByte(&pos_current)) { // terminal
+                if (addressLookingFor == (pos_flag)) { // found !!
                     depth++;
-                    word[depth] = (0xFF & mDict[pos-1]);
+                    word[depth] = (0xFF & mDict[pos_flag]);
                     found = true;
                     break;
                 }
-                if (getSecondBitOfByte(&pos)) { // address + freq (4 byte)
+                if (getSecondBitOfByte(&pos_current)) { // address + freq (4 byte)
                     if (!followDownAddressSearchStop) {
-                        int addr = getBigramAddress(&pos, false);
+                        int addr = getBigramAddress(&pos_current, false);
                         if (addr > addressLookingFor) {
                             followDownAddressSearchStop = true;
                             if (firstAddress) {
@@ -502,28 +504,28 @@ Dictionary::searchForTerminalNode(int addressLookingFor, int frequency)
                             }
                         } else {
                             followDownBranchAddress = addr;
-                            followingChar = (char)(0xFF & mDict[pos-1]);
+                            followingChar = (char)(0xFF & mDict[pos_current-1]);
                             if (firstAddress) {
                                 firstAddress = false;
                                 haveToSearchAll = true;
                             }
                         }
                     }
-                    pos += 4;
+                    pos_current += 4;
                 } else { // freq only (2 byte)
-                    pos += 2;
+                    pos_current += 2;
                 }
 
                 // skipping bigram
-                int bigramExist = (mDict[pos] & FLAG_BIGRAM_READ);
+                int bigramExist = (mDict[pos_current] & FLAG_BIGRAM_READ);
                 if (bigramExist > 0) {
                     int nextBigramExist = 1;
                     while (nextBigramExist > 0) {
-                        pos += 3;
-                        nextBigramExist = (mDict[pos++] & FLAG_BIGRAM_CONTINUED);
+                        pos_current += 3;
+                        nextBigramExist = (mDict[pos_current++] & FLAG_BIGRAM_CONTINUED);
                     }
                 } else {
-                    pos++;
+                    pos_current++;
                 }
             }
         }
@@ -575,11 +577,12 @@ Dictionary::isValidWordRec(int pos, unsigned short *word, int offset, int length
     unsigned short currentChar = (unsigned short) word[offset];
     for (int j = 0; j < count; j++) {
         unsigned short c = getChar(&pos);
-        int terminal = getTerminal(&pos);
+        int terminal_val = getTerminal(&pos);
+        (void)terminal_val;
         int childPos = getAddress(&pos);
         if (c == currentChar) {
             if (offset == length - 1) {
-                if (terminal) {
+                if (terminal_val) {
                     return (pos+1);
                 }
             } else {
@@ -591,8 +594,8 @@ Dictionary::isValidWordRec(int pos, unsigned short *word, int offset, int length
                 }
             }
         }
-        if (terminal) {
-            getFreq(&pos);
+        if (terminal_val) {
+            (void)getFreq(&pos);
         }
         // There could be two instances of each alphabet - upper and lower case. So continue
         // looking ...

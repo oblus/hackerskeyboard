@@ -26,7 +26,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
-import android.os.AsyncTask;
+
 import android.provider.BaseColumns;
 import android.util.Log;
 
@@ -157,7 +157,7 @@ public class AutoDictionary extends ExpandableDictionary {
 
         synchronized (mPendingWritesLock) {
             // Write a null frequency if it is to be deleted from the db
-            mPendingWrites.put(word, freq == 0 ? null : new Integer(freq));
+            mPendingWrites.put(word, freq == 0 ? null : freq);
         }
     }
 
@@ -169,7 +169,7 @@ public class AutoDictionary extends ExpandableDictionary {
             // Nothing pending? Return
             if (mPendingWrites.isEmpty()) return;
             // Create a background thread to write the pending entries
-            new UpdateDbTask(getContext(), sOpenHelper, mPendingWrites, mLocale).execute();
+            executeUpdateDb(getContext(), sOpenHelper, mPendingWrites, mLocale);
             // Create a new map for writing new entries into while the old one is written to db
             mPendingWrites = new HashMap<String, Integer>();
         }
@@ -216,51 +216,32 @@ public class AutoDictionary extends ExpandableDictionary {
     }
 
     /**
-     * Async task to write pending words to the database so that it stays in sync with
-     * the in-memory trie.
+     * Executes the background write of pending words.
      */
-    private static class UpdateDbTask extends AsyncTask<Void, Void, Void> {
-        private final HashMap<String, Integer> mMap;
-        private final DatabaseHelper mDbHelper;
-        private final String mLocale;
-
-        public UpdateDbTask(Context context, DatabaseHelper openHelper,
-                HashMap<String, Integer> pendingWrites, String locale) {
-            mMap = pendingWrites;
-            mLocale = locale;
-            mDbHelper = openHelper;
-        }
-
-        @Override
-        protected Void doInBackground(Void... v) {
-            SQLiteDatabase db = mDbHelper.getWritableDatabase();
-            Set<Entry<String,Integer>> mEntries = mMap.entrySet();
-            for (Entry<String,Integer> entry : mEntries) {
+    private static void executeUpdateDb(Context context, DatabaseHelper dbHelper,
+                                        HashMap<String, Integer> map, String locale) {
+        new Thread(() -> {
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
+            for (Entry<String, Integer> entry : map.entrySet()) {
                 String word = entry.getKey();
                 Integer freq = entry.getValue();
 
                 // STRICT NULL CHECK REQUIRED BY D8
-                if (word == null || mLocale == null) {
+                if (word == null || locale == null) {
                     continue;
                 }
 
                 db.delete(AUTODICT_TABLE_NAME, COLUMN_WORD + "=? AND " + COLUMN_LOCALE + "=?",
-                        new String[] { word, mLocale });
+                        new String[] { word, locale });
 
                 if (freq != null) {
-                    db.insert(AUTODICT_TABLE_NAME, null,
-                            getContentValues(word, freq, mLocale));
+                    ContentValues values = new ContentValues(3);
+                    values.put(COLUMN_WORD, word);
+                    values.put(COLUMN_FREQUENCY, freq);
+                    values.put(COLUMN_LOCALE, locale);
+                    db.insert(AUTODICT_TABLE_NAME, null, values);
                 }
             }
-            return null;
-        }
-
-        private ContentValues getContentValues(String word, int frequency, String locale) {
-            ContentValues values = new ContentValues(4);
-            values.put(COLUMN_WORD, word);
-            values.put(COLUMN_FREQUENCY, frequency);
-            values.put(COLUMN_LOCALE, locale);
-            return values;
-        }
+        }).start();
     }
 }

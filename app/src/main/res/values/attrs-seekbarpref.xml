@@ -22,5 +22,6 @@
         <attr name="step" format="float" />
         <attr name="logScale" format="boolean" />
         <attr name="displayFormat" format="string" />
+        <attr name="showSummaryValue" format="boolean" />
     </declare-styleable>
 </resources>

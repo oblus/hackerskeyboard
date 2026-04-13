@@ -20,7 +20,8 @@ import java.util.Locale;
 
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.preference.PreferenceManager;
+import androidx.core.os.ConfigurationCompat;
+import androidx.preference.PreferenceManager;
 import android.text.TextUtils;
 
 /**
@@ -90,7 +91,7 @@ public class LanguageSwitcher {
     }
 
     private void loadDefaults() {
-        mDefaultInputLocale = mIme.getResources().getConfiguration().locale;
+        mDefaultInputLocale = ConfigurationCompat.getLocales(mIme.getResources().getConfiguration()).get(0);
         String country = mDefaultInputLocale.getCountry();
         mDefaultInputLanguage = mDefaultInputLocale.getLanguage() +
                 (TextUtils.isEmpty(country) ? "" : "_" + country);
@@ -100,8 +101,12 @@ public class LanguageSwitcher {
         mLocales = new Locale[mSelectedLanguageArray.length];
         for (int i = 0; i < mLocales.length; i++) {
             final String lang = mSelectedLanguageArray[i];
-            mLocales[i] = new Locale(lang.substring(0, 2),
-                    lang.length() > 4 ? lang.substring(3, 5) : "");
+            String language = lang.substring(0, 2);
+            String country = lang.length() > 4 ? lang.substring(3, 5) : "";
+            mLocales[i] = new Locale.Builder()
+                    .setLanguage(language)
+                    .setRegion(country)
+                    .build();
         }
     }
 

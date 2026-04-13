@@ -26,7 +26,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
-import android.os.AsyncTask;
+
 import android.provider.BaseColumns;
 import android.util.Log;
 
@@ -192,7 +192,7 @@ public class UserBigramDictionary extends ExpandableDictionary {
             // Nothing pending? Return
             if (mPendingWrites.isEmpty()) return;
             // Create a background thread to write the pending entries
-            new UpdateDbTask(getContext(), sOpenHelper, mPendingWrites, mLocale).execute();
+            executeUpdateDb(getContext(), sOpenHelper, mPendingWrites, mLocale);
             // Create a new map for writing new entries into while the old one is written to db
             mPendingWrites = new HashSet<Bigram>();
         }
@@ -296,106 +296,74 @@ public class UserBigramDictionary extends ExpandableDictionary {
     }
 
     /**
-     * Async task to write pending words to the database so that it stays in sync with
-     * the in-memory trie.
+     * Executes the background write of pending bigrams.
      */
-    private static class UpdateDbTask extends AsyncTask<Void, Void, Void> {
-        private final HashSet<Bigram> mMap;
-        private final DatabaseHelper mDbHelper;
-        private final String mLocale;
-
-        public UpdateDbTask(Context context, DatabaseHelper openHelper,
-                HashSet<Bigram> pendingWrites, String locale) {
-            mMap = pendingWrites;
-            mLocale = locale;
-            mDbHelper = openHelper;
-        }
-
-        /** Prune any old data if the database is getting too big. */
-        private void checkPruneData(SQLiteDatabase db) {
-            db.execSQL("PRAGMA foreign_keys = ON;");
-            Cursor c = db.query(FREQ_TABLE_NAME, new String[] { FREQ_COLUMN_PAIR_ID },
-                    null, null, null, null, null);
-            try {
-                int totalRowCount = c.getCount();
-                // prune out old data if we have too much data
-                if (totalRowCount > sMaxUserBigrams) {
-                    int numDeleteRows = (totalRowCount - sMaxUserBigrams) + sDeleteUserBigrams;
-                    int pairIdColumnId = c.getColumnIndex(FREQ_COLUMN_PAIR_ID);
-                    c.moveToFirst();
-                    int count = 0;
-                    while (count < numDeleteRows && !c.isAfterLast()) {
-                        String pairId = c.getString(pairIdColumnId);
-                        // Deleting from MAIN table will delete the frequencies
-                        // due to FOREIGN KEY .. ON DELETE CASCADE
-                        db.delete(MAIN_TABLE_NAME, MAIN_COLUMN_ID + "=?",
-                            new String[] { pairId });
-                        c.moveToNext();
-                        count++;
-                    }
-                }
-            } finally {
-                c.close();
-            }
-        }
-
-        @Override
-        protected void onPreExecute() {
+    private static void executeUpdateDb(Context context, DatabaseHelper dbHelper,
+                                        HashSet<Bigram> map, String locale) {
+        new Thread(() -> {
             sUpdatingDB = true;
-        }
-
-        @Override
-        protected Void doInBackground(Void... v) {
-            SQLiteDatabase db = mDbHelper.getWritableDatabase();
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.execSQL("PRAGMA foreign_keys = ON;");
             // Write all the entries to the db
-            Iterator<Bigram> iterator = mMap.iterator();
-            while (iterator.hasNext()) {
-                Bigram bi = iterator.next();
-
+            for (Bigram bi : map) {
                 // find pair id
                 Cursor c = db.query(MAIN_TABLE_NAME, new String[] { MAIN_COLUMN_ID },
                         MAIN_COLUMN_WORD1 + "=? AND " + MAIN_COLUMN_WORD2 + "=? AND "
                         + MAIN_COLUMN_LOCALE + "=?",
-                        new String[] { bi.word1, bi.word2, mLocale }, null, null, null);
+                        new String[] { bi.word1, bi.word2, locale }, null, null, null);
 
                 int pairId;
                 if (c.moveToFirst()) {
                     // existing pair
-                    pairId = c.getInt(c.getColumnIndex(MAIN_COLUMN_ID));
+                    int columnIndex = c.getColumnIndex(MAIN_COLUMN_ID);
+                    pairId = (columnIndex != -1) ? c.getInt(columnIndex) : -1;
                     db.delete(FREQ_TABLE_NAME, FREQ_COLUMN_PAIR_ID + "=?",
                             new String[] { Integer.toString(pairId) });
                 } else {
                     // new pair
-                    Long pairIdLong = db.insert(MAIN_TABLE_NAME, null,
-                            getContentValues(bi.word1, bi.word2, mLocale));
-                    pairId = pairIdLong.intValue();
+                    ContentValues values = new ContentValues(3);
+                    values.put(MAIN_COLUMN_WORD1, bi.word1);
+                    values.put(MAIN_COLUMN_WORD2, bi.word2);
+                    values.put(MAIN_COLUMN_LOCALE, locale);
+                    pairId = (int) db.insert(MAIN_TABLE_NAME, null, values);
                 }
                 c.close();
 
                 // insert new frequency
-                db.insert(FREQ_TABLE_NAME, null, getFrequencyContentValues(pairId, bi.frequency));
+                ContentValues fValues = new ContentValues(2);
+                fValues.put(FREQ_COLUMN_PAIR_ID, pairId);
+                fValues.put(FREQ_COLUMN_FREQUENCY, bi.frequency);
+                db.insert(FREQ_TABLE_NAME, null, fValues);
             }
             checkPruneData(db);
             sUpdatingDB = false;
-
-            return null;
-        }
-
-        private ContentValues getContentValues(String word1, String word2, String locale) {
-            ContentValues values = new ContentValues(3);
-            values.put(MAIN_COLUMN_WORD1, word1);
-            values.put(MAIN_COLUMN_WORD2, word2);
-            values.put(MAIN_COLUMN_LOCALE, locale);
-            return values;
-        }
-
-        private ContentValues getFrequencyContentValues(int pairId, int frequency) {
-           ContentValues values = new ContentValues(2);
-           values.put(FREQ_COLUMN_PAIR_ID, pairId);
-           values.put(FREQ_COLUMN_FREQUENCY, frequency);
-           return values;
-        }
+        }).start();
     }
 
+    private static void checkPruneData(SQLiteDatabase db) {
+        db.execSQL("PRAGMA foreign_keys = ON;");
+        Cursor c = db.query(FREQ_TABLE_NAME, new String[] { FREQ_COLUMN_PAIR_ID },
+                null, null, null, null, null);
+        try {
+            int totalRowCount = c.getCount();
+            // prune out old data if we have too much data
+            if (totalRowCount > sMaxUserBigrams) {
+                int numDeleteRows = (totalRowCount - sMaxUserBigrams) + sDeleteUserBigrams;
+                int pairIdColumnId = c.getColumnIndex(FREQ_COLUMN_PAIR_ID);
+                c.moveToFirst();
+                int count = 0;
+                while (count < numDeleteRows && !c.isAfterLast()) {
+                    String pairId = c.getString(pairIdColumnId);
+                    // Deleting from MAIN table will delete the frequencies
+                    // due to FOREIGN KEY .. ON DELETE CASCADE
+                    db.delete(MAIN_TABLE_NAME, MAIN_COLUMN_ID + "=?",
+                        new String[] { pairId });
+                    c.moveToNext();
+                    count++;
+                }
+            }
+        } finally {
+            c.close();
+        }
+    }
 }

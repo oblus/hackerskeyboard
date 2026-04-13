@@ -54,6 +54,7 @@ public final class GlobalKeyboardSettings {
     public int keyClickMethod = 0;
     public boolean capsLock = true;
     public boolean shiftLockModifiers = false;
+    public int minLettersSuggestion = 1;
     //
     // Read by LatinKeyboardBaseView
     public float labelScalePref = 1.0f;
@@ -123,13 +124,13 @@ public final class GlobalKeyboardSettings {
         final Resources res = resources;
 
         addStringPref("pref_keyboard_mode_portrait", new StringPref() {
-            public void set(String val) { keyboardModePortrait = Integer.valueOf(val); }
+            public void set(String val) { keyboardModePortrait = (int) Float.parseFloat(val); }
             public String getDefault() { return res.getString(R.string.default_keyboard_mode_portrait); }
             public int getFlags() { return FLAG_PREF_RESET_KEYBOARDS | FLAG_PREF_RESET_MODE_OVERRIDE; }
         });
 
         addStringPref("pref_keyboard_mode_landscape", new StringPref() {
-            public void set(String val) { keyboardModeLandscape = Integer.valueOf(val); }
+            public void set(String val) { keyboardModeLandscape = (int) Float.parseFloat(val); }
             public String getDefault() { return res.getString(R.string.default_keyboard_mode_landscape); }
             public int getFlags() { return FLAG_PREF_RESET_KEYBOARDS | FLAG_PREF_RESET_MODE_OVERRIDE; }
         });
@@ -147,7 +148,7 @@ public final class GlobalKeyboardSettings {
         });
 
         addStringPref("pref_slide_keys_int", new StringPref() {
-            public void set(String val) { sendSlideKeys = Integer.valueOf(val); }
+            public void set(String val) { sendSlideKeys = (int) Float.parseFloat(val); }
             public String getDefault() { return "0"; }
             public int getFlags() { return FLAG_PREF_NONE; }
         });
@@ -159,7 +160,7 @@ public final class GlobalKeyboardSettings {
         });
 
         addStringPref("pref_popup_content", new StringPref() {
-            public void set(String val) { popupKeyboardFlags = Integer.valueOf(val); }
+            public void set(String val) { popupKeyboardFlags = (int) Float.parseFloat(val); }
             public String getDefault() { return res.getString(R.string.default_popup_content); }
             public int getFlags() { return FLAG_PREF_RESET_KEYBOARDS; }
         });
@@ -189,25 +190,25 @@ public final class GlobalKeyboardSettings {
         });
 
         addStringPref("pref_ctrl_a_override", new StringPref() {
-            public void set(String val) { ctrlAOverride = Integer.valueOf(val); }
+            public void set(String val) { ctrlAOverride = (int) Float.parseFloat(val); }
             public String getDefault() { return res.getString(R.string.default_ctrl_a_override); }
             public int getFlags() { return FLAG_PREF_RESET_KEYBOARDS; }
         });
 
         addStringPref("pref_chording_ctrl_key", new StringPref() {
-            public void set(String val) { chordingCtrlKey = Integer.valueOf(val); }
+            public void set(String val) { chordingCtrlKey = (int) Float.parseFloat(val); }
             public String getDefault() { return res.getString(R.string.default_chording_ctrl_key); }
             public int getFlags() { return FLAG_PREF_RESET_KEYBOARDS; }
         });
 
         addStringPref("pref_chording_alt_key", new StringPref() {
-            public void set(String val) { chordingAltKey = Integer.valueOf(val); }
+            public void set(String val) { chordingAltKey = (int) Float.parseFloat(val); }
             public String getDefault() { return res.getString(R.string.default_chording_alt_key); }
             public int getFlags() { return FLAG_PREF_RESET_KEYBOARDS; }
         });
 
         addStringPref("pref_chording_meta_key", new StringPref() {
-            public void set(String val) { chordingMetaKey = Integer.valueOf(val); }
+            public void set(String val) { chordingMetaKey = (int) Float.parseFloat(val); }
             public String getDefault() { return res.getString(R.string.default_chording_meta_key); }
             public int getFlags() { return FLAG_PREF_RESET_KEYBOARDS; }
         });
@@ -219,7 +220,7 @@ public final class GlobalKeyboardSettings {
         });
 
         addStringPref("pref_click_method", new StringPref() {
-            public void set(String val) { keyClickMethod = Integer.valueOf(val); }
+            public void set(String val) { keyClickMethod = (int) Float.parseFloat(val); }
             public String getDefault() { return res.getString(R.string.default_click_method); }
             public int getFlags() { return FLAG_PREF_NONE; }
         });
@@ -233,6 +234,12 @@ public final class GlobalKeyboardSettings {
         addBooleanPref("pref_shift_lock_modifiers", new BooleanPref() {
             public void set(boolean val) { shiftLockModifiers = val; }
             public boolean getDefault() { return res.getBoolean(R.bool.default_shift_lock_modifiers); }
+            public int getFlags() { return FLAG_PREF_NONE; }
+        });
+
+        addStringPref("pref_min_letters_suggestion", new StringPref() {
+            public void set(String val) { minLettersSuggestion = (int) Float.parseFloat(val); }
+            public String getDefault() { return "2"; }
             public int getFlags() { return FLAG_PREF_NONE; }
         });
 

@@ -20,6 +20,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import androidx.core.content.ContextCompat;
 import android.graphics.Bitmap;
 import android.graphics.BlurMaskFilter;
 import android.graphics.Canvas;
@@ -36,6 +37,7 @@ import android.graphics.drawable.Drawable;
 import org.n0pocketworkstation.pckeyboard.Keyboard.Key;
 
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
 import android.util.AttributeSet;
@@ -285,6 +287,10 @@ public class LatinKeyboardBaseView extends View implements PointerTracker.UIProx
     private final UIHandler mHandler = new UIHandler();
 
     class UIHandler extends Handler {
+        public UIHandler() {
+            super(Looper.getMainLooper());
+        }
+
         private static final int MSG_POPUP_PREVIEW = 1;
         private static final int MSG_DISMISS_PREVIEW = 2;
         private static final int MSG_REPEAT_KEY = 3;
@@ -1234,7 +1240,7 @@ public class LatinKeyboardBaseView extends View implements PointerTracker.UIProx
         // Retrieve and cache the popup keyboard if any.
         boolean hasPopup = (getLongPressKeyboard(key) != null);
         // Set background manually, the StateListDrawable doesn't work.
-        mPreviewText.setBackgroundDrawable(getResources().getDrawable(hasPopup ? R.drawable.keyboard_key_feedback_more_background : R.drawable.keyboard_key_feedback_background));
+        mPreviewText.setBackground(ContextCompat.getDrawable(getContext(), hasPopup ? R.drawable.keyboard_key_feedback_more_background : R.drawable.keyboard_key_feedback_background));
         popupPreviewX += mOffsetInWindow[0];
         popupPreviewY += mOffsetInWindow[1];
 
@@ -1290,8 +1296,7 @@ public class LatinKeyboardBaseView extends View implements PointerTracker.UIProx
         mDirtyRect.union(key.x + getPaddingLeft(), key.y + getPaddingTop(),
                 key.x + key.width + getPaddingLeft(), key.y + key.height + getPaddingTop());
         //onBufferDraw();
-        invalidate(key.x + getPaddingLeft(), key.y + getPaddingTop(),
-                key.x + key.width + getPaddingLeft(), key.y + key.height + getPaddingTop());
+        invalidate();
     }
 
     private boolean openPopupIfRequired(int keyIndex, PointerTracker tracker) {

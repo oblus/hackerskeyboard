@@ -1,7 +1,7 @@
 package org.n0pocketworkstation.pckeyboard;
 
 import android.content.Context;
-import android.preference.EditTextPreference;
+import androidx.preference.EditTextPreference;
 import android.util.AttributeSet;
 
 public class AutoSummaryEditTextPreference extends EditTextPreference {

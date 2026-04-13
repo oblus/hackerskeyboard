@@ -19,7 +19,7 @@ package org.n0pocketworkstation.pckeyboard;
 import java.util.LinkedList;
 
 import android.content.Context;
-import android.os.AsyncTask;
+
 
 /**
  * Base class for an in-memory dictionary that can grow dynamically and can
@@ -45,6 +45,7 @@ public class ExpandableDictionary extends Dictionary {
     private boolean mRequiresReload;
 
     private boolean mUpdatingDictionary;
+    private static final java.util.concurrent.Executor EXECUTOR = java.util.concurrent.Executors.newSingleThreadExecutor();
 
     // Use this lock before touching mUpdatingDictionary & mRequiresDownload
     private Object mUpdatingLock = new Object();
@@ -112,7 +113,15 @@ public class ExpandableDictionary extends Dictionary {
         if (!mUpdatingDictionary) {
             mUpdatingDictionary = true;
             mRequiresReload = false;
-            new LoadDictionaryTask().execute();
+            EXECUTOR.execute(new Runnable() {
+                @Override
+                public void run() {
+                    loadDictionaryAsync();
+                    synchronized (mUpdatingLock) {
+                        mUpdatingDictionary = false;
+                    }
+                }
+            });
         }
     }
 
@@ -490,17 +499,6 @@ public class ExpandableDictionary extends Dictionary {
 
     protected void clearDictionary() {
         mRoots = new NodeArray();
-    }
-
-    private class LoadDictionaryTask extends AsyncTask<Void, Void, Void> {
-        @Override
-        protected Void doInBackground(Void... v) {
-            loadDictionaryAsync();
-            synchronized (mUpdatingLock) {
-                mUpdatingDictionary = false;
-            }
-            return null;
-        }
     }
 
     static char toLowerCase(char c) {
