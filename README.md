@@ -1,14 +1,26 @@
 # Hacked Keyboard GEM
 
-## Fork Update: ##
+## Fork Update (2024-2025): ##
 
-**Modernized (2024):** Upgraded to **Target SDK 34** (Android 14), **AGP 9.1.0**, and **Gradle 9.4.1**. All legacy resource errors and namespace issues have been resolved to meet modern Play Store requirements.
+**Modernized:** Upgraded to **Target SDK 34** (Android 14), **Compile SDK 36**, **AGP 9.1.0**, and **Gradle 9.4.1**. All legacy resource errors and namespace issues have been resolved to meet modern Play Store requirements.
 
-Modern Android Compatibility: Upgraded the Target SDK for modern Android 13/14+ devices.
+**Modern AMOLED Theme:** A premium black theme optimized for modern OLED displays. Keys feature a semi-transparent "frosted glass" effect, modern rounded corners, and sleek custom **Cyan LED indicators** for toggle keys (Ctrl, Alt, Shift).
 
-Modern AMOLED Theme: black theme optimized for modern OLED displays. Keys now feature a semi-transparent frosted glass effect, modern rounded corners, and sleek custom Cyan LED indicators for toggle keys (Ctrl/Alt/Shift).
+**Modern Action Keys Option:** Added a new toggle in the **Settings > Key behavior settings** menu to dynamically swap the physical locations of the **Enter** and **Backspace** keys. This matches modern mobile muscle memory while preserving the classic PC layout logic.
 
-Modern Action Keys Option: Added a new toggle in the Settings menu to dynamically swap the physical locations of the Enter and Backspace keys. This perfectly matches modern mobile muscle memory while preserving the classic PC layout logic.
+**Reverse Tab Key:** New feature to reverse Tab key behavior in web entry modes, improving navigation in complex web forms.
+
+**Suggestion Improvements:**
+- Added a "Minimum number letters" slider (2-16) in settings to control exactly when suggestions appear.
+- Fixed and improved word completion and prediction logic for a smoother typing experience.
+
+**Enhanced Language & Dictionary Support:**
+- **Search Bar:** The "Input Language" selection page now includes a search bar for quickly finding specific layouts.
+- **Layout Labels:** Visual indicators show which layouts support 4-row or 5-row modes.
+- **External Dictionaries:** The "Detected external dictionaries" UI now lists all installed dictionary packs.
+- **AnySoftKeyboard Support:** Native support for [AnySoftKeyboard dictionary packs](https://github.com/AnySoftKeyboard/AnySoftKeyboard), significantly expanding available language support.
+
+**Improved Compatibility:** Full support for modern Android 13/14+ features, including gesture navigation compatibility and updated notification channels.
 
 ## Original Readme ##
 
@@ -37,12 +49,15 @@ packs](https://play.google.com/store/apps/developer?id=Klaus+Weidner).
 
 ## Additional resources ##
 
-See the **[Release Notes](https://github.com/klausw/hackerskeyboard/wiki/ReleaseNotes)** for changes in the Play Store released versions.
+Forked from the original project by Klaus Weidner. This version is maintained at:
+**[GitHub: oblus/hackerskeyboard](https://github.com/oblus/hackerskeyboard)**
 
-Having problems? See the **[User's Guide](https://github.com/klausw/hackerskeyboard/wiki/UsersGuide)** and **[FAQ](https://github.com/klausw/hackerskeyboard/wiki/FrequentlyAskedQuestions)**, and check the [issue tracker](https://github.com/klausw/hackerskeyboard/issues) for known bugs or filing new ones.
+See the **[Original Release Notes](https://github.com/klausw/hackerskeyboard/wiki/ReleaseNotes)** for historical changes.
 
-Comments, requests, or contributions? Join the [discussion group](http://groups.google.com/group/hackerskeyboard/).
+Having problems? See the **[User's Guide](https://github.com/klausw/hackerskeyboard/wiki/UsersGuide)** and **[FAQ](https://github.com/klausw/hackerskeyboard/wiki/FrequentlyAskedQuestions)**.
 
-Application developers: see [the page about keyboard support in applications](https://github.com/klausw/hackerskeyboard/wiki/KeyboardSupportInApplications) if you want to enable the additional keys in your Android application, the same method also works for hardware USB or Bluetooth keyboards.
+Comments, requests, or contributions? Check the [issue tracker](https://github.com/oblus/hackerskeyboard/issues) on the new fork.
+
+Application developers: see [the page about keyboard support in applications](https://github.com/klausw/hackerskeyboard/wiki/KeyboardSupportInApplications) if you want to enable the additional keys in your Android application.
 
 ![hk-5row-en-s.png](hk-5row-en-s.png)
