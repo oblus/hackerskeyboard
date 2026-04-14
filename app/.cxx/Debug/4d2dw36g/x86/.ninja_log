@@ -24,3 +24,7 @@
 0	123	0	clean	61e8e0bace0ec422
 0	179	0	clean	61e8e0bace0ec422
 1	112	0	clean	61e8e0bace0ec422
+64	366	7978847875248482	CMakeFiles/jni_pckeyboard.dir/src/main/cpp/char_utils.cpp.o	9e73d3e827c685f5
+33	413	7978847875719962	CMakeFiles/jni_pckeyboard.dir/src/main/cpp/dictionary.cpp.o	88d3e38925248535
+5	1329	7978847884845426	CMakeFiles/jni_pckeyboard.dir/src/main/cpp/org_n0pocketworkstation_pckeyboard_BinaryDictionary.cpp.o	6d6de701bbb2c254
+1330	1807	7978847889482114	../../../../build/intermediates/cxx/Debug/4d2dw36g/obj/x86/libjni_pckeyboard.so	8a2e423f0d5283e5
