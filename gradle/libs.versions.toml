@@ -1,6 +1,8 @@
 [versions]
+# noinspection GradleDependency
 agp = "9.1.0"
 appcompat = "1.7.1"
+# noinspection GradleDependency
 coreKtx = "1.15.0"
 espressoCore = "3.7.0"
 gradle = "9.1.1"
