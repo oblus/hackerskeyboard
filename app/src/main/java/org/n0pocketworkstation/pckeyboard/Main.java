@@ -27,21 +27,68 @@ import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import androidx.appcompat.app.AppCompatActivity;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.TextView.BufferType;
+import java.io.InputStream;
 
-public class Main extends Activity {
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
 
-    private final static String MARKET_URI = "market://search?q=pub:\"Klaus Weidner\"";
+public class Main extends AppCompatActivity {
+
+    // Original Market URI for Klaus Weidner's dictionary packs
+    // private final static String MARKET_URI = "market://search?q=pub:\"Klaus Weidner\"";
+    private final static String MARKET_URI = "https://github.com/AnySoftKeyboard/AnySoftKeyboard/blob/main/addons/languages/PACKS.md";
+
+    private String readReadme() {
+        // Try to read README.md from the application's data directory or similar
+        // Since README.md is usually at the project root, we'll look for it
+        // in a few common places. On a real device, it might not be accessible
+        // unless it's bundled in assets.
+        
+        // For now, let's assume it might be in assets or we fall back to R.string.main_body
+        StringBuilder sb = new StringBuilder();
+        try {
+            InputStream is = getAssets().open("README.md");
+            BufferedReader br = new BufferedReader(new java.io.InputStreamReader(is));
+            String line;
+            while ((line = br.readLine()) != null) {
+                sb.append(line).append("\n");
+            }
+            br.close();
+            return sb.toString();
+        } catch (IOException e) {
+            return null;
+        }
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        String html = getString(R.string.main_body);
-        html += "<p><i>Version: " + getString(R.string.auto_version) + "</i></p>";
+        
+        String readmeContent = readReadme();
+        String html;
+        if (readmeContent != null && !readmeContent.trim().isEmpty()) {
+            // Very basic Markdown to HTML conversion for display
+            html = readmeContent.replace("\n", "<br/>");
+            // Highlight headers
+            html = html.replaceAll("(?m)^# (.*)$", "<h1>$1</h1>");
+            html = html.replaceAll("(?m)^## (.*)$", "<h2>$1</h2>");
+            // Bold
+            html = html.replaceAll("\\*\\*(.*?)\\*\\*", "<b>$1</b>");
+            // Links
+            html = html.replaceAll("\\[(.*?)\\]\\((.*?)\\)", "<a href='$2'>$1</a>");
+        } else {
+            html = getString(R.string.main_body);
+        }
+
+        html += "<p><i>Version: " + BuildConfig.VERSION_NAME + " (" + BuildConfig.VERSION_CODE + ")</i></p>";
         Spanned content = HtmlCompat.fromHtml(html, HtmlCompat.FROM_HTML_MODE_LEGACY);
         TextView description = (TextView) findViewById(R.id.main_description);
         description.setMovementMethod(LinkMovementMethod.getInstance());
@@ -51,7 +98,7 @@ public class Main extends Activity {
         final Button setup1 = (Button) findViewById(R.id.main_setup_btn_configure_imes);
         setup1.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                startActivityForResult(new Intent(android.provider.Settings.ACTION_INPUT_METHOD_SETTINGS), 0);
+                startActivity(new Intent(android.provider.Settings.ACTION_INPUT_METHOD_SETTINGS));
             }
         });
 
@@ -68,7 +115,7 @@ public class Main extends Activity {
         final Button setup4 = (Button) findViewById(R.id.main_setup_btn_input_lang);
         setup4.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                startActivityForResult(new Intent(that, InputLanguageSelection.class), 0);
+                startActivity(new Intent(that, InputLanguageSelection.class));
             }
         });
 
@@ -91,7 +138,7 @@ public class Main extends Activity {
         final Button setup5 = (Button) findViewById(R.id.main_setup_btn_settings);
         setup5.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                startActivityForResult(new Intent(that, LatinIMESettings.class), 0);
+                startActivity(new Intent(that, LatinIMESettings.class));
             }
         });
     }    

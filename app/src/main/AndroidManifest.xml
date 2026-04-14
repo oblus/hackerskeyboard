@@ -34,7 +34,8 @@
         </intent>
     </queries>
 
-    <application android:label="@string/english_ime_name"
+    <application android:name="org.n0pocketworkstation.pckeyboard.PCKeyboardApp"
+            android:label="@string/english_ime_name"
             android:allowBackup="true"
             android:backupAgent="org.n0pocketworkstation.pckeyboard.LatinIMEBackupAgent"
             android:restoreAnyVersion="true"

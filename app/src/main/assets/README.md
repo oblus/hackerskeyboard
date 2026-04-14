@@ -2,9 +2,9 @@
 
 ## Fork Update (2024-2026): ##
 
-**Modernized:** Upgraded to **Target SDK 34** (Android 14), **Compile SDK 35**, **AGP 9.1.1**, and **Gradle 9.4.1**. All legacy resource errors and namespace issues have been resolved to meet modern Play Store requirements.
+**Modernized:** Upgraded to **Target SDK 34** (Android 14), **Compile SDK 36**, **AGP 9.1.0**, and **Gradle 9.4.1**. All legacy resource errors and namespace issues have been resolved to meet modern Play Store requirements.
 
-**Modern AMOLED Theme:** A premium black theme optimized for modern OLED displays. Keys feature a semi-transparent "frosted glass" effect, modern rounded corners, and sleek custom **Cyan LED indicators** for toggle keys (Ctrl, Alt, Shift). Includes a toggle to **Invert menu theme color** for better accessibility.
+**Modern AMOLED Theme:** A premium black theme optimized for modern OLED displays. Keys feature a semi-transparent "frosted glass" effect, modern rounded corners, and sleek custom **Cyan LED indicators** for toggle keys (Ctrl, Alt, Shift).
 
 **Modern Action Keys Option:** Added a new toggle in the **Settings > Key behavior settings** menu to dynamically swap the physical locations of the **Enter** and **Backspace** keys. This matches modern mobile muscle memory while preserving the classic PC layout logic.
 
@@ -60,5 +60,3 @@ Having problems? See the **[User's Guide](https://github.com/klausw/hackerskeybo
 Comments, requests, or contributions? Check the [issue tracker](https://github.com/oblus/hackerskeyboard/issues) on the new fork.
 
 Application developers: see [the page about keyboard support in applications](https://github.com/klausw/hackerskeyboard/wiki/KeyboardSupportInApplications) if you want to enable the additional keys in your Android application.
-
-![hk-5row-en-s.png](hk-5row-en-s.png)

@@ -700,6 +700,12 @@ public class KeyboardSwitcher implements
         }
     }
 
+    public void onDestroy() {
+        mKeyboards.clear();
+        mInputView = null;
+        mInputMethodService = null;
+    }
+
     private void updateSettingsKeyState(SharedPreferences prefs) {
         Resources resources = mInputMethodService.getResources();
         final String settingsKeyMode = prefs.getString(

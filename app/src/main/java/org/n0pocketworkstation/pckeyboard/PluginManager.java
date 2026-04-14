@@ -52,6 +52,31 @@ public class PluginManager extends BroadcastReceiver {
         Intent dictIntent = new Intent(SOFTKEYBOARD_INTENT_DICT);
         List<ResolveInfo> dictPacks = packageManager.queryBroadcastReceivers(
                 dictIntent, PackageManager.GET_META_DATA);
+
+        // Explicitly check the main AnySoftKeyboard package as it might not have the broadcast receiver
+        // but still contains the dictionary resources and XML.
+        try {
+            ApplicationInfo askAppInfo = packageManager.getApplicationInfo("com.menny.android.anysoftkeyboard", PackageManager.GET_META_DATA);
+            // Check if it's already in the list to avoid duplicates
+            boolean alreadyIn = false;
+            for (ResolveInfo ri : dictPacks) {
+                if (ri.activityInfo.applicationInfo.packageName.equals(askAppInfo.packageName)) {
+                    alreadyIn = true;
+                    break;
+                }
+            }
+            if (!alreadyIn) {
+                ResolveInfo ri = new ResolveInfo();
+                ri.activityInfo = new android.content.pm.ActivityInfo();
+                ri.activityInfo.applicationInfo = askAppInfo;
+                ri.activityInfo.packageName = askAppInfo.packageName;
+                ri.activityInfo.metaData = askAppInfo.metaData;
+                dictPacks.add(ri);
+            }
+        } catch (NameNotFoundException e) {
+            // ASK not installed, ignore
+        }
+
         for (ResolveInfo ri : dictPacks) {
             ApplicationInfo appInfo = ri.activityInfo.applicationInfo;
             String pkgName = appInfo.packageName;

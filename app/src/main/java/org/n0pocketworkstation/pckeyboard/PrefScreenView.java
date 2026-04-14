@@ -82,15 +82,6 @@ public class PrefScreenView extends AppCompatActivity {
         }
 
         @Override
-        public void onResume() {
-            super.onResume();
-            if (mRenderModePreference != null && LatinKeyboardBaseView.sSetRenderMode == null) {
-                mRenderModePreference.setEnabled(false);
-                mRenderModePreference.setSummary(R.string.render_mode_unavailable);
-            }
-        }
-
-        @Override
         public void onDestroy() {
             SharedPreferences prefs = getPreferenceManager().getSharedPreferences();
             if (prefs != null) {

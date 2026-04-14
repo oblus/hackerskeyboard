@@ -202,6 +202,9 @@ public class LatinIMESettings extends AppCompatActivity {
         }
 
         public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+            if (key.equals("pref_revert_theme_color")) {
+                ((PCKeyboardApp) requireActivity().getApplication()).updateTheme();
+            }
             new BackupManager(requireContext()).dataChanged();
             // If turning on voice input, show dialog
             if (key.equals(VOICE_SETTINGS_KEY) && !mVoiceOn) {
@@ -248,11 +251,15 @@ public class LatinIMESettings extends AppCompatActivity {
                 if (pkg.startsWith("org.n0pocketworkstation.dict") || 
                     pkg.startsWith("org.pocketworkstation.dict") ||
                     pkg.startsWith("com.anysoftkeyboard.languagepack") ||
+                    pkg.equals("com.menny.android.anysoftkeyboard") ||
                     pkg.equals("com.menny.anysoftkeyboard.pack.dictionaries")) {
                     
                     try {
                         String label = pm.getApplicationLabel(pkgInfo.applicationInfo).toString();
                         String entry = label + " [" + pkg + "]";
+                        if (pkg.equals("com.menny.android.anysoftkeyboard")) {
+                            entry = "English from " + entry;
+                        }
                         if (pkg.equals(activePkg)) {
                             int dictSize = 0;
                             BinaryDictionary dict = PluginManager.getDictionary(requireContext(), currentLanguage);

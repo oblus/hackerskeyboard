@@ -131,90 +131,31 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b725c78f-14b3-47e1-be79-6be0db0157bb" name="Changes" comment="fixed jumping OK&lt;-&gt;Enter key">
-      <change afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/SeekBarPreferenceDialogFragmentCompat.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/layout/settings_activity.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradle/libs.versions.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/9.4.1/checksums/checksums.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/9.4.1/checksums/checksums.lock" afterDir="false" />
+    <list default="true" id="b725c78f-14b3-47e1-be79-6be0db0157bb" name="Changes" comment="updated README.md">
+      <change afterPath="$PROJECT_DIR$/app/src/main/assets/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/PCKeyboardApp.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/9.4.1/executionHistory/executionHistory.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/9.4.1/executionHistory/executionHistory.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/9.4.1/executionHistory/executionHistory.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/9.4.1/executionHistory/executionHistory.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/9.4.1/fileHashes/fileHashes.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/9.4.1/fileHashes/fileHashes.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/9.4.1/fileHashes/fileHashes.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/9.4.1/fileHashes/fileHashes.lock" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/9.4.1/fileHashes/resourceHashesCache.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/9.4.1/fileHashes/resourceHashesCache.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/buildOutputCleanup.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/.gradle/file-system.probe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/arm64-v8a/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/arm64-v8a/.ninja_deps" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/arm64-v8a/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/arm64-v8a/.ninja_log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/arm64-v8a/CMakeFiles/jni_pckeyboard.dir/src/main/cpp/char_utils.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/arm64-v8a/CMakeFiles/jni_pckeyboard.dir/src/main/cpp/dictionary.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/arm64-v8a/CMakeFiles/jni_pckeyboard.dir/src/main/cpp/org_n0pocketworkstation_pckeyboard_BinaryDictionary.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/arm64-v8a/configure_fingerprint.bin" beforeDir="false" afterPath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/arm64-v8a/configure_fingerprint.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/armeabi-v7a/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/armeabi-v7a/.ninja_deps" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/armeabi-v7a/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/armeabi-v7a/.ninja_log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/armeabi-v7a/CMakeFiles/jni_pckeyboard.dir/src/main/cpp/char_utils.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/armeabi-v7a/CMakeFiles/jni_pckeyboard.dir/src/main/cpp/dictionary.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/armeabi-v7a/CMakeFiles/jni_pckeyboard.dir/src/main/cpp/org_n0pocketworkstation_pckeyboard_BinaryDictionary.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/armeabi-v7a/configure_fingerprint.bin" beforeDir="false" afterPath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/armeabi-v7a/configure_fingerprint.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/x86/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/x86/.ninja_deps" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/x86/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/x86/.ninja_log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/x86/CMakeFiles/jni_pckeyboard.dir/src/main/cpp/char_utils.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/x86/CMakeFiles/jni_pckeyboard.dir/src/main/cpp/dictionary.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/x86/CMakeFiles/jni_pckeyboard.dir/src/main/cpp/org_n0pocketworkstation_pckeyboard_BinaryDictionary.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/x86/configure_fingerprint.bin" beforeDir="false" afterPath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/x86/configure_fingerprint.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/x86_64/.ninja_deps" beforeDir="false" afterPath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/x86_64/.ninja_deps" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/x86_64/.ninja_log" beforeDir="false" afterPath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/x86_64/.ninja_log" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/x86_64/CMakeFiles/jni_pckeyboard.dir/src/main/cpp/char_utils.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/x86_64/CMakeFiles/jni_pckeyboard.dir/src/main/cpp/dictionary.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/x86_64/CMakeFiles/jni_pckeyboard.dir/src/main/cpp/org_n0pocketworkstation_pckeyboard_BinaryDictionary.cpp.o" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/x86_64/configure_fingerprint.bin" beforeDir="false" afterPath="$PROJECT_DIR$/app/.cxx/Debug/4d2dw36g/x86_64/configure_fingerprint.bin" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/.cxx/tools/debug/arm64-v8a/compile_commands.json" beforeDir="false" afterPath="$PROJECT_DIR$/app/.cxx/tools/debug/arm64-v8a/compile_commands.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/.cxx/tools/debug/armeabi-v7a/compile_commands.json" beforeDir="false" afterPath="$PROJECT_DIR$/app/.cxx/tools/debug/armeabi-v7a/compile_commands.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/.cxx/tools/debug/x86/compile_commands.json" beforeDir="false" afterPath="$PROJECT_DIR$/app/.cxx/tools/debug/x86/compile_commands.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/.cxx/tools/debug/x86_64/compile_commands.json" beforeDir="false" afterPath="$PROJECT_DIR$/app/.cxx/tools/debug/x86_64/compile_commands.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/app/build.gradle" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/AndroidManifest.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/cpp/dictionary.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/cpp/dictionary.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/AutoDictionary.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/AutoDictionary.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/AutoSummaryEditTextPreference.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/AutoSummaryEditTextPreference.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/AutoSummaryListPreference.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/AutoSummaryListPreference.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/CandidateView.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/CandidateView.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/ExpandableDictionary.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/ExpandableDictionary.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/GlobalKeyboardSettings.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/GlobalKeyboardSettings.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/InputLanguageSelection.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/InputLanguageSelection.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/KeyboardSwitcher.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/KeyboardSwitcher.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/LanguageSwitcher.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/LanguageSwitcher.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/LatinIME.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/LatinIME.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/LatinIMESettings.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/LatinIMESettings.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/LatinIMEUtil.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/LatinIMEUtil.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/LatinKeyboard.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/LatinKeyboard.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/LatinKeyboardBaseView.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/LatinKeyboardBaseView.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/LatinKeyboardView.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/LatinKeyboardView.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/NotificationReceiver.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/NotificationReceiver.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/PrefScreenActions.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/PrefScreenActions.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/PrefScreenFeedback.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/PrefScreenFeedback.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/PluginManager.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/PluginManager.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/PrefScreenView.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/PrefScreenView.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/SeekBarPreference.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/SeekBarPreference.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/SeekBarPreferenceString.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/SeekBarPreferenceString.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/Suggest.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/Suggest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/UserBigramDictionary.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/UserBigramDictionary.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/language_selection.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/language_selection.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/main.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/main.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/attrs-seekbarpref.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/attrs-seekbarpref.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/styles.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/styles.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/xml/language_prefs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/xml/language_prefs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/res/xml/prefs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/xml/prefs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/xml/prefs_actions.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/xml/prefs_actions.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/xml/prefs_feedback.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/xml/prefs_feedback.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/xml/prefs_view.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/xml/prefs_view.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build/reports/problems/problems-report.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/problems/problems-report.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gradle/libs.versions.toml" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/libs.versions.toml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -297,7 +238,7 @@
     &quot;project.structure.proportion&quot;: &quot;0.17&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
     &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;editing.templates&quot;
+    &quot;settings.editor.selected.configurable&quot;: &quot;org.jetbrains.plugins.github.ui.GithubSettingsConfigurable&quot;
   }
 }</component>
   <component name="RunManager" selected="Gradle.syncG&amp;buildApk">
@@ -505,13 +446,39 @@
       <option name="project" value="LOCAL" />
       <updated>1776026180843</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="fixed jumping OK&lt;-&gt;Enter key">
+      <option name="closed" value="true" />
+      <created>1776104795906</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1776104795906</updated>
+    </task>
+    <task id="LOCAL-00005" summary="overide some XD deprecations&#10;added option: minimum number letters">
+      <option name="closed" value="true" />
+      <created>1776105102241</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1776105102241</updated>
+    </task>
+    <task id="LOCAL-00006" summary="updated README.md">
+      <option name="closed" value="true" />
+      <created>1776113067239</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1776113067239</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Initial commit of my fork" />
     <MESSAGE value="fixed jumping OK&lt;-&gt;Enter key" />
-    <option name="LAST_COMMIT_MESSAGE" value="fixed jumping OK&lt;-&gt;Enter key" />
+    <MESSAGE value="overide some XD deprecations&#10;added option: minimum number letters" />
+    <MESSAGE value="updated README.md" />
+    <option name="LAST_COMMIT_MESSAGE" value="updated README.md" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/hackerskeyboard_master$syncG_buildApk.ic" NAME="syncG&amp;buildApk Coverage Results" MODIFIED="1776099772130" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
@@ -521,12 +488,12 @@
       <map>
         <entry key="org.n0pocketworkstation.pckeyboard">
           <value>
-            <CheckInfo lastCheckTimestamp="1776029341592" />
+            <CheckInfo lastCheckTimestamp="1776116148243" />
           </value>
         </entry>
         <entry key="org.n0pocketworkstation.pckeyboard.test">
           <value>
-            <CheckInfo lastCheckTimestamp="1776029341592" />
+            <CheckInfo lastCheckTimestamp="1776116148242" />
           </value>
         </entry>
         <entry key="org.nopocketworkstation.pckeyboard">

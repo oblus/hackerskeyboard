@@ -348,6 +348,14 @@
             android:summaryOff="@string/summary_connectbot_tab_hack_false"
             />
 
+        <CheckBoxPreference app:iconSpaceReserved="false"
+            android:key="pref_revert_theme_color"
+            android:title="@string/title_revert_theme_color"
+            android:summary="@string/summary_revert_theme_color"
+            android:persistent="true"
+            android:defaultValue="false"
+            />
+
     </PreferenceCategory>
 
     <PreferenceCategory app:iconSpaceReserved="false"

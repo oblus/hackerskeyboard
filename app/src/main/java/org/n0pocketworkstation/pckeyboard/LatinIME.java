@@ -523,7 +523,7 @@ public class LatinIME extends InputMethodService implements
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,
-                        "Hacker's Keyboard", NotificationManager.IMPORTANCE_LOW);
+                        "Hacked Keyboard GEM", NotificationManager.IMPORTANCE_LOW);
                 channel.setDescription("Keyboard status notification");
                 mNotificationManager.createNotificationChannel(channel);
             }
@@ -697,6 +697,10 @@ public class LatinIME extends InputMethodService implements
         }
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         prefs.unregisterOnSharedPreferenceChangeListener(this);
+        if (mKeyboardSwitcher != null) {
+            mKeyboardSwitcher.onDestroy();
+        }
+        sInstance = null;
         super.onDestroy();
     }
 
@@ -2431,6 +2435,9 @@ public class LatinIME extends InputMethodService implements
                             || mJustRevertedSeparator.length() == 0
                             || mJustRevertedSeparator.charAt(0) != primaryCode)) {
                 pickedDefault = pickDefaultSuggestion();
+                if (!pickedDefault) {
+                    commitTyped(ic, true);
+                }
                 // Picked the suggestion by the space key. We consider this
                 // as "added an auto space" in autocomplete mode, but as manually
                 // typed space in "quick fixes" mode.
@@ -2580,7 +2587,7 @@ public class LatinIME extends InputMethodService implements
         }
 
         if (mWord.size() < sKeyboardSettings.minLettersSuggestion) {
-            showSuggestions(null, "", false, false);
+            showSuggestions(null, mWord.getTypedWord(), false, false);
             return;
         }
 
@@ -2642,12 +2649,20 @@ public class LatinIME extends InputMethodService implements
         setSuggestions(stringList, false, typedWordValid, correctionAvailable);
         if (stringList != null && stringList.size() > 0) {
             if (correctionAvailable && !typedWordValid && stringList.size() > 1) {
-                mBestWord = stringList.get(1);
+                CharSequence suggestion = stringList.get(1);
+                // Don't auto-correct lowercase to capitalized unless auto-caps is on
+                if (typedWord.length() > 0 && Character.isLowerCase(typedWord.charAt(0))
+                        && Character.isUpperCase(suggestion.charAt(0))
+                        && !mWord.isAutoCapitalized()) {
+                    mBestWord = typedWord;
+                } else {
+                    mBestWord = suggestion;
+                }
             } else {
                 mBestWord = typedWord;
             }
         } else {
-            mBestWord = null;
+            mBestWord = typedWord;
         }
         setCandidatesViewShown(isCandidateStripVisible() || mCompletionOn);
     }
