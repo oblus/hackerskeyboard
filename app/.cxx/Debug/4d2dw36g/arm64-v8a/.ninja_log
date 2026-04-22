@@ -28,3 +28,8 @@
 14	909	7978847846587943	CMakeFiles/jni_pckeyboard.dir/src/main/cpp/org_n0pocketworkstation_pckeyboard_BinaryDictionary.cpp.o	8cfc419c1689b96b
 52	963	7978847847091277	CMakeFiles/jni_pckeyboard.dir/src/main/cpp/dictionary.cpp.o	69e7a3cd2ef2926
 964	1613	7978847853287765	../../../../build/intermediates/cxx/Debug/4d2dw36g/obj/arm64-v8a/libjni_pckeyboard.so	45ba87cbdbfa59a5
+0	102	0	clean	61e8e0bace0ec422
+61	1129	7981631692848416	CMakeFiles/jni_pckeyboard.dir/src/main/cpp/dictionary.cpp.o	69e7a3cd2ef2926
+90	1414	7981631697882950	CMakeFiles/jni_pckeyboard.dir/src/main/cpp/char_utils.cpp.o	38390df8d8c4f4d3
+12	1543	7981631699168354	CMakeFiles/jni_pckeyboard.dir/src/main/cpp/org_n0pocketworkstation_pckeyboard_BinaryDictionary.cpp.o	8cfc419c1689b96b
+1543	3817	7981631721645113	../../../../build/intermediates/cxx/Debug/4d2dw36g/obj/arm64-v8a/libjni_pckeyboard.so	45ba87cbdbfa59a5
