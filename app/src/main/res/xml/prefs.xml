@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:hk="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:title="@string/english_ime_settings"
+    android:key="english_ime_settings">
+
+    <!-- SECTION 1: APPEARANCE & THEMES -->
+    <PreferenceCategory app:iconSpaceReserved="false"
+        android:title="@string/title_keyboard_view_settings"
+        android:key="graphics_settings">
+
+        <org.n0pocketworkstation.pckeyboard.SeekBarPreferenceString app:iconSpaceReserved="false"
+            android:defaultValue="@string/default_height_portrait"
+            hk:minValue="15"
+            hk:maxValue="75"
+            hk:step="1"
+            hk:displayFormat="%.0f%%"
+            android:key="settings_height_portrait"
+            android:title="@string/title_keyboard_height_portrait"
+            android:persistent="true" />
+
+        <org.n0pocketworkstation.pckeyboard.SeekBarPreferenceString app:iconSpaceReserved="false"
+            android:defaultValue="@string/default_height_landscape"
+            hk:minValue="15"
+            hk:maxValue="75"
+            hk:step="1"
+            hk:displayFormat="%.0f%%"
+            android:key="settings_height_landscape"
+            android:title="@string/title_keyboard_height_landscape"
+            android:persistent="true" />
+
+        <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference app:iconSpaceReserved="false"
+            android:key="pref_keyboard_mode_portrait"
+            android:title="@string/title_keyboard_mode_portrait"
+            android:entryValues="@array/keyboard_mode_values"
+            android:entries="@array/keyboard_mode_entries"
+            android:defaultValue="@string/default_keyboard_mode_portrait"
+            android:persistent="true" />
+
+        <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference app:iconSpaceReserved="false"
+            android:key="pref_keyboard_mode_landscape"
+            android:title="@string/title_keyboard_mode_landscape"
+            android:entryValues="@array/keyboard_mode_values"
+            android:entries="@array/keyboard_mode_entries"
+            android:defaultValue="@string/default_keyboard_mode_landscape"
+            android:persistent="true" />
+
+        <CheckBoxPreference
+            android:key="suggestions_in_landscape"
+            android:title="@string/title_suggestions_in_landscape"
+            android:persistent="true"
+            android:defaultValue="@bool/default_suggestions_in_landscape"
+            android:summaryOn="@string/summary_suggestions_in_landscape_true"
+            android:summaryOff="@string/summary_suggestions_in_landscape_false"
+            app:iconSpaceReserved="false" />
+
+        <CheckBoxPreference
+            android:key="macros_in_landscape"
+            android:title="@string/title_macros_in_landscape"
+            android:persistent="true"
+            android:defaultValue="true"
+            android:summaryOn="@string/summary_macros_in_landscape_true"
+            android:summaryOff="@string/summary_macros_in_landscape_false"
+            app:iconSpaceReserved="false" />
+
+        <CheckBoxPreference app:iconSpaceReserved="false"
+            android:key="pref_revert_theme_color"
+            android:title="@string/title_revert_theme_color"
+            android:summary="@string/summary_revert_theme_color"
+            android:persistent="true"
+            android:defaultValue="false" />
+
+        <PreferenceScreen app:iconSpaceReserved="false"
+            android:title="@string/pref_screen_view_title"
+            android:summary="@string/pref_screen_view_title_summary">
+            <intent android:action="org.n0pocketworkstation.pckeyboard.PREFS_VIEW" />
+        </PreferenceScreen>
+    </PreferenceCategory>
+
+    <!-- SECTION 2: TYPING & LAYOUT -->
+    <PreferenceCategory app:iconSpaceReserved="false"
+        android:title="@string/title_key_layout_options"
+        android:key="layout_settings">
+
+        <PreferenceScreen app:iconSpaceReserved="false"
+            android:title="@string/language_selection_title"
+            android:summary="@string/language_selection_summary">
+            <intent android:action="org.n0pocketworkstation.pckeyboard.INPUT_LANGUAGE_SELECTION" />
+        </PreferenceScreen>
+
+        <CheckBoxPreference app:iconSpaceReserved="false"
+            android:key="pref_swap_action_keys"
+            android:title="Modern Action Keys"
+            android:summary="Swaps Enter and Backspace to match modern mobile layouts"
+            android:defaultValue="false" />
+
+        <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference app:iconSpaceReserved="false"
+            android:key="auto_cap_mode"
+            android:title="@string/auto_cap"
+            android:persistent="true"
+            android:entries="@array/auto_cap_modes_labels"
+            android:entryValues="@array/auto_cap_modes_values"
+            android:defaultValue="0" />
+
+        <CheckBoxPreference app:iconSpaceReserved="false"
+            android:key="pref_caps_lock"
+            android:title="@string/title_caps_lock"
+            android:persistent="true"
+            android:defaultValue="@bool/default_caps_lock"
+            android:summaryOn="@string/summary_caps_lock_true"
+            android:summaryOff="@string/summary_caps_lock_false" />
+
+        <CheckBoxPreference app:iconSpaceReserved="false"
+            android:key="pref_reverse_tab_key"
+            android:title="@string/title_reverse_tab_key"
+            android:summary="@string/summary_reverse_tab_key"
+            android:persistent="true"
+            android:defaultValue="false" />
+
+        <ListPreference app:iconSpaceReserved="false"
+            android:key="settings_key"
+            android:title="@string/prefs_settings_key"
+            android:persistent="true"
+            android:entryValues="@array/settings_key_modes_values"
+            android:entries="@array/settings_key_modes"
+            android:defaultValue="@string/settings_key_mode_auto" />
+
+        <ListPreference app:iconSpaceReserved="false"
+            android:key="voice_mode"
+            android:title="@string/voice_input"
+            android:persistent="true"
+            android:entryValues="@array/voice_input_modes_values"
+            android:entries="@array/voice_input_modes"
+            android:defaultValue="@string/voice_mode_symbols" />
+    </PreferenceCategory>
+
+    <!-- SECTION 3: PC KEYBOARD COMPATIBILITY -->
+    <PreferenceCategory app:iconSpaceReserved="false"
+        android:title="PC Compatibility"
+        android:key="pc_compatibility_settings">
+
+        <CheckBoxPreference app:iconSpaceReserved="false"
+            android:key="force_keyboard_on"
+            android:title="@string/title_force_keyboard_on"
+            android:persistent="true"
+            android:defaultValue="@bool/default_force_keyboard_on"
+            android:summaryOn="@string/summary_force_keyboard_on_true"
+            android:summaryOff="@string/summary_force_keyboard_on_false" />
+
+        <CheckBoxPreference app:iconSpaceReserved="false"
+            android:key="keyboard_notification"
+            android:title="@string/title_keyboard_notification"
+            android:persistent="true"
+            android:defaultValue="@bool/default_keyboard_notification"
+            android:summaryOn="@string/summary_keyboard_notification_true"
+            android:summaryOff="@string/summary_keyboard_notification_false" />
+
+        <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference app:iconSpaceReserved="false"
+            android:key="pref_ctrl_a_override"
+            android:title="@string/title_ctrl_a_override"
+            android:persistent="true"
+            android:entries="@array/ctrl_a_override_entries"
+            android:entryValues="@array/ctrl_a_override_values"
+            android:defaultValue="@string/default_ctrl_a_override" />
+
+        <PreferenceScreen app:iconSpaceReserved="false"
+            android:key="custom_key_codes_screen"
+            android:title="Custom Key Codes"
+            android:summary="Configure Ctrl, Alt, and Meta key behavior">
+            <intent android:action="org.n0pocketworkstation.pckeyboard.PREFS_ACTIONS" />
+        </PreferenceScreen>
+
+        <CheckBoxPreference app:iconSpaceReserved="false"
+            android:key="connectbot_tab_hack"
+            android:title="@string/title_connectbot_tab_hack"
+            android:persistent="true"
+            android:defaultValue="@bool/default_connectbot_tab_hack"
+            android:summaryOn="@string/summary_connectbot_tab_hack_true"
+            android:summaryOff="@string/summary_connectbot_tab_hack_false" />
+
+        <PreferenceScreen app:iconSpaceReserved="false"
+            android:key="macro_settings_screen"
+            android:title="@string/title_macro_settings"
+            android:summary="Configure custom text and control sequences">
+            <intent android:action="org.n0pocketworkstation.pckeyboard.PREFS_MACROS" />
+        </PreferenceScreen>
+    </PreferenceCategory>
+
+    <!-- SECTION 4: GESTURES & FEEDBACK -->
+    <PreferenceCategory app:iconSpaceReserved="false"
+        android:title="@string/pref_screen_feedback_title"
+        android:key="interaction_settings">
+
+        <PreferenceScreen app:iconSpaceReserved="false"
+            android:title="@string/pref_screen_feedback_title"
+            android:summary="@string/pref_screen_feedback_title_summary">
+            <intent android:action="org.n0pocketworkstation.pckeyboard.PREFS_FEEDBACK" />
+        </PreferenceScreen>
+
+        <PreferenceScreen app:iconSpaceReserved="false"
+            android:title="@string/pref_screen_actions_title"
+            android:summary="@string/pref_screen_actions_title_summary">
+            <intent android:action="org.n0pocketworkstation.pckeyboard.PREFS_ACTIONS" />
+        </PreferenceScreen>
+
+        <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference app:iconSpaceReserved="false"
+            android:key="pref_slide_keys_int"
+            android:title="@string/title_slide_keys"
+            android:persistent="true"
+            android:entries="@array/slide_keys_entries"
+            android:entryValues="@array/slide_keys_values"
+            android:defaultValue="0" />
+
+        <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference app:iconSpaceReserved="false"
+            android:key="pref_popup_content"
+            android:title="@string/title_popup_content"
+            android:persistent="true"
+            android:entryValues="@array/popup_content_values"
+            android:entries="@array/popup_content_entries"
+            android:defaultValue="@string/default_popup_content" />
+
+        <org.n0pocketworkstation.pckeyboard.SeekBarPreferenceString app:iconSpaceReserved="false"
+            android:defaultValue="@string/default_long_press_duration"
+            hk:minValue="100"
+            hk:maxValue="2000"
+            hk:logScale="true"
+            hk:displayFormat="%.0f ms"
+            android:key="pref_long_press_duration"
+            android:title="@string/title_long_press_duration"
+            android:persistent="true" />
+    </PreferenceCategory>
+
+    <!-- SECTION 5: TEXT PREDICTION -->
+    <PreferenceCategory app:iconSpaceReserved="false"
+        android:title="@string/prediction_category"
+        android:key="prediction_settings">
+
+        <CheckBoxPreference app:iconSpaceReserved="false"
+            android:key="show_suggestions"
+            android:title="@string/show_suggestions"
+            android:summary="@string/show_suggestions_summary"
+            android:persistent="true"
+            android:defaultValue="@bool/default_suggestions" />
+
+        <org.n0pocketworkstation.pckeyboard.SeekBarPreferenceString app:iconSpaceReserved="false"
+            android:key="pref_min_letters_suggestion"
+            android:title="@string/title_min_letters_suggestion"
+            android:summary="@string/summary_min_letters_suggestion"
+            android:persistent="true"
+            android:defaultValue="2"
+            hk:minValue="2"
+            hk:maxValue="16"
+            hk:displayFormat="%.0f"
+            hk:showSummaryValue="false"
+            android:dependency="show_suggestions" />
+
+        <CheckBoxPreference app:iconSpaceReserved="false"
+            android:key="auto_complete"
+            android:title="@string/auto_complete"
+            android:summary="@string/auto_complete_summary"
+            android:persistent="true"
+            android:defaultValue="@bool/enable_autocorrect"
+            android:dependency="show_suggestions" />
+
+        <CheckBoxPreference app:iconSpaceReserved="false"
+            android:key="recorrection_enabled"
+            android:title="@string/prefs_enable_recorrection"
+            android:summary="@string/prefs_enable_recorrection_summary"
+            android:persistent="true"
+            android:defaultValue="@bool/default_recorrection_enabled" />
+
+        <org.n0pocketworkstation.pckeyboard.AutoSummaryEditTextPreference app:iconSpaceReserved="false"
+            android:key="pref_suggested_punctuation"
+            android:title="@string/title_suggested_punctuation"
+            android:defaultValue="@string/suggested_punctuations" />
+
+        <CheckBoxPreference app:iconSpaceReserved="false"
+            android:key="quick_fixes"
+            android:title="@string/quick_fixes"
+            android:summary="@string/quick_fixes_summary"
+            android:persistent="true"
+            android:defaultValue="@bool/default_quick_fixes" />
+
+        <Preference app:iconSpaceReserved="false"
+            android:key="pref_detected_dictionaries"
+            android:title="@string/title_detected_dictionaries"
+            android:persistent="false" />
+    </PreferenceCategory>
+
+    <!-- SECTION 6: ADVANCED & INFO -->
+    <PreferenceCategory app:iconSpaceReserved="false"
+        android:title="Advanced &amp; About"
+        android:key="debugging">
+
+        <CheckBoxPreference app:iconSpaceReserved="false"
+            android:key="fullscreen_override"
+            android:title="@string/title_fullscreen_override"
+            android:persistent="true"
+            android:defaultValue="@bool/default_fullscreen_override"
+            android:summaryOn="@string/summary_fullscreen_override_true"
+            android:summaryOff="@string/summary_fullscreen_override_false" />
+
+        <CheckBoxPreference app:iconSpaceReserved="false"
+            android:key="pref_touch_pos"
+            android:title="@string/title_touch_pos"
+            android:persistent="true"
+            android:defaultValue="false"
+            android:summaryOn="@string/summary_touch_pos_true"
+            android:summaryOff="@string/summary_touch_pos_false" />
+
+        <Preference app:iconSpaceReserved="false"
+            android:key="input_connection_info"
+            android:title="@string/title_input_connection_details" />
+
+        <Preference app:iconSpaceReserved="false"
+            android:key="export_settings"
+            android:title="Export Settings (JSON)"
+            android:summary="" />
+
+        <Preference app:iconSpaceReserved="false"
+            android:key="import_settings"
+            android:title="Import Settings (JSON)"
+            android:summary="" />
+
+        <Preference app:iconSpaceReserved="false"
+            android:key="label_version"
+            android:title="@string/title_version"
+            android:summary="@string/auto_version" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

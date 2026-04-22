@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/macro_bar_container"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/candidate_strip_height"
+    android:orientation="horizontal"
+    android:background="#FF111111"
+    android:padding="0dp"
+    android:visibility="gone">
+
+    <Button
+        android:id="@+id/macro_tile_1"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:text="M1"
+        android:textSize="10sp"
+        android:padding="1dp"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:textColor="#FF00FFFF"
+        android:background="?android:attr/selectableItemBackground"
+        android:textAllCaps="false" />
+
+    <View android:layout_width="1dp" android:layout_height="match_parent" android:background="#FF333333" />
+
+    <Button
+        android:id="@+id/macro_tile_2"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:text="M2"
+        android:textSize="10sp"
+        android:padding="1dp"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:textColor="#FF00FFFF"
+        android:background="?android:attr/selectableItemBackground"
+        android:textAllCaps="false" />
+
+    <View android:layout_width="1dp" android:layout_height="match_parent" android:background="#FF333333" />
+
+    <Button
+        android:id="@+id/macro_tile_3"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:text="M3"
+        android:textSize="10sp"
+        android:padding="1dp"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:textColor="#FF00FFFF"
+        android:background="?android:attr/selectableItemBackground"
+        android:textAllCaps="false" />
+
+    <View android:layout_width="1dp" android:layout_height="match_parent" android:background="#FF333333" />
+
+    <Button
+        android:id="@+id/macro_tile_4"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:text="M4"
+        android:textSize="10sp"
+        android:padding="1dp"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:textColor="#FF00FFFF"
+        android:background="?android:attr/selectableItemBackground"
+        android:textAllCaps="false" />
+
+    <View android:layout_width="1dp" android:layout_height="match_parent" android:background="#FF333333" />
+
+    <Button
+        android:id="@+id/macro_tile_5"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:text="M5"
+        android:textSize="10sp"
+        android:padding="1dp"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:textColor="#FF00FFFF"
+        android:background="?android:attr/selectableItemBackground"
+        android:textAllCaps="false" />
+</LinearLayout>

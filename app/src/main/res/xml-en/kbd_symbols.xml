@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/* 
+**
+** Copyright 2008, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
+-->
+
+<Keyboard
+    xmlns:android="http://schemas.android.com/apk/res/android" xmlns:hk="http://schemas.android.com/apk/res-auto"
+    hk:keyWidth="10%p"
+    hk:horizontalGap="0px"
+    hk:verticalGap="@dimen/key_bottom_gap"
+>
+    <Row
+        hk:rowEdgeFlags="top"
+    >
+        <Key
+            hk:keyLabel="1"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="¹½⅓¼⅛"
+            hk:keyEdgeFlags="left" />
+        <Key
+            hk:keyLabel="2"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="²⅔" />
+        <Key
+            hk:keyLabel="3"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="³¾⅜" />
+        <Key
+            hk:keyLabel="4"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="⁴" />
+        <Key
+            hk:keyLabel="5"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="⅝" />
+        <Key
+            hk:keyLabel="6" />
+        <Key
+            hk:keyLabel="7"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="⅞" />
+        <Key
+            hk:keyLabel="8" />
+        <Key
+            hk:keyLabel="9" />
+        <Key
+            hk:keyLabel="0"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="ⁿ∅"
+            hk:keyEdgeFlags="right" />
+    </Row>
+    <Row>
+        <Key
+            hk:keyLabel="\@"
+            hk:keyEdgeFlags="left" />
+        <Key
+            hk:keyLabel="\#" />
+        <Key
+            hk:keyLabel="$"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="¢£€¥₣₤₱" />
+        <Key
+            hk:keyLabel="%"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="‰" />
+        <Key
+            hk:keyLabel="&amp;" />
+        <Key
+            hk:keyLabel="*"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="†‡★" />
+        <Key
+            hk:keyLabel="-"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="_–—" />
+        <Key
+            hk:keyLabel="+"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="±" />
+        <Key
+            hk:keyLabel="("
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="[{&lt;" />
+        <Key
+            hk:keyLabel=")"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="]}&gt;"
+            hk:keyEdgeFlags="right" />
+    </Row>
+    <Row>
+        <Key
+            hk:codes="@integer/key_shift"
+            hk:keyLabel="@string/label_alt_key"
+            hk:keyWidth="15%p"
+            hk:isModifier="true"
+            hk:isSticky="true"
+            hk:keyEdgeFlags="left" />
+        <Key
+            hk:keyLabel="!"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="¡" />
+        <Key
+            hk:keyLabel="&quot;"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="“”«»˝" />
+        <Key
+            hk:keyLabel="\'"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="‘’" />
+        <Key
+            hk:keyLabel=":" />
+        <Key
+            hk:keyLabel=";" />
+        <Key
+            hk:keyLabel="/" />
+        <Key
+            hk:keyLabel="\?"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="¿" />
+        <Key
+            hk:codes="@integer/key_delete"
+            hk:keyIcon="@drawable/sym_keyboard_delete"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_delete"
+            hk:keyWidth="15%p"
+            hk:isModifier="true"
+            hk:isRepeatable="true"
+            hk:keyEdgeFlags="right" />
+    </Row>
+    <Row
+        hk:keyboardMode="@+id/mode_symbols"
+        hk:rowEdgeFlags="bottom"
+    >
+        <Key
+            hk:codes="@integer/key_symbol"
+            hk:keyLabel="@string/label_alpha_key"
+            hk:keyWidth="20%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="left" />
+        <Key
+            hk:codes="@integer/key_f1"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_space"
+            hk:keyIcon="@drawable/sym_keyboard_space"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_space"
+            hk:keyWidth="40%p"
+            hk:isModifier="true" />
+        <Key
+            hk:keyLabel="."
+            hk:keyIcon="@drawable/hint_popup"
+            hk:popupKeyboard="@xml/popup_punctuation"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_return"
+            hk:keyIcon="@drawable/sym_keyboard_return"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_return"
+            hk:keyWidth="20%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="right" />
+    </Row>
+    <Row
+        hk:keyboardMode="@+id/mode_symbols_with_settings_key"
+        hk:rowEdgeFlags="bottom"
+    >
+        <Key
+            hk:codes="@integer/key_symbol"
+            hk:keyLabel="@string/label_alpha_key"
+            hk:keyWidth="15%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="left" />
+        <Key
+            hk:codes="@integer/key_settings"
+            hk:keyIcon="@drawable/sym_keyboard_settings"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_settings"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_f1"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_space"
+            hk:keyIcon="@drawable/sym_keyboard_space"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_space"
+            hk:keyWidth="30%p"
+            hk:isModifier="true" />
+        <Key
+            hk:keyLabel="."
+            hk:keyIcon="@drawable/hint_popup"
+            hk:popupKeyboard="@xml/popup_punctuation"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_return"
+            hk:keyIcon="@drawable/sym_keyboard_return"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_return"
+            hk:keyWidth="25%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="right" />
+    </Row>
+</Keyboard>

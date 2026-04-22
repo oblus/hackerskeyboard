@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/*
+**
+** Copyright 2011, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License");
+** you may not use this file except in compliance with the License.
+** You may obtain a copy of the License at
+**
+**     http://www.apache.org/licenses/LICENSE-2.0
+**
+** Unless required by applicable law or agreed to in writing, software
+** distributed under the License is distributed on an "AS IS" BASIS,
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+** See the License for the specific language governing permissions and
+** limitations under the License.
+*/
+-->
+
+<Keyboard
+    xmlns:android="http://schemas.android.com/apk/res/android" xmlns:hk="http://schemas.android.com/apk/res-auto"
+    hk:keyWidth="7.1428571485%p"
+    hk:horizontalGap="0px"
+    hk:verticalGap="@dimen/key_bottom_gap"
+    hk:layoutRows="5"
+    hk:layoutColumns="14"
+>
+    <Row hk:rowEdgeFlags="top" hk:extension="true">
+        <Key hk:keyLabel="F1" hk:codes="@integer/key_fkey_f1" hk:isModifier="true" hk:keyEdgeFlags="left"/>
+        <Key hk:keyLabel="F2" hk:codes="@integer/key_fkey_f2" hk:isModifier="true" />
+        <Key hk:keyLabel="F3" hk:codes="@integer/key_fkey_f3" hk:isModifier="true" />
+        <Key hk:keyLabel="F4" hk:codes="@integer/key_fkey_f4" hk:isModifier="true" />
+        <Key hk:keyLabel="F5" hk:codes="@integer/key_fkey_f5" hk:isModifier="true" />
+        <Key hk:keyLabel="F6" hk:codes="@integer/key_fkey_f6" hk:isModifier="true" />
+        <Key hk:keyLabel="F7" hk:codes="@integer/key_fkey_f7" hk:isModifier="true" />
+        <Key hk:keyLabel="F8" hk:codes="@integer/key_fkey_f8" hk:isModifier="true" />
+        <Key hk:keyLabel="F9" hk:codes="@integer/key_fkey_f9" hk:isModifier="true" />
+        <Key hk:keyLabel="F10" hk:codes="@integer/key_fkey_f10" hk:isModifier="true" />
+        <Key hk:keyLabel="F11" hk:codes="@integer/key_fkey_f11" hk:isModifier="true" />
+        <Key hk:keyLabel="F12" hk:codes="@integer/key_fkey_f12" hk:isModifier="true" />
+	<Key
+            hk:codes="@integer/key_home"
+            hk:isModifier="true"            
+            hk:keyLabel="Home" />
+	<Key
+            hk:codes="@integer/key_end"
+            hk:isModifier="true"            
+            hk:keyLabel="End"
+            hk:keyEdgeFlags="right" />
+        />
+    </Row>
+    <Row
+        hk:rowEdgeFlags="top"
+    >
+        <Key
+            hk:keyLabel="@string/key_tlde_main"
+            hk:shiftLabel="@string/key_tlde_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_tlde_alt"
+            hk:keyWidth="4.5714285%p"
+            hk:keyEdgeFlags="left" />
+        <Key
+            hk:keyLabel="@string/key_ae01_main"
+            hk:shiftLabel="@string/key_ae01_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ae01_alt" />
+        <Key
+            hk:keyLabel="@string/key_ae02_main"
+            hk:shiftLabel="@string/key_ae02_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ae02_alt" />
+        <Key
+            hk:keyLabel="@string/key_ae03_main"
+            hk:shiftLabel="@string/key_ae03_shift"
+            hk:popupKeyboard="@xml/kbd_popup_narrow_template"
+            hk:popupCharacters="@string/key_ae03_alt" />
+        <Key
+            hk:keyLabel="@string/key_ae04_main"
+            hk:shiftLabel="@string/key_ae04_shift"
+            hk:popupKeyboard="@xml/kbd_popup_narrow_template"
+            hk:popupCharacters="@string/key_ae04_alt" />
+        <Key
+            hk:keyLabel="@string/key_ae05_main"
+            hk:shiftLabel="@string/key_ae05_shift"
+            hk:popupKeyboard="@xml/kbd_popup_narrow_template"
+            hk:popupCharacters="@string/key_ae05_alt" />
+        <Key
+            hk:keyLabel="@string/key_ae06_main"
+            hk:shiftLabel="@string/key_ae06_shift"
+            hk:popupKeyboard="@xml/kbd_popup_narrow_template"
+            hk:popupCharacters="@string/key_ae06_alt" />
+        <Key
+            hk:keyLabel="@string/key_ae07_main"
+            hk:shiftLabel="@string/key_ae07_shift"
+            hk:popupKeyboard="@xml/kbd_popup_narrow_template"
+            hk:popupCharacters="@string/key_ae07_alt" />
+        <Key
+            hk:keyLabel="@string/key_ae08_main"
+            hk:shiftLabel="@string/key_ae08_shift"
+            hk:popupKeyboard="@xml/kbd_popup_narrow_template"
+            hk:popupCharacters="@string/key_ae08_alt" />
+        <Key
+            hk:keyLabel="@string/key_ae09_main"
+            hk:shiftLabel="@string/key_ae09_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ae09_alt" />
+        <Key
+            hk:keyLabel="@string/key_ae10_main"
+            hk:shiftLabel="@string/key_ae10_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ae10_alt" />
+        <Key
+            hk:keyLabel="@string/key_ae11_main"
+            hk:shiftLabel="@string/key_ae11_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ae11_shift" />
+        <Key
+            hk:keyLabel="@string/key_ae12_main"
+            hk:shiftLabel="@string/key_ae12_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ae12_alt" />
+        <Key
+            hk:codes="@integer/key_delete"
+            hk:keyIcon="@drawable/sym_keyboard_delete"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_delete"
+            hk:keyWidth="9.7142855%p"
+            hk:isModifier="true"
+            hk:isRepeatable="true"
+            hk:keyEdgeFlags="right" />
+    </Row>
+    <Row>
+        <Key
+            hk:codes="@integer/key_tab"
+            hk:keyIcon="@drawable/sym_keyboard_tab"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_tab"
+            hk:keyEdgeFlags="left"
+            hk:isModifier="true" />
+        <Key
+            hk:keyLabel="@string/key_ad01_main"
+            hk:shiftLabel="@string/key_ad01_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ad01_alt" />
+        <Key
+            hk:keyLabel="@string/key_ad02_main"
+            hk:shiftLabel="@string/key_ad02_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ad02_alt" />
+        <Key
+            hk:keyLabel="@string/key_ad03_main"
+            hk:shiftLabel="@string/key_ad03_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ad03_alt" />
+        <Key
+            hk:keyLabel="@string/key_ad04_main"
+            hk:shiftLabel="@string/key_ad04_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ad04_alt" />
+        <Key
+            hk:keyLabel="@string/key_ad05_main"
+            hk:shiftLabel="@string/key_ad05_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ad05_alt" />
+        <Key
+            hk:keyLabel="@string/key_ad06_main"
+            hk:shiftLabel="@string/key_ad06_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ad06_alt" />
+        <Key
+            hk:keyLabel="@string/key_ad07_main"
+            hk:shiftLabel="@string/key_ad07_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ad07_alt" />
+        <Key
+            hk:keyLabel="@string/key_ad08_main"
+            hk:shiftLabel="@string/key_ad08_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ad08_alt" />
+        <Key
+            hk:keyLabel="@string/key_ad09_main"
+            hk:shiftLabel="@string/key_ad09_shift"
+            hk:popupKeyboard="@xml/kbd_popup_narrow_template"
+            hk:popupCharacters="@string/key_ad09_alt" />
+
+        <Key
+            hk:keyLabel="@string/key_ad10_main"
+            hk:shiftLabel="@string/key_ad10_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ad10_alt"
+            />
+        <Key
+            hk:keyLabel="@string/key_ad11_main"
+            hk:shiftLabel="@string/key_ad11_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ad11_alt" />res/xml/kbd_full.xml
+        <Key
+            hk:keyLabel="@string/key_ad12_main"
+            hk:shiftLabel="@string/key_ad12_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ad12_alt" />
+        <Key
+            hk:codes="@integer/key_return"
+            hk:keyIcon="@drawable/sym_keyboard_return"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_return"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="right" />
+    </Row>
+    <Row>
+        <Key
+            hk:keyLabel="Ctrl"
+            hk:keyWidth="10.7142855%p"
+            hk:codes="@integer/key_ctrl_left"
+            hk:isSticky="true"
+            hk:keyEdgeFlags="left"
+            hk:isModifier="true" />
+        <Key
+            hk:keyLabel="@string/key_ac01_main"
+            hk:shiftLabel="@string/key_ac01_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ac01_alt" />
+        <Key
+            hk:keyLabel="@string/key_ac02_main"
+            hk:shiftLabel="@string/key_ac02_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ac02_alt" />
+        <Key
+            hk:keyLabel="@string/key_ac03_main"
+            hk:shiftLabel="@string/key_ac03_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ac03_alt" />
+        <Key
+            hk:keyLabel="@string/key_ac04_main"
+            hk:shiftLabel="@string/key_ac04_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ac04_alt" />
+        <Key
+            hk:keyLabel="@string/key_ac05_main"
+            hk:shiftLabel="@string/key_ac05_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ac05_alt" />
+        <Key
+            hk:keyLabel="@string/key_ac06_main"
+            hk:shiftLabel="@string/key_ac06_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ac06_alt" />
+        <Key
+            hk:keyLabel="@string/key_ac07_main"
+            hk:shiftLabel="@string/key_ac07_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ac07_alt" />
+        <Key
+            hk:keyLabel="@string/key_ac08_main"
+            hk:shiftLabel="@string/key_ac08_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ac08_alt" />
+        <Key
+            hk:keyLabel="@string/key_ac09_main"
+            hk:shiftLabel="@string/key_ac09_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ac09_alt" />
+        <Key
+            hk:keyLabel="@string/key_ac10_main"
+            hk:shiftLabel="@string/key_ac10_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ac10_alt" />
+        <Key
+            hk:keyLabel="@string/key_ac11_main"
+            hk:shiftLabel="@string/key_ac11_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ac11_alt" />
+        <Key
+            hk:codes="@integer/key_return"
+            hk:keyIcon="@drawable/sym_keyboard_return"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_return"
+            hk:keyWidth="10.7142855%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="right" />
+    </Row>
+    <Row>
+        <Key
+            hk:codes="@integer/key_shift"
+            hk:keyIcon="@drawable/sym_keyboard_shift"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_shift"
+            hk:keyWidth="14.28571429%p"
+            hk:isModifier="true"
+            hk:isSticky="true"
+            hk:keyEdgeFlags="left" />
+        <Key
+            hk:keyLabel="@string/key_ab01_main"
+            hk:shiftLabel="@string/key_ab01_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ab01_alt" />
+        <Key
+            hk:keyLabel="@string/key_ab02_main"
+            hk:shiftLabel="@string/key_ab02_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ab02_alt" />
+        <Key
+            hk:keyLabel="@string/key_ab03_main"
+            hk:shiftLabel="@string/key_ab03_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ab03_alt" />
+        <Key
+            hk:keyLabel="@string/key_ab04_main"
+            hk:shiftLabel="@string/key_ab04_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ab04_alt" />
+        <Key
+            hk:keyLabel="@string/key_ab05_main"
+            hk:shiftLabel="@string/key_ab05_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ab05_alt" />
+        <Key
+            hk:keyLabel="@string/key_ab06_main"
+            hk:shiftLabel="@string/key_ab06_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ab06_alt" />
+        <Key
+            hk:keyLabel="@string/key_ab07_main"
+            hk:shiftLabel="@string/key_ab07_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ab07_alt" />
+        <Key
+            hk:keyLabel="@string/key_ab08_main"
+            hk:shiftLabel="@string/key_ab08_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ab08_alt" />
+        <Key
+            hk:keyLabel="@string/key_ab09_main"
+            hk:shiftLabel="@string/key_ab09_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ab09_alt" />
+        <Key
+            hk:keyLabel="@string/key_ab10_main"
+            hk:shiftLabel="@string/key_ab10_shift"
+            hk:popupKeyboard="@xml/kbd_popup_template"
+            hk:popupCharacters="@string/key_ab10_alt" />
+        <Key
+            hk:codes="@integer/key_dpad_up"
+            hk:isRepeatable="true"
+            hk:keyLabel="&#x25b3;"
+            hk:isCursor="true"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_shift"
+            hk:keyIcon="@drawable/sym_keyboard_shift"
+            hk:keyEdgeFlags="right"
+            hk:isModifier="true" />
+    </Row>
+    <Row
+        hk:rowEdgeFlags="bottom"
+    >
+        <Key
+            hk:keyLabel="Esc"
+            hk:codes="@integer/key_escape"
+            hk:keyWidth="10.7142855%p"
+            hk:keyEdgeFlags="left"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_f1"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_alt_left"
+            hk:keyLabel="Alt"
+            hk:isSticky="true"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_meta_left"
+            hk:keyLabel="&#x2756;"
+            hk:isSticky="true"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_space"
+            hk:shiftLabel="@string/key_space_shift"
+            hk:keyIcon="@drawable/sym_keyboard_space"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_space"
+            hk:keyWidth="32.1428571372%p"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_fn"
+            hk:keyLabel="Fn"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_dpad_center"
+            hk:isModifier="true"
+            hk:isCursor="true"
+            hk:keyLabel="&#x25cb;" />
+        <Key
+            hk:codes="@integer/key_dpad_left"
+            hk:isModifier="true"
+            hk:isRepeatable="true"
+            hk:isCursor="true"
+            hk:keyLabel="&#x25c1;" />
+        <Key
+            hk:codes="@integer/key_dpad_down"
+            hk:isModifier="true"
+            hk:isRepeatable="true"
+            hk:isCursor="true"
+            hk:keyLabel="&#x25bd;" />
+        <Key
+            hk:codes="@integer/key_dpad_right"
+            hk:isModifier="true"
+            hk:keyLabel="&#x25b7;"
+            hk:isRepeatable="true"
+            hk:isCursor="true"
+            hk:keyEdgeFlags="right" />
+    </Row>
+</Keyboard>

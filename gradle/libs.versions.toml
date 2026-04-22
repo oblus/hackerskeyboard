@@ -1,0 +1,30 @@
+[versions]
+# noinspection GradleDependency
+agp = "9.1.0"
+appcompat = "1.7.1"
+# noinspection GradleDependency
+coreKtx = "1.15.0"
+espressoCore = "3.7.0"
+# noinspection GradleDependency
+gradle = "9.1.0"
+gradleToolchainsFoojayResolverConvention = "1.0.0"
+junit = "4.13.2"
+junitVersion = "1.3.0"
+kotlinStdlib = "2.3.20"
+preference = "1.2.1"
+
+[libraries]
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
+androidx-preference = { group = "androidx.preference", name = "preference", version.ref = "preference" }
+gradle = { group = "com.android.tools.build", name = "gradle", version.ref = "gradle" }
+junit = { group = "junit", name = "junit", version.ref = "junit" }
+kotlin-stdlib = { group = "org.jetbrains.kotlin", name = "kotlin-stdlib", version.ref = "kotlinStdlib" }
+
+[plugins]
+# noinspection GradlePluginAndVersionDeclaration
+android-application = { id = "com.android.application", version.ref = "agp" }
+# noinspection GradlePluginAndVersionDeclaration
+gradle-toolchains-foojay-resolver-convention = { id = "org.gradle.toolchains.foojay-resolver-convention", version.ref = "gradleToolchainsFoojayResolverConvention" }
