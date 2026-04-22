@@ -200,6 +200,7 @@ public class LatinIME extends InputMethodService implements
     private WordComposer mWord = new WordComposer();
     private int mCommittedLength;
     private boolean mPredicting;
+    private boolean mIsBackspacing;
     private boolean mEnableVoiceButton;
     private CharSequence mBestWord;
     private boolean mPredictionOnForMode;
@@ -1299,6 +1300,11 @@ public class LatinIME extends InputMethodService implements
         super.onUpdateSelection(oldSelStart, oldSelEnd, newSelStart, newSelEnd,
                 candidatesStart, candidatesEnd);
 
+        if (mIsBackspacing) {
+            mIsBackspacing = false;
+            return;
+        }
+
         // If the current selection in the text view changes, we should
         // clear whatever candidate text we have.
         if ((((mComposing.length() > 0 && mPredicting))
@@ -1330,7 +1336,7 @@ public class LatinIME extends InputMethodService implements
 
         if (mReCorrectionEnabled) {
             // Don't look for corrections if the keyboard is not visible
-            if (mKeyboardSwitcher != null
+            if (!mIsBackspacing && mKeyboardSwitcher != null
                     && mKeyboardSwitcher.getInputView() != null
                     && mKeyboardSwitcher.getInputView().isShown()) {
                 // Check if we should go in or out of correction mode.
@@ -1662,6 +1668,7 @@ public class LatinIME extends InputMethodService implements
                     inputConnection.commitText(mComposing, 1);
                 }
                 mCommittedLength = mComposing.length();
+                mComposing.setLength(0); // KLUCZOWE: opróżnienie worka po wysłaniu tekstu
                 if (manual) {
                     TextEntryState.manualTyped(mComposing);
                 } else {
@@ -2350,10 +2357,18 @@ public class LatinIME extends InputMethodService implements
         mLastKeyTime = when;
         final boolean distinctMultiTouch = mKeyboardSwitcher
                 .hasDistinctMultitouch();
+        
+        if (primaryCode != Keyboard.KEYCODE_DELETE) {
+            mIsBackspacing = false;
+        }
+
         switch (primaryCode) {
         case Keyboard.KEYCODE_DELETE:
+            mPredicting = false;
+            mComposing.setLength(0);
+            mIsBackspacing = true;
             handleBackspace();
-            break;
+            return;
         case Keyboard.KEYCODE_SHIFT:
             // Shift key is handled in onPress() when device has distinct
             // multi-touch panel.
@@ -2524,41 +2539,11 @@ public class LatinIME extends InputMethodService implements
     }
 
     private void handleBackspace() {
-        final InputConnection ic = getCurrentInputConnection();
-        if (ic == null)
-            return;
-
-        ic.finishComposingText();
-
-        if (mPredicting) {
-            final int length = mComposing.length();
-            if (length > 0) {
-                mComposing.delete(length - 1, length);
-                mWord.deleteLast();
-                ic.setComposingText(mComposing, 1);
-                if (mComposing.length() == 0) {
-                    mPredicting = false;
-                }
-                postUpdateSuggestions();
-            } else {
-                mPredicting = false;
-                sendDownUpKeyEvents(KeyEvent.KEYCODE_DEL);
-            }
-        } else {
-            mJustAddedAutoSpace = false;
-            postUpdateShiftKeyState();
-            TextEntryState.backspace();
-
-            if (TextEntryState.getState() == TextEntryState.State.UNDO_COMMIT) {
-                revertLastWord(true);
-            } else if (mEnteredText != null && sameAsTextBeforeCursor(ic, mEnteredText)) {
-                ic.deleteSurroundingText(mEnteredText.length(), 0);
-                mEnteredText = null;
-            } else {
-                sendDownUpKeyEvents(KeyEvent.KEYCODE_DEL);
-            }
-            mJustRevertedSeparator = null;
-        }
+        InputConnection ic = getCurrentInputConnection();
+        if (ic == null) return;
+        ic.finishComposingText(); // Zamknij wszelkie podkreślone słowa
+        sendDownUpKeyEvents(KeyEvent.KEYCODE_DEL); // Wyślij tylko jeden czysty sygnał usuwania
+        postUpdateShiftKeyState(); // Odśwież SHIFT
     }
 
     private void setModCtrl(boolean val) {
@@ -2718,7 +2703,7 @@ public class LatinIME extends InputMethodService implements
     }
 
     private void handleSeparator(int primaryCode) {
-
+        mIsBackspacing = false;
         // Should dismiss the "Touch again to save" message when handling
         // separator
         if (mCandidateView != null
@@ -2733,6 +2718,15 @@ public class LatinIME extends InputMethodService implements
             ic.beginBatchEdit();
             abortCorrection(false);
         }
+
+        if (primaryCode == ASCII_SPACE) {
+            if (mPredicting && mCandidateView != null && mCandidateView.isShown()) {
+                pickDefaultSuggestion();
+                mPredicting = false;
+                mComposing.setLength(0);
+            }
+        }
+
         if (mPredicting) {
             // In certain languages where single quote is a separator, it's
             // better
@@ -3109,6 +3103,8 @@ public class LatinIME extends InputMethodService implements
         }
         saveWordInHistory(suggestion);
         mPredicting = false;
+        mComposing.setLength(0); // Fizyczne wyczyszczenie bufora
+        mIsBackspacing = false;
         mCommittedLength = suggestion.length();
         ((LatinKeyboard) inputView.getKeyboard()).setPreferredLetters(null);
         // If we just corrected a word, then don't show punctuations

@@ -231,7 +231,7 @@
     "project.structure.side.proportion": "0.0",
     "recommended.upgrade.do.not.ask.for.project": "true",
     "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings"
+    "settings.editor.selected.configurable": "org.jetbrains.plugins.github.ui.GithubSettingsConfigurable"
   }
 }]]></component>
   <component name="RunManager" selected="Android App.New Run Config">
