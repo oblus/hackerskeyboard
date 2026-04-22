@@ -1298,8 +1298,68 @@ public class LatinIME extends InputMethodService implements
             int candidatesEnd) {
         super.onUpdateSelection(oldSelStart, oldSelEnd, newSelStart, newSelEnd,
                 candidatesStart, candidatesEnd);
-    }
 
+        // If the current selection in the text view changes, we should
+        // clear whatever candidate text we have.
+        if ((((mComposing.length() > 0 && mPredicting))
+                && (newSelStart != candidatesEnd || newSelEnd != candidatesEnd) && mLastSelectionStart != newSelStart)) {
+            mComposing.setLength(0);
+            mPredicting = false;
+            postUpdateSuggestions();
+            TextEntryState.reset();
+            InputConnection ic = getCurrentInputConnection();
+            if (ic != null) {
+                ic.finishComposingText();
+            }
+        } else if (!mPredicting && !mJustAccepted) {
+            switch (TextEntryState.getState()) {
+            case ACCEPTED_DEFAULT:
+                TextEntryState.reset();
+                // fall through
+            case SPACE_AFTER_PICKED:
+                mJustAddedAutoSpace = false; // The user moved the cursor.
+                break;
+            }
+        }
+        mJustAccepted = false;
+        postUpdateShiftKeyState();
+
+        // Make a note of the cursor position
+        mLastSelectionStart = newSelStart;
+        mLastSelectionEnd = newSelEnd;
+
+        if (mReCorrectionEnabled) {
+            // Don't look for corrections if the keyboard is not visible
+            if (mKeyboardSwitcher != null
+                    && mKeyboardSwitcher.getInputView() != null
+                    && mKeyboardSwitcher.getInputView().isShown()) {
+                // Check if we should go in or out of correction mode.
+                if (isPredictionOn()
+                        && mJustRevertedSeparator == null
+                        && (candidatesStart == candidatesEnd
+                                || newSelStart != oldSelStart || TextEntryState
+                                .isCorrecting())
+                        && (newSelStart < newSelEnd - 1 || (!mPredicting))) {
+                    if (isCursorTouchingWord()
+                            || mLastSelectionStart < mLastSelectionEnd) {
+                        postUpdateOldSuggestions();
+                    } else {
+                        abortCorrection(false);
+                        // Show the punctuation suggestions list if the current
+                        // one is not
+                        // and if not showing "Touch again to save".
+                        if (mCandidateView != null
+                                && !mSuggestPuncList.equals(mCandidateView
+                                        .getSuggestions())
+                                && !mCandidateView
+                                        .isShowingAddToDictionaryHint()) {
+                            setNextSuggestions();
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     /**
      * This is called when the user has clicked on the extracted text view, when
@@ -2468,13 +2528,59 @@ public class LatinIME extends InputMethodService implements
     }
 
     private void handleBackspace() {
+        boolean deleteChar = false;
         InputConnection ic = getCurrentInputConnection();
-        if (ic != null) {
-            ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
-            ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL));
+        if (ic == null)
+            return;
+
+        ic.beginBatchEdit();
+
+        if (mPredicting) {
+            final int length = mComposing.length();
+            if (length > 0) {
+                mComposing.delete(length - 1, length);
+                mWord.deleteLast();
+                ic.setComposingText(mComposing, 1);
+                if (mComposing.length() == 0) {
+                    mPredicting = false;
+                }
+                postUpdateSuggestions();
+            } else {
+                ic.deleteSurroundingText(1, 0);
+            }
+        } else {
+            deleteChar = true;
         }
         postUpdateShiftKeyState();
         TextEntryState.backspace();
+        if (TextEntryState.getState() == TextEntryState.State.UNDO_COMMIT) {
+            revertLastWord(deleteChar);
+            ic.endBatchEdit();
+            return;
+        } else if (mEnteredText != null
+                && sameAsTextBeforeCursor(ic, mEnteredText)) {
+            ic.deleteSurroundingText(mEnteredText.length(), 0);
+        } else if (deleteChar) {
+            if (mCandidateView != null
+                    && mCandidateView.dismissAddToDictionaryHint()) {
+                // Go back to the suggestion mode if the user canceled the
+                // "Touch again to save".
+                // NOTE: In gerenal, we don't revert the word when backspacing
+                // from a manual suggestion pick. We deliberately chose a
+                // different behavior only in the case of picking the first
+                // suggestion (typed word). It's intentional to have made this
+                // inconsistent with backspacing after selecting other
+                // suggestions.
+                revertLastWord(deleteChar);
+            } else {
+                sendDownUpKeyEvents(KeyEvent.KEYCODE_DEL);
+                if (mDeleteCount > DELETE_ACCELERATE_AT) {
+                    sendDownUpKeyEvents(KeyEvent.KEYCODE_DEL);
+                }
+            }
+        }
+        mJustRevertedSeparator = null;
+        ic.endBatchEdit();
     }
 
     private void setModCtrl(boolean val) {
@@ -2634,6 +2740,7 @@ public class LatinIME extends InputMethodService implements
     }
 
     private void handleSeparator(int primaryCode) {
+
         // Should dismiss the "Touch again to save" message when handling
         // separator
         if (mCandidateView != null
@@ -2649,34 +2756,33 @@ public class LatinIME extends InputMethodService implements
             abortCorrection(false);
         }
         if (mPredicting) {
-            // Keep prediction active if it's a space, otherwise commit
-            if (primaryCode == ASCII_SPACE)            {
-                // Let the suggestion bar handle the space by committing the current word
-                // or letting it remain active for the next word.
-                if (mPredicting && mAutoCorrectEnabled) {
-                    pickedDefault = pickDefaultSuggestion();
-                }
+            // In certain languages where single quote is a separator, it's
+            // better
+            // not to auto correct, but accept the typed word. For instance,
+            // in Italian dov' should not be expanded to dove' because the
+            // elision
+            // requires the last vowel to be removed.
+            if (mAutoCorrectOn
+                    && primaryCode != '\''
+                    && (mJustRevertedSeparator == null
+                            || mJustRevertedSeparator.length() == 0
+                            || mJustRevertedSeparator.charAt(0) != primaryCode)) {
+                pickedDefault = pickDefaultSuggestion();
                 if (!pickedDefault) {
                     commitTyped(ic, true);
                 }
-                if (mAutoCorrectEnabled) {
-                    mJustAddedAutoSpace = true;
-                } else {
-                    TextEntryState.manualTyped("");
+                // Picked the suggestion by the space key. We consider this
+                // as "added an auto space" in autocomplete mode, but as manually
+                // typed space in "quick fixes" mode.
+                if (primaryCode == ASCII_SPACE) {
+                    if (mAutoCorrectEnabled) {
+                        mJustAddedAutoSpace = true;
+                    } else {
+                        TextEntryState.manualTyped("");
+                    }
                 }
             } else {
-                if (mAutoCorrectOn
-                        && primaryCode != '\''
-                        && (mJustRevertedSeparator == null
-                                || mJustRevertedSeparator.length() == 0
-                                || mJustRevertedSeparator.charAt(0) != primaryCode)) {
-                    pickedDefault = pickDefaultSuggestion();
-                    if (!pickedDefault) {
-                        commitTyped(ic, true);
-                    }
-                } else {
-                    commitTyped(ic, true);
-                }
+                commitTyped(ic, true);
             }
         }
         if (mJustAddedAutoSpace && primaryCode == ASCII_ENTER) {
@@ -2699,13 +2805,6 @@ public class LatinIME extends InputMethodService implements
         } else if (isPredictionOn() && primaryCode == ASCII_SPACE) {
             doubleSpace();
         }
-        
-        // If we didn't pick a word, but pressed space, we want to update suggestions
-        // for the next word (e.g. bigrams)
-        if (primaryCode == ASCII_SPACE) {
-            postUpdateSuggestions();
-        }
-
         if (pickedDefault) {
             TextEntryState.backToAcceptedDefault(mWord.getTypedWord());
         }

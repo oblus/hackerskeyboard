@@ -2,18 +2,6 @@
 
 ## Fork Update (2024-2026): ##
 
-🚀 Recent Improvements
-
-- **Smart Auto-capitalization:**
-    - Added three modes: Default (follows app flags), Smart Always (forces capitalization at start of sentences), and Off.
-    - Implemented a Safety Filter for Smart mode: it automatically disables auto-cap in sensitive fields like Passwords, Emails, URIs, and Web-edit fields to prevent input errors.
-- **Real-time Sliding Key Input:**
-    - Completely refactored the sliding logic to allow characters to be sent immediately as the finger moves over keys, without waiting for ACTION_UP.
-    - Implemented a Debounce mechanism using mLastSlidingKeyIndex to prevent duplicate character input while moving within a single key's boundaries.
-    - Preserved all 5 legacy sliding modes (Ignore, First, Last, First/Last, All) with a clean separation of logic.
-- **Vibration UX Clarity:**
-    - Added an educational summary under Vibration settings to inform users that system-wide haptic feedback must be enabled for the keyboard vibrations to function.
-
 **Modernized:** Upgraded to **Target SDK 34** (Android 14), **Compile SDK 35**, **AGP 9.1.1**, and **Gradle 9.4.1**. All legacy resource errors and namespace issues have been resolved to meet modern Play Store requirements.
 
 **Modern AMOLED Theme:** A premium black theme optimized for modern OLED displays. Keys feature a semi-transparent "frosted glass" effect, modern rounded corners, and sleek custom **Cyan LED indicators** for toggle keys (Ctrl, Alt, Shift). Includes a toggle to **Invert menu theme color** for better accessibility.

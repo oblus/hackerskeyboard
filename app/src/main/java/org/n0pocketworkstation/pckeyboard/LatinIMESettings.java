@@ -43,9 +43,15 @@ public class LatinIMESettings extends AppCompatActivity {
         if (icicle == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.settings_container, new SettingsFragment(), "settings")
+                    .replace(R.id.settings_container, new SettingsFragment())
                     .commit();
         }
+        getOnBackPressedDispatcher().addCallback(this, new androidx.activity.OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                finish();
+            }
+        });
     }
 
     @Override
