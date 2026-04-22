@@ -30,6 +30,7 @@ public class PrefScreenActions extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle icicle) {
+        PCKeyboardApp.updateLocale(this);
         super.onCreate(icicle);
         setContentView(R.layout.settings_activity);
 

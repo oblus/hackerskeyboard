@@ -32,6 +32,11 @@
         <intent>
             <action android:name="org.n0pocketworkstation.DICT" />
         </intent>
+        <!-- Generic query for any package that might provide dictionaries via broadcast -->
+        <intent>
+            <action android:name="android.intent.action.SEND" />
+            <data android:mimeType="application/octet-stream" />
+        </intent>
     </queries>
 
     <application android:name="org.n0pocketworkstation.pckeyboard.PCKeyboardApp"
@@ -122,6 +127,16 @@
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <action android:name="org.n0pocketworkstation.pckeyboard.PREFS_FEEDBACK"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="org.n0pocketworkstation.pckeyboard.PrefScreenMacros"
+            android:exported="false"
+            android:label="@string/title_macro_settings">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="org.n0pocketworkstation.pckeyboard.PREFS_MACROS"/>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

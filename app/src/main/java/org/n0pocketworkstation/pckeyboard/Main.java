@@ -29,6 +29,13 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import androidx.appcompat.app.AppCompatActivity;
 import android.widget.Button;
+import android.widget.PopupMenu;
+import android.view.MenuItem;
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import java.util.Locale;
+import android.content.SharedPreferences;
+import androidx.preference.PreferenceManager;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.TextView.BufferType;
@@ -69,6 +76,7 @@ public class Main extends AppCompatActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        PCKeyboardApp.updateLocale(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         
@@ -141,6 +149,89 @@ public class Main extends AppCompatActivity {
                 startActivity(new Intent(that, LatinIMESettings.class));
             }
         });
-    }    
+
+        final Button uiLangBtn = (Button) findViewById(R.id.main_setup_btn_ui_language);
+        uiLangBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showLanguageMenu(v);
+            }
+        });
+    }
+
+    private void showLanguageMenu(View v) {
+        PopupMenu popup = new PopupMenu(this, v);
+        
+        // Define supported UI languages (matching available translations in res/values-*)
+        final String[][] languages = {
+            {"System Default", ""},
+            {"English", "en"},
+            {"العربية", "ar"},
+            {"Български", "bg"},
+            {"Català", "ca"},
+            {"Čeština", "cs"},
+            {"Dansk", "da"},
+            {"Deutsch", "de"},
+            {"Ελληνικά", "el"},
+            {"Español", "es"},
+            {"فارسی", "fa"},
+            {"Suomi", "fi"},
+            {"Français", "fr"},
+            {"עברית", "he"},
+            {"Hrvatski", "hr"},
+            {"Magyar", "hu"},
+            {"Հայերեն", "hy"},
+            {"Indonesia", "in"},
+            {"Italiano", "it"},
+            {"日本語", "ja"},
+            {"한국어", "ko"},
+            {"ລາວ", "lo"},
+            {"Lietuvių", "lt"},
+            {"Latviešu", "lv"},
+            {"Norsk bokmål", "nb"},
+            {"Nederlands", "nl"},
+            {"Polski", "pl"},
+            {"Português", "pt"},
+            {"Română", "ro"},
+            {"Русский", "ru"},
+            {"සිංහල", "si"},
+            {"Slovenčina", "sk"},
+            {"Slovenščina", "sl"},
+            {"Српски", "sr"},
+            {"Svenska", "sv"},
+            {"தமிழ்", "ta"},
+            {"ไทย", "th"},
+            {"Türkçe", "tr"},
+            {"Українська", "uk"},
+            {"Tiếng Việt", "vi"},
+            {"中文 (简体)", "zh_CN"},
+            {"中文 (繁體)", "zh_TW"}
+        };
+
+        for (int i = 0; i < languages.length; i++) {
+            popup.getMenu().add(0, i, i, languages[i][0]);
+        }
+
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                int id = item.getItemId();
+                String langCode = languages[id][1];
+                setLocale(langCode);
+                return true;
+            }
+        });
+        popup.show();
+    }
+
+    private void setLocale(String langCode) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        sp.edit().putString("pref_ui_language", langCode).apply();
+        
+        PCKeyboardApp.updateLocale(this);
+        
+        // Restart activity to apply changes
+        recreate();
+    }
 }
 

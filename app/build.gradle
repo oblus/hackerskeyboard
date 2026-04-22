@@ -3,24 +3,24 @@ plugins {
 }
 
 android {
-    namespace 'org.n0pocketworkstation.pckeyboard'
+    namespace = 'org.n0pocketworkstation.pckeyboard'
     //noinspection GradleDependency
-    compileSdk 35
-    ndkVersion "28.2.13676358"
+    compileSdk = 35
+    ndkVersion = "28.2.13676358"
 
 
 
     defaultConfig {
-        applicationId "org.n0pocketworkstation.pckeyboard"
-        minSdk 23
+        applicationId = "org.n0pocketworkstation.pckeyboard"
+        minSdk = 23
         //noinspection OldTargetApi
-        targetSdk 34
+        targetSdk = 34
         //noinspection TargetApi
 
-        versionCode 1041004
-        versionName "1.41.1-4"
+        versionCode = 1041004
+        versionName = "1.41.1-4"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -32,13 +32,14 @@ android {
 
     externalNativeBuild {
         cmake {
-            path "CMakeLists.txt"
+            path = "CMakeLists.txt"
         }
     }
 
     buildFeatures {
-        buildConfig true
-    }    // debug option - to remove  14.04.2026 16:11     //tasks.withType(JavaCompile).configureEach {options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"}
+        buildConfig = true
+    }   //noinspection debug option - to remove 16.04.2026 22:21 //
+    tasks.withType(JavaCompile).configureEach {options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"}
  }
 
 dependencies {

@@ -73,6 +73,7 @@ public class InputLanguageSelection extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle icicle) {
+        PCKeyboardApp.updateLocale(this);
         super.onCreate(icicle);
         setContentView(R.layout.language_selection);
 
@@ -248,26 +249,17 @@ public class InputLanguageSelection extends AppCompatActivity {
             Context context = getContext();
             if (context == null) return false;
             
-            Configuration config = new Configuration(context.getResources().getConfiguration());
-            config.setLocale(locale);
-            Resources localeRes = context.createConfigurationContext(config).getResources();
-
-            int[] dictionaries = LatinIME.getDictionary(localeRes);
-            BinaryDictionary bd = new BinaryDictionary(context, dictionaries, Suggest.DIC_MAIN);
-
-            boolean haveDictionary = false;
-            if (bd.getSize() > Suggest.LARGE_DICTIONARY_THRESHOLD / 4) {
-                haveDictionary = true;
-            } else {
+            // Re-enable plugin lookup safely
+            try {
                 BinaryDictionary plug = PluginManager.getDictionary(context.getApplicationContext(), locale.getLanguage());
                 if (plug != null) {
-                    bd.close();
-                    bd = plug;
-                    haveDictionary = true;
+                    plug.close();
+                    return true;
                 }
+            } catch (Exception e) {
+                Log.e(TAG, "Error checking plugin dictionary", e);
             }
-            bd.close();
-            return haveDictionary;
+            return false;
         }
 
         public void savePreferences() {

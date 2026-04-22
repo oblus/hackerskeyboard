@@ -81,7 +81,10 @@
             <flag name="white" value="0" />
             <flag name="black" value="1" />
         </attr>
+    </declare-styleable>
 
+    <declare-styleable name="AutoSummaryEditTextPreference">
+        <attr name="isPreferenceVisible" format="boolean" />
     </declare-styleable>
 
 </resources>

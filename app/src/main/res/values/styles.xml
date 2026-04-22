@@ -55,4 +55,18 @@
     <style name="AppTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
     </style>
+
+    <style name="MacroPopupMenu" parent="Widget.AppCompat.PopupMenu">
+        <item name="android:popupBackground">#000000</item>
+        <item name="android:listPreferredItemHeightSmall">32dp</item>
+        <item name="android:listPreferredItemPaddingStart">8dp</item>
+        <item name="android:listPreferredItemPaddingEnd">8dp</item>
+    </style>
+
+    <style name="MacroPopupTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="android:textColor">#FFFCAE00</item>
+        <item name="android:popupMenuStyle">@style/MacroPopupMenu</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:padding">0dp</item>
+    </style>
 </resources>

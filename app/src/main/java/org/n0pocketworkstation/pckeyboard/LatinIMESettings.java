@@ -1,126 +1,122 @@
-/*
- * Copyright (C) 2008 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.n0pocketworkstation.pckeyboard;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import android.provider.Settings;
+import android.graphics.Color;
+import android.text.SpannableString;
 import android.app.backup.BackupManager;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.Signature;
-import android.content.res.Resources;
-import android.os.Build;
+import android.net.Uri;
 import android.os.Bundle;
-import androidx.activity.OnBackPressedCallback;
+import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.preference.CheckBoxPreference;
-import androidx.preference.ListPreference;
 import androidx.preference.Preference;
-import androidx.preference.PreferenceDialogFragmentCompat;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceGroup;
 import androidx.preference.PreferenceManager;
-import android.text.AutoText;
-import android.text.InputType;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
-import android.util.Log;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 
 public class LatinIMESettings extends AppCompatActivity {
-    /* package */ static final String PREF_SETTINGS_KEY = "settings_key";
-
+    public static final String PREF_SETTINGS_KEY = "settings_key";
     @Override
     protected void onCreate(Bundle icicle) {
+        PCKeyboardApp.updateLocale(this);
         super.onCreate(icicle);
         setContentView(R.layout.settings_activity);
-
-        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                Intent intent = new Intent(LatinIMESettings.this, Main.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-                finish();
-            }
-        });
-
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
         if (icicle == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.settings_container, new SettingsFragment())
+                    .replace(R.id.settings_container, new SettingsFragment(), "settings")
                     .commit();
         }
     }
 
-    public static class SettingsFragment extends PreferenceFragmentCompat
-            implements SharedPreferences.OnSharedPreferenceChangeListener, androidx.preference.DialogPreference.TargetFragment {
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
+    }
 
-        private static final String QUICK_FIXES_KEY = "quick_fixes";
-        private static final String PREDICTION_SETTINGS_KEY = "prediction_settings";
-        private static final String VOICE_SETTINGS_KEY = "voice_mode";
-        static final String INPUT_CONNECTION_INFO = "input_connection_info";    
+    public static class SettingsFragment extends PreferenceFragmentCompat
+            implements SharedPreferences.OnSharedPreferenceChangeListener {
 
         private static final String TAG = "LatinIMESettings";
+        private final ActivityResultLauncher<Intent> exportLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        saveSettingsToFile(result.getData().getData());
+                    }
+                }
+        );
 
-        private CheckBoxPreference mQuickFixes;
-        private ListPreference mVoicePreference;
-        private ListPreference mSettingsKeyPreference;
-        private ListPreference mKeyboardModePortraitPreference;
-        private ListPreference mKeyboardModeLandscapePreference;
-        private Preference mInputConnectionInfo;
-        private Preference mLabelVersion;
-        private Preference mDetectedDictionaries;
-
-        private boolean mVoiceOn;
-        private String mVoiceModeOff;
+        private final ActivityResultLauncher<Intent> importLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        loadSettingsFromFile(result.getData().getData());
+                    }
+                }
+        );
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-            setPreferencesFromResource(R.xml.prefs, rootKey);
-            
-            mQuickFixes = findPreference(QUICK_FIXES_KEY);
-            mVoicePreference = findPreference(VOICE_SETTINGS_KEY);
-            mSettingsKeyPreference = findPreference(PREF_SETTINGS_KEY);
-            mInputConnectionInfo = findPreference(INPUT_CONNECTION_INFO);
-            mLabelVersion = findPreference("label_version");
-            mDetectedDictionaries = findPreference("pref_detected_dictionaries");
+            // Migration for auto_cap from boolean to String
+            SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(requireContext());
+            String key = "auto_cap_mode";
+            String oldKey = "auto_cap";
 
-            mKeyboardModePortraitPreference = findPreference("pref_keyboard_mode_portrait");
-            mKeyboardModeLandscapePreference = findPreference("pref_keyboard_mode_landscape");
+            // 1. Migrate old key to new key if needed
+            if (!sp.contains(key) && sp.contains(oldKey)) {
+                try {
+                    boolean oldVal = sp.getBoolean(oldKey, true);
+                    sp.edit().putString(key, oldVal ? "0" : "2").commit();
+                } catch (ClassCastException e) {
+                    // Already converted or weird state
+                }
+            }
 
-            if (mSettingsKeyPreference != null) {
-                mSettingsKeyPreference.setSummaryProvider(ListPreference.SimpleSummaryProvider.getInstance());
+            // 2. Ensure new key is a String to avoid ClassCastException in ListPreference
+            try {
+                sp.getString(key, "0");
+            } catch (ClassCastException e) {
+                Log.i(TAG, "Migrating auto_cap_mode from boolean to String");
+                boolean oldVal = sp.getBoolean(key, true);
+                sp.edit().remove(key).commit();
+                sp.edit().putString(key, oldVal ? "0" : "2").commit();
             }
-            if (mVoicePreference != null) {
-                mVoicePreference.setSummaryProvider(ListPreference.SimpleSummaryProvider.getInstance());
-            }
-            
-            SharedPreferences prefs = getPreferenceManager().getSharedPreferences();
-            if (prefs != null) {
-                prefs.registerOnSharedPreferenceChangeListener(this);
-                mVoiceModeOff = getString(R.string.voice_mode_off);
-                mVoiceOn = !(prefs.getString(VOICE_SETTINGS_KEY, mVoiceModeOff).equals(mVoiceModeOff));
-            }
+            addPreferencesFromResource(R.xml.prefs);
+        }
+
+        @Override
+        public void onResume() {
+            super.onResume();
+            getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
+            updateSummaries();
+        }
+
+
+        @Override
+        public void onPause() {
+            super.onPause();
+            getPreferenceManager().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
         }
 
         @SuppressWarnings("deprecation")
@@ -131,106 +127,106 @@ public class LatinIMESettings extends AppCompatActivity {
             }
 
             if (preference instanceof SeekBarPreference) {
-                PreferenceDialogFragmentCompat dialogFragment = SeekBarPreferenceDialogFragmentCompat.newInstance(preference.getKey());
-                dialogFragment.setTargetFragment(this, 0);
-                dialogFragment.show(getParentFragmentManager(), "androidx.preference.PreferenceFragment.DIALOG");
+                androidx.fragment.app.DialogFragment f = SeekBarPreferenceDialogFragmentCompat.newInstance(preference.getKey());
+                // Explicitly set target fragment for AndroidX compatibility
+                f.setTargetFragment(this, 0);
+                f.show(getParentFragmentManager(), "androidx.preference.PreferenceFragment.DIALOG");
             } else {
                 super.onDisplayPreferenceDialog(preference);
             }
         }
 
-        @Override
-        public void onResume() {
-            super.onResume();
-            // Note: getListView() might not be available yet or in the same way.
-            // In PreferenceFragmentCompat, the list is internal.
-            // AutoText.getSize() usually takes a View to get the context/settings.
-            int autoTextSize = AutoText.getSize(requireView());
-            if (autoTextSize < 1 && mQuickFixes != null) {
-                PreferenceGroup group = findPreference(PREDICTION_SETTINGS_KEY);
-                if (group != null) {
-                    group.removePreference(mQuickFixes);
-                }
-            }
-            
-            Log.i(TAG, "compactModeEnabled=" + LatinIME.sKeyboardSettings.compactModeEnabled);
-            if (!LatinIME.sKeyboardSettings.compactModeEnabled && mKeyboardModePortraitPreference != null) {
-                CharSequence[] oldEntries = mKeyboardModePortraitPreference.getEntries();
-                CharSequence[] oldValues = mKeyboardModePortraitPreference.getEntryValues();
-                
-                if (oldEntries != null && oldEntries.length > 2) {
-                    CharSequence[] newEntries = new CharSequence[] { oldEntries[0], oldEntries[2] };
-                    CharSequence[] newValues = new CharSequence[] { oldValues[0], oldValues[2] };
-                    mKeyboardModePortraitPreference.setEntries(newEntries);
-                    mKeyboardModePortraitPreference.setEntryValues(newValues);
-                    if (mKeyboardModeLandscapePreference != null) {
-                        mKeyboardModeLandscapePreference.setEntries(newEntries);
-                        mKeyboardModeLandscapePreference.setEntryValues(newValues);
-                    }
-                }
-            }
-            
-            updateSummaries();
-            updateDetectedDictionaries();
-
-            String version = "";
-            try {
-                PackageManager pm = requireContext().getPackageManager();
-                PackageInfo info;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                    info = pm.getPackageInfo(requireContext().getPackageName(), PackageManager.PackageInfoFlags.of(0));
-                } else {
-                    info = pm.getPackageInfo(requireContext().getPackageName(), 0);
-                }
-                version = info.versionName;
-            } catch (PackageManager.NameNotFoundException e) {
-                Log.e(TAG, "Could not find version info.");
-            }
-
-            if (mLabelVersion != null) {
-                mLabelVersion.setSummary(version);
-            }
-        }
-
-        @Override
-        public void onDestroy() {
-            SharedPreferences prefs = getPreferenceManager().getSharedPreferences();
-            if (prefs != null) {
-                prefs.unregisterOnSharedPreferenceChangeListener(this);
-            }
-            super.onDestroy();
-        }
-
         public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-            if (key.equals("pref_revert_theme_color")) {
+            if ("pref_revert_theme_color".equals(key)) {
                 ((PCKeyboardApp) requireActivity().getApplication()).updateTheme();
+            } else if ("pref_ui_language".equals(key)) {
+                PCKeyboardApp.updateLocale(requireContext());
+                requireActivity().recreate();
             }
             new BackupManager(requireContext()).dataChanged();
-            // If turning on voice input, show dialog
-            if (key.equals(VOICE_SETTINGS_KEY) && !mVoiceOn) {
-                if (!prefs.getString(VOICE_SETTINGS_KEY, mVoiceModeOff).equals(mVoiceModeOff)) {
-                    // showVoiceConfirmation(); // TODO: Implement dialog in Fragment
-                }
-            }
-            mVoiceOn = !(prefs.getString(VOICE_SETTINGS_KEY, mVoiceModeOff).equals(mVoiceModeOff));
-            updateVoiceModeSummary();
             updateSummaries();
+        }
+
+        @Override
+        public boolean onPreferenceTreeClick(@NonNull Preference preference) {
+            if ("export_settings".equals(preference.getKey())) {
+                Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("application/json");
+                intent.putExtra(Intent.EXTRA_TITLE, "hkg_settings.json");
+                exportLauncher.launch(intent);
+                return true;
+            } else if ("import_settings".equals(preference.getKey())) {
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("application/json");
+                importLauncher.launch(intent);
+                return true;
+            }
+            return super.onPreferenceTreeClick(preference);
+        }
+
+        private void saveSettingsToFile(Uri uri) {
+            try (OutputStream os = requireContext().getContentResolver().openOutputStream(uri)) {
+                if (os == null) return;
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(requireContext());
+                org.json.JSONObject json = new org.json.JSONObject();
+                for (java.util.Map.Entry<String, ?> entry : prefs.getAll().entrySet()) {
+                    json.put(entry.getKey(), entry.getValue());
+                }
+                os.write(json.toString(4).getBytes(StandardCharsets.UTF_8));
+                android.widget.Toast.makeText(requireContext(), "Settings exported", android.widget.Toast.LENGTH_SHORT).show();
+            } catch (Exception e) {
+                Log.e(TAG, "Export failed", e);
+            }
+        }
+
+        private void loadSettingsFromFile(Uri uri) {
+            try (InputStream is = requireContext().getContentResolver().openInputStream(uri)) {
+                if (is == null) return;
+                byte[] bytes = new byte[is.available()];
+                is.read(bytes);
+                String content = new String(bytes, StandardCharsets.UTF_8);
+                org.json.JSONObject json = new org.json.JSONObject(content);
+                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(requireContext()).edit();
+                java.util.Iterator<String> keys = json.keys();
+                while (keys.hasNext()) {
+                    String key = keys.next();
+                    Object val = json.get(key);
+                    if (val instanceof Boolean) editor.putBoolean(key, (Boolean) val);
+                    else if (val instanceof Integer) editor.putInt(key, (Integer) val);
+                    else if (val instanceof Long) editor.putLong(key, (Long) val);
+                    else if (val instanceof Float) editor.putFloat(key, (Float) val);
+                    else if (val instanceof String) editor.putString(key, (String) val);
+                }
+                editor.apply();
+                android.widget.Toast.makeText(requireContext(), "Settings imported. Restarting...", android.widget.Toast.LENGTH_SHORT).show();
+                requireActivity().recreate();
+            } catch (Exception e) {
+                Log.e(TAG, "Import failed", e);
+            }
         }
 
         private void updateSummaries() {
-            if (mInputConnectionInfo != null) {
-                mInputConnectionInfo.setSummary(String.format("%s type=%s",
+            Preference info = findPreference("input_connection_info");
+            if (info != null) {
+                info.setSummary(String.format("%s type=%s",
                         LatinIME.sKeyboardSettings.editorPackageName,
-                        inputTypeDesc(LatinIME.sKeyboardSettings.editorInputType)
-                ));
+                        inputTypeDesc(LatinIME.sKeyboardSettings.editorInputType)));
+            }
+            updateDetectedDictionaries();
+            Preference voice = findPreference("voice_mode");
+            if (voice instanceof androidx.preference.ListPreference) {
+                voice.setSummary(((androidx.preference.ListPreference) voice).getEntry());
             }
         }
 
         private void updateDetectedDictionaries() {
+            Preference mDetectedDictionaries = findPreference("pref_detected_dictionaries");
             if (mDetectedDictionaries == null) return;
             
             PackageManager pm = requireContext().getPackageManager();
-            java.util.List<CharSequence> dictionaryList = new java.util.ArrayList<CharSequence>();
+            List<CharSequence> dictionaryList = new ArrayList<CharSequence>();
             
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(requireContext());
             String selectedLanguages = sp.getString(LatinIME.PREF_SELECTED_LANGUAGES, null);
@@ -245,7 +241,7 @@ public class LatinIMESettings extends AppCompatActivity {
             PluginManager.getPluginDictionaries(requireContext());
             String activePkg = PluginManager.getDictionaryPackageName(currentLanguage);
 
-            java.util.List<PackageInfo> packages = pm.getInstalledPackages(0);
+            List<PackageInfo> packages = pm.getInstalledPackages(0);
             for (PackageInfo pkgInfo : packages) {
                 String pkg = pkgInfo.packageName;
                 if (pkg.startsWith("org.n0pocketworkstation.dict") || 
@@ -272,7 +268,6 @@ public class LatinIMESettings extends AppCompatActivity {
                             if (dictSize > 100) {
                                 ssb.setSpan(new ForegroundColorSpan(0xFF00FF00), 0, entry.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                             } else {
-                                ssb.setSpan(new ForegroundColorSpan(0xFFFFA500), 0, entry.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                                 entry += " (Empty/Error)";
                                 ssb = new SpannableStringBuilder(entry);
                                 ssb.setSpan(new ForegroundColorSpan(0xFFFFA500), 0, entry.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -282,17 +277,13 @@ public class LatinIMESettings extends AppCompatActivity {
                             dictionaryList.add(entry);
                         }
                     } catch (Exception e) {
+                        Log.e(TAG, "Error processing dictionary package: " + pkg, e);
                     }
                 }
             }
 
             if (!dictionaryList.isEmpty()) {
-                java.util.Collections.sort(dictionaryList, new java.util.Comparator<CharSequence>() {
-                    @Override
-                    public int compare(CharSequence a, CharSequence b) {
-                        return a.toString().compareTo(b.toString());
-                    }
-                });
+                java.util.Collections.sort(dictionaryList, (a, b) -> a.toString().compareTo(b.toString()));
 
                 SpannableStringBuilder detected = new SpannableStringBuilder();
                 for (int i = 0; i < dictionaryList.size(); i++) {
@@ -302,93 +293,17 @@ public class LatinIMESettings extends AppCompatActivity {
                 mDetectedDictionaries.setSummary(detected);
                 mDetectedDictionaries.setEnabled(true);
             } else {
-                PreferenceGroup group = findPreference(PREDICTION_SETTINGS_KEY);
-                if (group != null) {
-                    group.removePreference(mDetectedDictionaries);
-                }
+                mDetectedDictionaries.setSummary("None");
             }
-        }
-
-        private void updateVoiceModeSummary() {
-            // Summary is now handled by SummaryProvider
         }
 
         private String inputTypeDesc(int type) {
-            int cls = type & 0x0000000f;
-            int flags = type & 0x00fff000;
-            int var = type &  0x00000ff0;
-
-            StringBuilder out = new StringBuilder();
-            String clsName = INPUT_CLASSES.get(cls);
-            out.append(clsName != null ? clsName : "?");
-            
-            if (cls == InputType.TYPE_CLASS_TEXT) {
-                String varName = TEXT_VARIATIONS.get(var);
-                if (varName != null) {
-                    out.append(".");
-                    out.append(varName);
-                }
-                addBit(out, flags & 0x00010000, "AUTO_COMPLETE");
-                addBit(out, flags & 0x00008000, "AUTO_CORRECT");
-                addBit(out, flags & 0x00001000, "CAP_CHARACTERS");
-                addBit(out, flags & 0x00004000, "CAP_SENTENCES");
-                addBit(out, flags & 0x00002000, "CAP_WORDS");
-                addBit(out, flags & 0x00040000, "IME_MULTI_LINE");
-                addBit(out, flags & 0x00020000, "MULTI_LINE");
-                addBit(out, flags & 0x00080000, "NO_SUGGESTIONS");
-            } else if (cls == InputType.TYPE_CLASS_NUMBER) {
-                String varName = NUMBER_VARIATIONS.get(var);
-                if (varName != null) {
-                    out.append(".");
-                    out.append(varName);
-                }
-                addBit(out, flags & 0x00002000, "DECIMAL");
-                addBit(out, flags & 0x00001000, "SIGNED");        
-            } else if (cls == InputType.TYPE_CLASS_DATETIME) {
-                String varName = DATETIME_VARIATIONS.get(var);
-                if (varName != null) {
-                    out.append(".");
-                    out.append(varName);
-                }
-            }
-            return out.toString();
-        }
-
-        private void addBit(StringBuilder buf, int bit, String str) {
-            if (bit != 0) {
-                buf.append("|");
-                buf.append(str);
-            }
-        }
-
-        static final Map<Integer, String> INPUT_CLASSES = new HashMap<>();
-        static final Map<Integer, String> DATETIME_VARIATIONS = new HashMap<>();
-        static final Map<Integer, String> TEXT_VARIATIONS = new HashMap<>();
-        static final Map<Integer, String> NUMBER_VARIATIONS = new HashMap<>();
-        static {
-            INPUT_CLASSES.put(0x00000004, "DATETIME");
-            INPUT_CLASSES.put(0x00000002, "NUMBER");
-            INPUT_CLASSES.put(0x00000003, "PHONE");
-            INPUT_CLASSES.put(0x00000001, "TEXT"); 
-            INPUT_CLASSES.put(0x00000000, "NULL");
-            
-            DATETIME_VARIATIONS.put(0x00000010, "DATE");
-            DATETIME_VARIATIONS.put(0x00000020, "TIME");
-            NUMBER_VARIATIONS.put(0x00000010, "PASSWORD");
-            TEXT_VARIATIONS.put(0x00000020, "EMAIL_ADDRESS");
-            TEXT_VARIATIONS.put(0x00000030, "EMAIL_SUBJECT");
-            TEXT_VARIATIONS.put(0x000000b0, "FILTER");
-            TEXT_VARIATIONS.put(0x00000050, "LONG_MESSAGE");
-            TEXT_VARIATIONS.put(0x00000080, "PASSWORD");
-            TEXT_VARIATIONS.put(0x00000060, "PERSON_NAME");
-            TEXT_VARIATIONS.put(0x000000c0, "PHONETIC");
-            TEXT_VARIATIONS.put(0x00000070, "POSTAL_ADDRESS");
-            TEXT_VARIATIONS.put(0x00000040, "SHORT_MESSAGE");
-            TEXT_VARIATIONS.put(0x00000010, "URI");
-            TEXT_VARIATIONS.put(0x00000090, "VISIBLE_PASSWORD");
-            TEXT_VARIATIONS.put(0x000000a0, "WEB_EDIT_TEXT");
-            TEXT_VARIATIONS.put(0x000000d0, "WEB_EMAIL_ADDRESS");
-            TEXT_VARIATIONS.put(0x000000e0, "WEB_PASSWORD");
+            int mask = type & android.text.InputType.TYPE_MASK_CLASS;
+            if (mask == android.text.InputType.TYPE_CLASS_TEXT) return "text";
+            if (mask == android.text.InputType.TYPE_CLASS_NUMBER) return "number";
+            if (mask == android.text.InputType.TYPE_CLASS_PHONE) return "phone";
+            if (mask == android.text.InputType.TYPE_CLASS_DATETIME) return "datetime";
+            return "unknown";
         }
     }
 }

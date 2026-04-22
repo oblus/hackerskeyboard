@@ -86,7 +86,17 @@
     <string name="prediction_landscape_summary">Hide word suggestions in landscape view</string>
 	
     <!-- Option to enable auto capitalization of sentences -->
-    <string name="auto_cap">Auto-capitalization</string> 
+    <string name="auto_cap">Auto-capitalization</string>
+    <string-array name="auto_cap_modes_labels">
+        <item>Default (Application rules)</item>
+        <item>Smart Always (Sentence starts)</item>
+        <item>Off</item>
+    </string-array>
+    <string-array name="auto_cap_modes_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
     <!-- Description for auto cap -->
     <string name="auto_cap_summary">Capitalize the start of a sentence</string>
     <!-- Option to enable auto punctuate -->
@@ -195,6 +205,14 @@
     <string name="label_alpha_key">ABC</string>
     <!-- Label for ALT modifier key.  Must be short to fit on key! -->
     <string name="label_alt_key">ALT</string>
+
+    <!-- Macro Bar Settings -->
+    <string name="title_macro_settings">Macro Bar Configuration</string>
+    <string name="macro_label_hint">Tile Label</string>
+    <string name="macro_content_hint">Macro Content (max 5 lines)</string>
+    <string name="macro_control_checkbox">Mark Checkbox to Enable Control Sequences</string>
+    <string name="macro_control_summary">Interpret tags like {ENTER}, {TAB}, {CTRL+C}</string>
+    <string name="macro_tile_n">Macro Tile %1$d</string>
 
     <!-- Voice related labels -->
 
@@ -478,6 +496,10 @@
     <string name="summary_suggestions_in_landscape_true">Same as in portrait mode</string>
     <string name="summary_suggestions_in_landscape_false">Hide suggestions in landscape mode</string>
 
+    <string name="title_macros_in_landscape">Macros in landscape mode</string>
+    <string name="summary_macros_in_landscape_true">Show macros in landscape mode</string>
+    <string name="summary_macros_in_landscape_false">Hide macros in landscape mode</string>
+
     <string name="title_fullscreen_override">Landscape mode fullscreen editor</string>
     <string name="summary_fullscreen_override_true">Disabled, use standard view</string>
     <string name="summary_fullscreen_override_false">Enabled on small devices</string>
@@ -656,7 +678,38 @@
     <string name="main_setup_get_dicts">More</string>
     <string name="main_setup_input_lang">Input languages</string>
     <string name="main_setup_settings">Settings</string>
-    <string name="main_setup_test">Test</string>
+    <string name="main_setup_ui_language">UI Language</string>
+    <string name="main_setup_test_text">Test in text</string>
+    <string name="main_setup_test_password">Test in password</string>
+    <string name="main_setup_test_email">Test in email</string>
+    <string name="main_setup_test_uri">Test in URI</string>
+    <string name="main_setup_test_number">Test in number</string>
+    <string name="main_setup_test_phone">Test in phone</string>
+    <string name="main_setup_test_short_message">Test in short message</string>
+    <string name="main_setup_test_long_message">Test in long message</string>
+    <string name="main_setup_test_no_suggestions">Test in no suggestions</string>
+    <string name="main_setup_test_cap_words">Test in cap words</string>
+    <string name="main_setup_test_datetime">Test in datetime</string>
+    <string name="main_setup_test_date">Test in date</string>
+    <string name="main_setup_test_time">Test in time</string>
+    <string name="main_setup_test_visible_password">Test in visible password</string>
+    <string name="main_setup_test_number_signed">Test in number signed</string>
+    <string name="main_setup_test_number_decimal">Test in number decimal</string>
+    <string name="main_setup_test_number_password">Test in number password</string>
+    <string name="main_setup_test_postal_address">Test in postal address</string>
+    <string name="main_setup_test_person_name">Test in person name</string>
+    <string name="main_setup_test_filter">Test in filter</string>
+    <string name="main_setup_test_web_edit_text">Test in web edit text</string>
+    <string name="main_setup_test_phonetic">Test in phonetic</string>
+    <string name="main_setup_test_email_subject">Test in email subject</string>
+    <string name="main_setup_test_cap_characters">Test in cap characters</string>
+    <string name="main_setup_test_cap_sentences">Test in cap sentences</string>
+    <string name="main_setup_test_auto_correct">Test in auto correct</string>
+    <string name="main_setup_test_auto_complete">Test in auto complete</string>
+    <string name="main_setup_test_multi_line">Test in multi line</string>
+    <string name="main_setup_test_ime_multi_line">Test in IME multi line</string>
+    <string name="main_setup_test_web_email_address">Test in web email address</string>
+    <string name="main_setup_test_web_password">Test in web password</string>
     <string name="main_body"><Data>
       <![CDATA["
         <h2>Enabling Hacked Keyboard GEM</h2>

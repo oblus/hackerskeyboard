@@ -68,15 +68,13 @@
                 android:gravity="start|center_vertical"
                 android:text="@string/main_setup_settings" />
 
-            <EditText
-                android:id="@+id/main_setup_edit_test"
+            <Button
+                android:id="@+id/main_setup_btn_ui_language"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="start|center_vertical"
-                android:hint="@string/main_setup_test"
-                android:inputType="text"
-                android:maxLines="1" />
+                android:text="@string/main_setup_ui_language" />
         </LinearLayout>
 
         <TextView
@@ -85,5 +83,251 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:textSize="10sp" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_text"
+            android:inputType="text"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_password"
+            android:inputType="textPassword"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_email"
+            android:inputType="textEmailAddress"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_uri"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_uri"
+            android:inputType="textUri"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_number"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_number"
+            android:inputType="number"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_phone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_phone"
+            android:inputType="phone"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_short_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_short_message"
+            android:inputType="textShortMessage"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_long_message"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_long_message"
+            android:inputType="textLongMessage"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_no_suggestions"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_no_suggestions"
+            android:inputType="textNoSuggestions"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_cap_words"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_cap_words"
+            android:inputType="textCapWords"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_datetime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_datetime"
+            android:inputType="datetime"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_date"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_date"
+            android:inputType="date"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_time"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_time"
+            android:inputType="time"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_visible_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_visible_password"
+            android:inputType="textVisiblePassword"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_number_signed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_number_signed"
+            android:inputType="numberSigned"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_number_decimal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_number_decimal"
+            android:inputType="numberDecimal"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_number_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_number_password"
+            android:inputType="numberPassword"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_postal_address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_postal_address"
+            android:inputType="textPostalAddress"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_person_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_person_name"
+            android:inputType="textPersonName"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_filter"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_filter"
+            android:inputType="textFilter"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_web_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_web_edit_text"
+            android:inputType="textWebEditText"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_phonetic"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_phonetic"
+            android:inputType="textPhonetic"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_email_subject"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_email_subject"
+            android:inputType="textEmailSubject"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_cap_characters"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_cap_characters"
+            android:inputType="textCapCharacters"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_cap_sentences"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_cap_sentences"
+            android:inputType="textCapSentences"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_auto_correct"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_auto_correct"
+            android:inputType="textAutoCorrect"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_auto_complete"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_auto_complete"
+            android:inputType="textAutoComplete"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_multi_line"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_multi_line"
+            android:inputType="textMultiLine" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_ime_multi_line"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_ime_multi_line"
+            android:inputType="textImeMultiLine" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_web_email_address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_web_email_address"
+            android:inputType="textWebEmailAddress"
+            android:maxLines="1" />
+
+        <EditText
+            android:id="@+id/main_setup_edit_test_web_password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_setup_test_web_password"
+            android:inputType="textWebPassword"
+            android:maxLines="1" />
     </LinearLayout>
 </ScrollView>

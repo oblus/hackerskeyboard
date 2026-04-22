@@ -48,6 +48,8 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.os.ConfigurationCompat;
 import androidx.preference.PreferenceManager;
 import android.provider.Settings;
+import android.util.TypedValue;
+import android.widget.Button;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
@@ -69,9 +71,11 @@ import android.view.inputmethod.ExtractedText;
 import android.view.inputmethod.ExtractedTextRequest;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.appcompat.view.ContextThemeWrapper;
 import androidx.core.content.ContextCompat;
 //import androidx.preference.PreferenceActivity;
 
@@ -113,7 +117,7 @@ public class LatinIME extends InputMethodService implements
     static final String PREF_VIBRATE_LEN = "vibrate_len";
     private static final String PREF_SOUND_ON = "sound_on";
     private static final String PREF_POPUP_ON = "popup_on";
-    private static final String PREF_AUTO_CAP = "auto_cap";
+    private static final String PREF_AUTO_CAP = "auto_cap_mode";
     private static final String PREF_QUICK_FIXES = "quick_fixes";
     private static final String PREF_SHOW_SUGGESTIONS = "show_suggestions";
     private static final String PREF_MIN_LETTERS_SUGGESTION = "pref_min_letters_suggestion";
@@ -138,6 +142,7 @@ public class LatinIME extends InputMethodService implements
     static final String PREF_CONNECTBOT_TAB_HACK = "connectbot_tab_hack";
     static final String PREF_FULL_KEYBOARD_IN_PORTRAIT = "full_keyboard_in_portrait";
     static final String PREF_SUGGESTIONS_IN_LANDSCAPE = "suggestions_in_landscape";
+    static final String PREF_MACROS_IN_LANDSCAPE = "macros_in_landscape";
     static final String PREF_HEIGHT_PORTRAIT = "settings_height_portrait";
     static final String PREF_HEIGHT_LANDSCAPE = "settings_height_landscape";
     static final String PREF_HINT_MODE = "pref_hint_mode";
@@ -172,6 +177,7 @@ public class LatinIME extends InputMethodService implements
     // private LatinKeyboardView mInputView;
     private LinearLayout mCandidateViewContainer;
     private CandidateView mCandidateView;
+    private View mMacroBar;
     private Suggest mSuggest;
     private CompletionInfo[] mCompletions;
 
@@ -219,7 +225,7 @@ public class LatinIME extends InputMethodService implements
     private int mVibrateLen;
     private boolean mSoundOn;
     private boolean mPopupOn;
-    private boolean mAutoCapPref;
+    private int mAutoCapPref;
     private boolean mAutoCapActive;
     private boolean mDeadKeysActive;
     private boolean mQuickFixes;
@@ -230,6 +236,7 @@ public class LatinIME extends InputMethodService implements
     private boolean mForceKeyboardOn;
     private boolean mKeyboardNotification;
     private boolean mSuggestionsInLandscape;
+    private boolean mMacrosInLandscape;
     private boolean mSuggestionForceOn;
     private boolean mSuggestionForceOff;
     private String mSwipeUpAction;
@@ -374,6 +381,7 @@ public class LatinIME extends InputMethodService implements
 
     @Override
     public void onCreate() {
+        PCKeyboardApp.updateLocale(this);
         Log.i("PCKeyboard", "onCreate(), os.version=" + System.getProperty("os.version"));
         KeyboardSwitcher.init(this);
         super.onCreate();
@@ -411,6 +419,7 @@ public class LatinIME extends InputMethodService implements
                 res.getBoolean(R.bool.default_keyboard_notification));
         mSuggestionsInLandscape = prefs.getBoolean(PREF_SUGGESTIONS_IN_LANDSCAPE,
                 res.getBoolean(R.bool.default_suggestions_in_landscape));
+        mMacrosInLandscape = prefs.getBoolean(PREF_MACROS_IN_LANDSCAPE, true);
         mHeightPortrait = getHeight(prefs, PREF_HEIGHT_PORTRAIT, res.getString(R.string.default_height_portrait));
         mHeightLandscape = getHeight(prefs, PREF_HEIGHT_LANDSCAPE, res.getString(R.string.default_height_landscape));
         getSettingsSafe().hintMode = Integer.parseInt(prefs.getString(PREF_HINT_MODE, res.getString(R.string.default_hint_mode)));
@@ -603,21 +612,30 @@ public class LatinIME extends InputMethodService implements
         return dict;
     }
 
+    @SuppressWarnings("deprecation")
     private void initSuggest(String localeStr) {
         mInputLocale = localeStr;
 
-        Configuration conf = new Configuration(getResources().getConfiguration());
-        Locale.Builder localeBuilder = new Locale.Builder();
+        Resources res = getResources();
+        Configuration conf = new Configuration(res.getConfiguration());
+        
+        Locale locale;
         if (localeStr.contains("_")) {
             String[] parts = localeStr.split("_", 3);
-            if (parts.length >= 1) localeBuilder.setLanguage(parts[0]);
-            if (parts.length >= 2) localeBuilder.setRegion(parts[1]);
-            if (parts.length >= 3) localeBuilder.setVariant(parts[2]);
+            if (parts.length == 3) {
+                locale = new Locale(parts[0], parts[1], parts[2]);
+            } else if (parts.length == 2) {
+                locale = new Locale(parts[0], parts[1]);
+            } else {
+                locale = new Locale(parts[0]);
+            }
         } else {
-            localeBuilder.setLanguage(localeStr);
+            locale = new Locale(localeStr);
         }
-        Locale locale = localeBuilder.build();
+        
         conf.setLocale(locale);
+        
+        // Use a localized context just for resource lookup to avoid deprecation
         Context localizedContext = createConfigurationContext(conf);
         Resources localizedRes = localizedContext.getResources();
 
@@ -630,7 +648,14 @@ public class LatinIME extends InputMethodService implements
                 .getBoolean(R.bool.default_quick_fixes));
 
         int[] dictionaries = getDictionary(localizedRes);
+        // CRITICAL: Pass 'this' (the Service context), NOT localizedContext, 
+        // because external dictionary plugins need the main application context
+        // to resolve their own resources/providers.
         mSuggest = new Suggest(this, dictionaries);
+        
+        // Also update the global resources for any legacy code that doesn't use the localized one
+        // (This helps with external dictionaries while we transition)
+        res.updateConfiguration(conf, res.getDisplayMetrics());
 
         Locale systemLocale = ConfigurationCompat.getLocales(getResources().getConfiguration()).get(0);
         if (systemLocale == null) {
@@ -657,8 +682,8 @@ public class LatinIME extends InputMethodService implements
 
         mSuggest.setAutoDictionary(mAutoDictionary);
         updateCorrectionMode();
-        mWordSeparators = localizedRes.getString(R.string.word_separators);
-        mSentenceSeparators = localizedRes
+        mWordSeparators = res.getString(R.string.word_separators);
+        mSentenceSeparators = res
                 .getString(R.string.sentence_separators);
         initSuggestPuncList();
     }
@@ -731,8 +756,14 @@ public class LatinIME extends InputMethodService implements
             if (ic != null)
                 ic.finishComposingText(); // For voice input
             mOrientation = conf.orientation;
+            
+            // Force re-inflation of candidate views on orientation change to update resources/dimensions
+            mCandidateViewContainer = null;
+            mCandidateView = null;
+            mMacroBar = null;
+            setCandidatesViewShown(isCandidateStripVisible());
+            
             reloadKeyboards();
-            removeCandidateViewContainer();
         }
         mConfigurationChanging = true;
         super.onConfigurationChanged(conf);
@@ -741,12 +772,47 @@ public class LatinIME extends InputMethodService implements
 
     @Override
     public View onCreateInputView() {
-        setCandidatesViewShown(false);  // Workaround for "already has a parent" when reconfiguring
-        mKeyboardSwitcher.recreateInputView();
-        mKeyboardSwitcher.makeKeyboards(true);
-        mKeyboardSwitcher.setKeyboardMode(KeyboardSwitcher.MODE_TEXT, 0,
-                shouldShowVoiceButton(getCurrentInputEditorInfo()));
+        if (mKeyboardSwitcher.getInputView() == null) {
+            mKeyboardSwitcher.recreateInputView();
+            mKeyboardSwitcher.makeKeyboards(true);
+            mKeyboardSwitcher.setKeyboardMode(KeyboardSwitcher.MODE_TEXT, 0,
+                    shouldShowVoiceButton(getCurrentInputEditorInfo()));
+        }
         return mKeyboardSwitcher.getInputView();
+    }
+
+    private void initCandidateViewContainer() {
+        if (mCandidateViewContainer == null) {
+            mCandidateViewContainer = (LinearLayout) getLayoutInflater().inflate(
+                    R.layout.candidates, null);
+            mCandidateView = (CandidateView) mCandidateViewContainer
+                    .findViewById(R.id.candidates);
+            mCandidateView.setPadding(0, 0, 0, 0);
+            mCandidateView.setService(this);
+
+            View macroToggle = mCandidateViewContainer.findViewById(R.id.macro_toggle);
+            if (macroToggle != null) {
+                macroToggle.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        toggleMacroBar();
+                    }
+                });
+            }
+        }
+
+        if (mCandidateViewContainer != null && mCandidateViewContainer.findViewById(R.id.macro_bar_container) == null) {
+            mMacroBar = getLayoutInflater().inflate(R.layout.macro_bar, null);
+            mMacroBar.setVisibility(View.GONE);
+            mCandidateViewContainer.addView(mMacroBar, 0); 
+            setupMacroButtons();
+        }
+    }
+
+    @Override
+    public View onCreateCandidatesView() {
+        initCandidateViewContainer();
+        return mCandidateViewContainer;
     }
 
     @Override
@@ -766,34 +832,235 @@ public class LatinIME extends InputMethodService implements
     		}
     	}
     }
-    
-    @Override
-    public View onCreateCandidatesView() {
-        //Log.i(TAG, "onCreateCandidatesView(), mCandidateViewContainer=" + mCandidateViewContainer);
-        //mKeyboardSwitcher.makeKeyboards(true);
+
+    private void toggleMacroBar() {
         if (mCandidateViewContainer == null) {
-            mCandidateViewContainer = (LinearLayout) getLayoutInflater().inflate(
-                    R.layout.candidates, null);
-            mCandidateView = (CandidateView) mCandidateViewContainer
-            .findViewById(R.id.candidates);
-            mCandidateView.setPadding(0, 0, 0, 0);
-            mCandidateView.setService(this);
-            setCandidatesView(mCandidateViewContainer);
+            initCandidateViewContainer();
         }
-        return mCandidateViewContainer;
+        if (mMacroBar == null) {
+             mMacroBar = mCandidateViewContainer.findViewById(R.id.macro_bar_container);
+        }
+        if (mMacroBar == null) return;
+
+        boolean currentlyVisible = mMacroBar.getVisibility() == View.VISIBLE;
+        if (currentlyVisible) {
+            mMacroBar.setVisibility(View.GONE);
+            mSuggestionForceOn = false;
+        } else {
+            setupMacroButtons();
+            mMacroBar.setVisibility(View.VISIBLE);
+            // mMacroBar.setBackgroundColor(0xFFFF0000); // RED FOR TESTING (Commented out)
+            
+            // Adjust this number to change the height of the M1-M5 bar
+            int barHeight = (int) (30 * getResources().getDisplayMetrics().density);
+            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) mMacroBar.getLayoutParams();
+            if (lp != null) {
+                lp.height = barHeight;
+                mMacroBar.setLayoutParams(lp);
+            }
+            mSuggestionForceOn = true;
+        }
+        
+        // Toggle the macro bar visibility, considering landscape constraints
+        boolean canShowMacros = isPortrait() || mMacrosInLandscape;
+        if (!canShowMacros && !currentlyVisible) {
+             // If we tried to enable it but it's restricted in landscape
+             mMacroBar.setVisibility(View.GONE);
+             mSuggestionForceOn = false;
+        }
+
+        // Avoid full bar restart if possible
+        setCandidatesViewShown(isCandidateStripVisible());
+
+        if (mCandidateViewContainer != null) {
+            mCandidateViewContainer.requestLayout();
+        }
+    }
+
+    private void setupMacroButtons() {
+        if (mCandidateViewContainer == null) return;
+        if (mMacroBar == null) {
+            mMacroBar = mCandidateViewContainer.findViewById(R.id.macro_bar_container);
+        }
+        if (mMacroBar == null) return;
+
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+
+        for (int i = 1; i <= 5; i++) {
+            final int groupIndex = i;
+            int resId = getResources().getIdentifier("macro_tile_" + i, "id", getPackageName());
+            View button = mMacroBar.findViewById(resId);
+            if (button instanceof Button) {
+                Button macroBtn = (Button) button;
+                String label = sp.getString("macro_label_" + groupIndex, "M" + groupIndex);
+                macroBtn.setText(label);
+                
+                // FORCE button style updates in code - aggressive reset
+                macroBtn.setBackgroundResource(0); // Remove background to kill insets
+                macroBtn.setPadding(0, 0, 0, 0);
+                macroBtn.setMinHeight(0);
+                macroBtn.setMinimumHeight(0);
+                macroBtn.setMinWidth(0);
+                macroBtn.setMinimumWidth(0);
+                
+                // Re-add a simple selector background
+                macroBtn.setBackgroundResource(android.R.drawable.list_selector_background);
+
+                // Adjust font size to match suggestion bar style
+                macroBtn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12 * sKeyboardSettings.candidateScalePref);
+                macroBtn.setTypeface(android.graphics.Typeface.DEFAULT);
+                macroBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        showMacroMenu(v, groupIndex);
+                    }
+                });
+            }
+        }
+    }
+
+    private void showMacroMenu(View v, int groupIndex) {
+        final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        int startIdx = (groupIndex - 1) * 5 + 1;
+
+        // Use PopupWindow with focusable=false to avoid stealing focus from keyboard (prevents flickering)
+        LinearLayout layout = new LinearLayout(new ContextThemeWrapper(this, R.style.MacroPopupTheme));
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setBackgroundColor(0xFF111111); // Dark background
+        layout.setPadding(4, 4, 4, 4);
+
+        final android.widget.PopupWindow popupWindow = new android.widget.PopupWindow(
+                layout,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
+                false); // Focusable = false, critical to avoid IME reload
+
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.setTouchable(true);
+
+        for (int i = 0; i < 5; i++) {
+            final int macroIdx = startIdx + i;
+            String content = sp.getString("macro_content_" + macroIdx, "");
+            if (content.isEmpty()) continue; // Skip empty macros
+            String menuTitle = content.length() > 30 ? content.substring(0, 27) + "..." : content;
+
+            Button btn = new Button(new ContextThemeWrapper(this, R.style.MacroPopupTheme));
+            btn.setText(menuTitle);
+            btn.setAllCaps(false);
+            // Macro Menu - Adjust font size to match suggestion bar style
+            btn.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12 * sKeyboardSettings.candidateScalePref);
+            btn.setTypeface(android.graphics.Typeface.DEFAULT);
+            // Example: Set a specific height for every row in the popup
+            //btn.setMinHeight((int) (28 * getResources().getDisplayMetrics().density));
+            btn.setPadding(20, 8, 20, 8);
+            btn.setMinHeight(0);
+            btn.setMinimumHeight(0);
+            
+            // Set minimum width to approx 5 characters
+            int minWidth = (int) (btn.getPaint().measureText("00000") + 40);
+            btn.setMinWidth(minWidth);
+            
+            // Force the layout params to WRAP_CONTENT for height
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT, 
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            );
+            btn.setLayoutParams(lp);
+
+            btn.setBackgroundResource(android.R.drawable.list_selector_background);
+            btn.setGravity(android.view.Gravity.LEFT | android.view.Gravity.CENTER_VERTICAL);
+            btn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    executeMacro(macroIdx);
+                    popupWindow.dismiss();
+                }
+            });
+            layout.addView(btn);
+        }
+
+        // Measure size to know how much to offset upwards
+        layout.measure(View.MeasureSpec.UNSPECIFIED, View.MeasureSpec.UNSPECIFIED);
+        int height = layout.getMeasuredHeight();
+
+        // Show ABOVE the button (anchor v)
+        popupWindow.showAsDropDown(v, 0, -(height + v.getHeight()));
+    }
+
+    private void executeMacro(int index) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        String content = sp.getString("macro_content_" + index, "");
+        boolean isControl = sp.getBoolean("macro_control_" + index, false);
+
+        if (content.isEmpty()) return;
+
+        if (isControl) {
+            sendMacroSequence(content);
+        } else {
+            android.view.inputmethod.InputConnection ic = getCurrentInputConnection();
+            if (ic != null) {
+                commitTyped(ic, true);
+                ic.commitText(content, 1);
+            }
+        }
+    }
+
+    private void sendMacroSequence(String sequence) {
+        InputConnection ic = getCurrentInputConnection();
+        if (ic == null) return;
+
+        // Simple parser for {TAG}
+        String[] parts = sequence.split("(?=\\{)|(?<=\\})");
+        for (String part : parts) {
+            if (part.startsWith("{") && part.endsWith("}")) {
+                String tag = part.substring(1, part.length() - 1).toUpperCase();
+                switch (tag) {
+                    case "ENTER": sendKeyChar('\n'); break;
+                    case "TAB": sendDownUpKeyEvents(KeyEvent.KEYCODE_TAB); break;
+                    case "ESC": sendDownUpKeyEvents(KeyEvent.KEYCODE_ESCAPE); break;
+                    case "CTRL+C":
+                        ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_CTRL_LEFT));
+                        ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_C));
+                        ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_C));
+                        ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_CTRL_LEFT));
+                        break;
+                    case "CTRL+V":
+                        ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_CTRL_LEFT));
+                        ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_V));
+                        ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_V));
+                        ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_CTRL_LEFT));
+                        break;
+                    case "CTRL+X":
+                        ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_CTRL_LEFT));
+                        ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_X));
+                        ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_X));
+                        ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_CTRL_LEFT));
+                        break;
+                    case "CTRL+A":
+                        ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_CTRL_LEFT));
+                        ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_A));
+                        ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_A));
+                        ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_CTRL_LEFT));
+                        break;
+                }
+            } else {
+                ic.commitText(part, 1);
+            }
+        }
+    }
+
+    @Override
+    public void sendDownUpKeyEvents(int keyCode) {
+        InputConnection ic = getCurrentInputConnection();
+        if (ic == null) return;
+        ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, keyCode));
+        ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, keyCode));
     }
 
     private void removeCandidateViewContainer() {
-        //Log.i(TAG, "removeCandidateViewContainer(), mCandidateViewContainer=" + mCandidateViewContainer);
-        if (mCandidateViewContainer != null) {
-            mCandidateViewContainer.removeAllViews();
-            ViewParent parent = mCandidateViewContainer.getParent();
-            if (parent != null && parent instanceof ViewGroup) {
-                ((ViewGroup) parent).removeView(mCandidateViewContainer);
-            }
-            mCandidateViewContainer = null;
-            mCandidateView = null;
-        }
+        mCandidateViewContainer = null;
+        mCandidateView = null;
+        mMacroBar = null;
         resetPrediction();
     }
 
@@ -806,6 +1073,7 @@ public class LatinIME extends InputMethodService implements
     
     @Override
     public void onStartInputView(EditorInfo attribute, boolean restarting) {
+        super.onStartInputView(attribute, restarting);
         sKeyboardSettings.editorPackageName = attribute.packageName;
         sKeyboardSettings.editorFieldName = attribute.fieldName;
         sKeyboardSettings.editorFieldId = attribute.fieldId;
@@ -934,12 +1202,15 @@ public class LatinIME extends InputMethodService implements
             mKeyboardSwitcher.setKeyboardMode(KeyboardSwitcher.MODE_TEXT,
                     attribute.imeOptions, enableVoiceButton);
         }
-        inputView.closing();
+        // if (!restarting) {
+        //    inputView.closing();
+        // }
         resetPrediction();
         loadSettings();
         if (variation == EditorInfo.TYPE_TEXT_VARIATION_WEB_EDIT_TEXT) {
             mAutoCapActive = false;
         }
+        mAutoCapActive = (mAutoCapPref != 2) && mLanguageSwitcher.allowAutoCap();
         updateShiftKeyState(attribute);
 
         mPredictionOnPref = (mCorrectionMode > 0 || mShowSuggestions);
@@ -1027,68 +1298,8 @@ public class LatinIME extends InputMethodService implements
             int candidatesEnd) {
         super.onUpdateSelection(oldSelStart, oldSelEnd, newSelStart, newSelEnd,
                 candidatesStart, candidatesEnd);
-
-        // If the current selection in the text view changes, we should
-        // clear whatever candidate text we have.
-        if ((((mComposing.length() > 0 && mPredicting))
-                && (newSelStart != candidatesEnd || newSelEnd != candidatesEnd) && mLastSelectionStart != newSelStart)) {
-            mComposing.setLength(0);
-            mPredicting = false;
-            postUpdateSuggestions();
-            TextEntryState.reset();
-            InputConnection ic = getCurrentInputConnection();
-            if (ic != null) {
-                ic.finishComposingText();
-            }
-        } else if (!mPredicting && !mJustAccepted) {
-            switch (TextEntryState.getState()) {
-            case ACCEPTED_DEFAULT:
-                TextEntryState.reset();
-                // fall through
-            case SPACE_AFTER_PICKED:
-                mJustAddedAutoSpace = false; // The user moved the cursor.
-                break;
-            }
-        }
-        mJustAccepted = false;
-        postUpdateShiftKeyState();
-
-        // Make a note of the cursor position
-        mLastSelectionStart = newSelStart;
-        mLastSelectionEnd = newSelEnd;
-
-        if (mReCorrectionEnabled) {
-            // Don't look for corrections if the keyboard is not visible
-            if (mKeyboardSwitcher != null
-                    && mKeyboardSwitcher.getInputView() != null
-                    && mKeyboardSwitcher.getInputView().isShown()) {
-                // Check if we should go in or out of correction mode.
-                if (isPredictionOn()
-                        && mJustRevertedSeparator == null
-                        && (candidatesStart == candidatesEnd
-                                || newSelStart != oldSelStart || TextEntryState
-                                .isCorrecting())
-                        && (newSelStart < newSelEnd - 1 || (!mPredicting))) {
-                    if (isCursorTouchingWord()
-                            || mLastSelectionStart < mLastSelectionEnd) {
-                        postUpdateOldSuggestions();
-                    } else {
-                        abortCorrection(false);
-                        // Show the punctuation suggestions list if the current
-                        // one is not
-                        // and if not showing "Touch again to save".
-                        if (mCandidateView != null
-                                && !mSuggestPuncList.equals(mCandidateView
-                                        .getSuggestions())
-                                && !mCandidateView
-                                        .isShowingAddToDictionaryHint()) {
-                            setNextSuggestions();
-                        }
-                    }
-                }
-            }
-        }
     }
+
 
     /**
      * This is called when the user has clicked on the extracted text view, when
@@ -1162,23 +1373,17 @@ public class LatinIME extends InputMethodService implements
 
     private void setCandidatesViewShownInternal(boolean shown,
             boolean needsInputViewShown) {
-//        Log.i(TAG, "setCandidatesViewShownInternal(" + shown + ", " + needsInputViewShown +
-//                " mCompletionOn=" + mCompletionOn +
-//                " mPredictionOnForMode=" + mPredictionOnForMode +
-//                " mPredictionOnPref=" + mPredictionOnPref +
-//                " mPredicting=" + mPredicting
-//                );
-        // TODO: Remove this if we support candidates with hard keyboard
-        boolean visible = shown
+        // The bar is visible if the system wants it OR if we have word suggestions enabled in settings.
+        // We use isCandidateStripVisible() to ensure the macro toggle is available even when suggestions are hidden.
+        boolean visible = (shown || isCandidateStripVisible())
         && onEvaluateInputViewShown()
         && mKeyboardSwitcher.getInputView() != null
-        && isPredictionOn()
         && (needsInputViewShown
                 ? mKeyboardSwitcher.getInputView().isShown()
                         : true);
         if (visible) {
             if (mCandidateViewContainer == null) {
-                onCreateCandidatesView();
+                initCandidateViewContainer();
                 setNextSuggestions();
             }
         } else {
@@ -1187,15 +1392,17 @@ public class LatinIME extends InputMethodService implements
                 commitTyped(getCurrentInputConnection(), true);
             }
         }
-        super.setCandidatesViewShown(visible);
+        // Call our overridden method to handle view visibility within InputView
+        setCandidatesViewShown(visible);
     }
 
     @Override
     public void onFinishCandidatesView(boolean finishingInput) {
         //Log.i(TAG, "onFinishCandidatesView(), mCandidateViewContainer=" + mCandidateViewContainer);
         super.onFinishCandidatesView(finishingInput);
+        // Removed removeCandidateViewContainer() because we don't want to destroy the view when changing fields
         if (mCandidateViewContainer != null) {
-            removeCandidateViewContainer();
+            mCandidateViewContainer.setVisibility(View.GONE);
         }
     }
 
@@ -1209,7 +1416,81 @@ public class LatinIME extends InputMethodService implements
     
     @Override
     public void setCandidatesViewShown(boolean shown) {
-        setCandidatesViewShownInternal(shown, true /* needsInputViewShown */);
+        // Log.i(TAG, "setCandidatesViewShown(" + shown + ")");
+        boolean macroVisible = (mMacroBar != null && mMacroBar.getVisibility() == View.VISIBLE) && (isPortrait() || mMacrosInLandscape);
+        boolean suggestionAllowedInMode = (isPortrait() || mSuggestionsInLandscape);
+        boolean suggestionVisible = shown && suggestionAllowedInMode;
+        
+        // The toggle icon (macro_toggle) should be visible if suggestions OR macros are allowed in this mode
+        boolean toggleAllowed = (isPortrait() || mSuggestionsInLandscape || mMacrosInLandscape);
+        
+        // The whole container (CandidateViewContainer) must be visible if:
+        // 1. We want to show suggestions (and they are allowed for this mode)
+        // 2. Macros are open (and they are allowed for this mode)
+        // 3. We want to show the macro toggle (toggleAllowed) - but only if suggestions are also allowed
+        // 4. Suggestions are forced by the UI (mSuggestionForceOn)
+        
+        // REFINED LOGIC: If suggestions are disabled in landscape, but macros are enabled,
+        // we should show the macro bar directly if it's active, OR show the toggle if it's not.
+        // HOWEVER, the user wants the macro bar ALWAYS visible if suggestions are off.
+        
+        boolean macrosAllowedInMode = isPortrait() || mMacrosInLandscape;
+        
+        // If macros are allowed and suggestions are NOT, force the macro bar to be open
+        if (!suggestionAllowedInMode && macrosAllowedInMode) {
+            macroVisible = true;
+            if (mMacroBar != null) {
+                setupMacroButtons();
+                mMacroBar.setVisibility(View.VISIBLE);
+                // mMacroBar.setBackgroundColor(0xFFFF0000); // RED FOR TESTING (Commented out)
+                
+                // Adjust this number to change the height of the M1-M5 bar (Landscape)
+                int barHeight = (int) (32 * getResources().getDisplayMetrics().density);
+                ViewGroup.LayoutParams lp = mMacroBar.getLayoutParams();
+                if (lp != null) {
+                    lp.height = barHeight;
+                    mMacroBar.setLayoutParams(lp);
+                }
+            }
+        }
+
+        boolean forceVisible = suggestionVisible || mSuggestionForceOn || (macroVisible && macrosAllowedInMode) || (toggleAllowed && suggestionAllowedInMode);
+        
+        super.setCandidatesViewShown(forceVisible);
+        
+        if (mCandidateViewContainer != null) {
+            mCandidateViewContainer.setVisibility(forceVisible ? View.VISIBLE : View.GONE);
+            
+            View strip = mCandidateViewContainer.findViewById(R.id.suggestion_strip_container);
+            if (strip != null) {
+                // 1. Determine if words should be VISIBLE
+                boolean wordsVisible = suggestionAllowedInMode && (shown || mSuggestionForceOn);
+                
+                // Set word view visibility
+                if (mCandidateView != null) {
+                    mCandidateView.setVisibility(wordsVisible ? View.VISIBLE : View.GONE);
+                }
+                
+                // 2. Determine if the macro toggle is needed
+                // It's needed only if both suggestions and macros are allowed, so we can switch.
+                // If only macros are allowed, we don't need the toggle (pencil), just the macro bar.
+                boolean toggleNeeded = suggestionAllowedInMode && macrosAllowedInMode;
+                View toggle = strip.findViewById(R.id.macro_toggle);
+                if (toggle != null) {
+                    toggle.setVisibility(toggleNeeded ? View.VISIBLE : View.GONE);
+                }
+
+                // The entire strip container (containing words and toggle) should be GONE if:
+                // Words are not visible AND the toggle is not visible
+                boolean stripVisible = wordsVisible || toggleNeeded;
+                
+                strip.setVisibility(stripVisible ? View.VISIBLE : View.GONE);
+            }
+
+            if (mMacroBar != null) {
+                mMacroBar.setVisibility((macroVisible && macrosAllowedInMode) ? View.VISIBLE : View.GONE);
+            }
+        }
     }
 
     @Override
@@ -1397,7 +1678,27 @@ public class LatinIME extends InputMethodService implements
         int caps = 0;
         EditorInfo ei = getCurrentInputEditorInfo();
         if (mAutoCapActive && ei != null && ei.inputType != EditorInfo.TYPE_NULL) {
-            caps = ic.getCursorCapsMode(attr.inputType);
+            int mode = mAutoCapPref;
+            boolean excluded = false;
+            int variation = attr.inputType & EditorInfo.TYPE_MASK_VARIATION;
+            int clazz = attr.inputType & EditorInfo.TYPE_MASK_CLASS;
+
+            if (clazz != EditorInfo.TYPE_CLASS_TEXT) {
+                excluded = true;
+            } else if (variation == EditorInfo.TYPE_TEXT_VARIATION_PASSWORD
+                    || variation == EditorInfo.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
+                    || variation == EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+                    || variation == EditorInfo.TYPE_TEXT_VARIATION_URI
+                    || variation == EditorInfo.TYPE_TEXT_VARIATION_WEB_EDIT_TEXT) {
+                excluded = true;
+            }
+
+            if (mode == 1 && !excluded) {
+                caps = ic.getCursorCapsMode(TextUtils.CAP_MODE_SENTENCES);
+            } else {
+                caps = ic.getCursorCapsMode(attr.inputType);
+            }
+            Log.d("LatinIME-Cap", "Mode: " + mode + ", Caps: " + caps + " (excluded=" + excluded + ")");
         }
         return caps;
     }
@@ -2053,35 +2354,7 @@ public class LatinIME extends InputMethodService implements
             toggleLanguage(false, false);
             break;
         case LatinKeyboardView.KEYCODE_VOICE:
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                intent.setData(Uri.fromParts("package", getPackageName(), null));
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-                Toast.makeText(this, "Grant microphone permission for voice input", Toast.LENGTH_LONG).show();
-                break;
-            }
-            if (mSpeechRecognizer == null && SpeechRecognizer.isRecognitionAvailable(this)) {
-                mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
-                mSpeechRecognizer.setRecognitionListener(new VoiceRecognitionListener());
-            }
-            if (mSpeechRecognizer != null) {
-                Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-                String locale = mInputLocale;
-                if (locale == null) {
-                    locale = Locale.getDefault().toString();
-                }
-                locale = locale.replace('_', '-'); // SpeechRecognizer prefers BCP 47
-                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, locale);
-                intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, locale);
-                intent.putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, false);
-                try {
-                    mSpeechRecognizer.startListening(intent);
-                } catch (Exception e) {
-                    Log.e(TAG, "Failed to start speech recognizer", e);
-                }
-            }
+            triggerVoiceInput();
             break;
         case 9 /* Tab */:
             if (processMultiKey(primaryCode)) {
@@ -2195,59 +2468,13 @@ public class LatinIME extends InputMethodService implements
     }
 
     private void handleBackspace() {
-        boolean deleteChar = false;
         InputConnection ic = getCurrentInputConnection();
-        if (ic == null)
-            return;
-
-        ic.beginBatchEdit();
-
-        if (mPredicting) {
-            final int length = mComposing.length();
-            if (length > 0) {
-                mComposing.delete(length - 1, length);
-                mWord.deleteLast();
-                ic.setComposingText(mComposing, 1);
-                if (mComposing.length() == 0) {
-                    mPredicting = false;
-                }
-                postUpdateSuggestions();
-            } else {
-                ic.deleteSurroundingText(1, 0);
-            }
-        } else {
-            deleteChar = true;
+        if (ic != null) {
+            ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_DEL));
+            ic.sendKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, KeyEvent.KEYCODE_DEL));
         }
         postUpdateShiftKeyState();
         TextEntryState.backspace();
-        if (TextEntryState.getState() == TextEntryState.State.UNDO_COMMIT) {
-            revertLastWord(deleteChar);
-            ic.endBatchEdit();
-            return;
-        } else if (mEnteredText != null
-                && sameAsTextBeforeCursor(ic, mEnteredText)) {
-            ic.deleteSurroundingText(mEnteredText.length(), 0);
-        } else if (deleteChar) {
-            if (mCandidateView != null
-                    && mCandidateView.dismissAddToDictionaryHint()) {
-                // Go back to the suggestion mode if the user canceled the
-                // "Touch again to save".
-                // NOTE: In gerenal, we don't revert the word when backspacing
-                // from a manual suggestion pick. We deliberately chose a
-                // different behavior only in the case of picking the first
-                // suggestion (typed word). It's intentional to have made this
-                // inconsistent with backspacing after selecting other
-                // suggestions.
-                revertLastWord(deleteChar);
-            } else {
-                sendDownUpKeyEvents(KeyEvent.KEYCODE_DEL);
-                if (mDeleteCount > DELETE_ACCELERATE_AT) {
-                    sendDownUpKeyEvents(KeyEvent.KEYCODE_DEL);
-                }
-            }
-        }
-        mJustRevertedSeparator = null;
-        ic.endBatchEdit();
     }
 
     private void setModCtrl(boolean val) {
@@ -2407,7 +2634,6 @@ public class LatinIME extends InputMethodService implements
     }
 
     private void handleSeparator(int primaryCode) {
-
         // Should dismiss the "Touch again to save" message when handling
         // separator
         if (mCandidateView != null
@@ -2423,33 +2649,34 @@ public class LatinIME extends InputMethodService implements
             abortCorrection(false);
         }
         if (mPredicting) {
-            // In certain languages where single quote is a separator, it's
-            // better
-            // not to auto correct, but accept the typed word. For instance,
-            // in Italian dov' should not be expanded to dove' because the
-            // elision
-            // requires the last vowel to be removed.
-            if (mAutoCorrectOn
-                    && primaryCode != '\''
-                    && (mJustRevertedSeparator == null
-                            || mJustRevertedSeparator.length() == 0
-                            || mJustRevertedSeparator.charAt(0) != primaryCode)) {
-                pickedDefault = pickDefaultSuggestion();
+            // Keep prediction active if it's a space, otherwise commit
+            if (primaryCode == ASCII_SPACE)            {
+                // Let the suggestion bar handle the space by committing the current word
+                // or letting it remain active for the next word.
+                if (mPredicting && mAutoCorrectEnabled) {
+                    pickedDefault = pickDefaultSuggestion();
+                }
                 if (!pickedDefault) {
                     commitTyped(ic, true);
                 }
-                // Picked the suggestion by the space key. We consider this
-                // as "added an auto space" in autocomplete mode, but as manually
-                // typed space in "quick fixes" mode.
-                if (primaryCode == ASCII_SPACE) {
-                    if (mAutoCorrectEnabled) {
-                        mJustAddedAutoSpace = true;
-                    } else {
-                        TextEntryState.manualTyped("");
-                    }
+                if (mAutoCorrectEnabled) {
+                    mJustAddedAutoSpace = true;
+                } else {
+                    TextEntryState.manualTyped("");
                 }
             } else {
-                commitTyped(ic, true);
+                if (mAutoCorrectOn
+                        && primaryCode != '\''
+                        && (mJustRevertedSeparator == null
+                                || mJustRevertedSeparator.length() == 0
+                                || mJustRevertedSeparator.charAt(0) != primaryCode)) {
+                    pickedDefault = pickDefaultSuggestion();
+                    if (!pickedDefault) {
+                        commitTyped(ic, true);
+                    }
+                } else {
+                    commitTyped(ic, true);
+                }
             }
         }
         if (mJustAddedAutoSpace && primaryCode == ASCII_ENTER) {
@@ -2472,6 +2699,13 @@ public class LatinIME extends InputMethodService implements
         } else if (isPredictionOn() && primaryCode == ASCII_SPACE) {
             doubleSpace();
         }
+        
+        // If we didn't pick a word, but pressed space, we want to update suggestions
+        // for the next word (e.g. bigrams)
+        if (primaryCode == ASCII_SPACE) {
+            postUpdateSuggestions();
+        }
+
         if (pickedDefault) {
             TextEntryState.backToAcceptedDefault(mWord.getTypedWord());
         }
@@ -2532,21 +2766,22 @@ public class LatinIME extends InputMethodService implements
     }
 
     private boolean isCandidateStripVisible() {
-        return isPredictionOn();
+        boolean suggestionsVisible = (mShowSuggestions || mSuggestionForceOn) && !suggestionsDisabled();
+        boolean macrosVisible = (mMacroBar != null && mMacroBar.getVisibility() == View.VISIBLE) && (isPortrait() || mMacrosInLandscape);
+        
+        // Pasek jest wymagany jeśli cokolwiek w nim chcemy pokazać, LUB jeśli chcemy mieć dostęp do ołówka
+        // Ołówek powinien być dostępny jeśli sugestie LUB makra są dozwolone w danym trybie
+        boolean toggleAllowed = (isPortrait() || mSuggestionsInLandscape || mMacrosInLandscape);
+        
+        return suggestionsVisible || macrosVisible || mSuggestionForceOn || toggleAllowed;
     }
 
     private void switchToKeyboardView() {
         mHandler.post(new Runnable() {
             public void run() {
-                LatinKeyboardView view = mKeyboardSwitcher.getInputView(); 
-                if (view != null) {
-                    ViewParent p = view.getParent();
-                    if (p != null && p instanceof ViewGroup) {
-                        ((ViewGroup) p).removeView(view);
-                    }
-                    setInputView(mKeyboardSwitcher.getInputView());
-                }
-                setCandidatesViewShown(true);
+                // Odświeżamy cały widok wejściowy, aby zachować stos z paskami
+                setInputView(onCreateInputView());
+                setCandidatesViewShown(mShowSuggestions || mSuggestionForceOn);
                 updateInputViewShown();
                 postUpdateSuggestions();
             }
@@ -2578,6 +2813,11 @@ public class LatinIME extends InputMethodService implements
 
         // Check if we have a suggestion engine attached.
         if ((mSuggest == null || !isPredictionOn())) {
+            // Nawet jeśli predykcja jest wyłączona (np. w Termux), 
+            // chcemy pokazać pasek z interpunkcją, jeśli sugestie są włączone.
+            if (isCandidateStripVisible()) {
+                setNextSuggestions();
+            }
             return;
         }
 
@@ -2647,6 +2887,7 @@ public class LatinIME extends InputMethodService implements
             CharSequence typedWord, boolean typedWordValid,
             boolean correctionAvailable) {
         setSuggestions(stringList, false, typedWordValid, correctionAvailable);
+        setCandidatesViewShown(isCandidateStripVisible() || mSuggestionForceOn || mCompletionOn || (mMacroBar != null && mMacroBar.getVisibility() == View.VISIBLE));
         if (stringList != null && stringList.size() > 0) {
             if (correctionAvailable && !typedWordValid && stringList.size() > 1) {
                 CharSequence suggestion = stringList.get(1);
@@ -3020,7 +3261,7 @@ public class LatinIME extends InputMethodService implements
                 mEnableVoiceButton && mEnableVoice);
         initSuggest(mLanguageSwitcher.getInputLanguage());
         mLanguageSwitcher.persist();
-        mAutoCapActive = mAutoCapPref && mLanguageSwitcher.allowAutoCap();
+        mAutoCapActive = (mAutoCapPref != 2) && mLanguageSwitcher.allowAutoCap();
         mDeadKeysActive = mLanguageSwitcher.allowDeadKeys();
         if (oldShiftState == Keyboard.SHIFT_OFF) {
             mKeyboardSwitcher.setShiftState(Keyboard.SHIFT_OFF);
@@ -3092,20 +3333,22 @@ public class LatinIME extends InputMethodService implements
                     PREF_KEYBOARD_NOTIFICATION, res
                             .getBoolean(R.bool.default_keyboard_notification));
             setNotification(mKeyboardNotification);
-        } else if (PREF_SUGGESTIONS_IN_LANDSCAPE.equals(key)) {
             mSuggestionsInLandscape = sharedPreferences.getBoolean(
                     PREF_SUGGESTIONS_IN_LANDSCAPE, res
                             .getBoolean(R.bool.default_suggestions_in_landscape));
-            // Respect the suggestion settings in legacy Gingerbread mode,
-            // in portrait mode, or if suggestions in landscape enabled.
-            mSuggestionForceOff = false;
-            mSuggestionForceOn = false;
-            setCandidatesViewShown(isPredictionOn());
+            // No direct call to setCandidatesViewShown here to avoid potential UI flicker/stack issues.
+            // The needReload flag will handle the necessary updates.
+            needReload = true;
+        } else if (PREF_MACROS_IN_LANDSCAPE.equals(key)) {
+            mMacrosInLandscape = sharedPreferences.getBoolean(PREF_MACROS_IN_LANDSCAPE, true);
+            // No direct call to setCandidatesViewShown here.
+            needReload = true;
         } else if (PREF_SHOW_SUGGESTIONS.equals(key)) {
             mShowSuggestions = sharedPreferences.getBoolean(
                     PREF_SHOW_SUGGESTIONS, res.getBoolean(R.bool.default_suggestions));
             mSuggestionForceOff = false;
             mSuggestionForceOn = false;
+            setCandidatesViewShown(mShowSuggestions);
             needReload = true;
         } else if (PREF_MIN_LETTERS_SUGGESTION.equals(key)) {
             // Already handled by sKeyboardSettings.sharedPreferenceChanged
@@ -3147,6 +3390,38 @@ public class LatinIME extends InputMethodService implements
         updateKeyboardOptions();
         if (needReload) {
             mKeyboardSwitcher.makeKeyboards(true);
+        }
+    }
+
+    private void triggerVoiceInput() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
+            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+            intent.setData(Uri.fromParts("package", getPackageName(), null));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            Toast.makeText(this, "Grant microphone permission for voice input", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (mSpeechRecognizer == null && SpeechRecognizer.isRecognitionAvailable(this)) {
+            mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+            mSpeechRecognizer.setRecognitionListener(new VoiceRecognitionListener());
+        }
+        if (mSpeechRecognizer != null) {
+            Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+            String locale = mInputLocale;
+            if (locale == null) {
+                locale = Locale.getDefault().toString();
+            }
+            locale = locale.replace('_', '-'); // SpeechRecognizer prefers BCP 47
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, locale);
+            intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_PREFERENCE, locale);
+            intent.putExtra(RecognizerIntent.EXTRA_ONLY_RETURN_LANGUAGE_PREFERENCE, false);
+            try {
+                mSpeechRecognizer.startListening(intent);
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to start speech recognizer", e);
+            }
         }
     }
 
@@ -3194,6 +3469,8 @@ public class LatinIME extends InputMethodService implements
                 if (mHeightLandscape > 70) mHeightLandscape = 70;                
             }
             toggleLanguage(true, true);
+        } else if (action.equals("voice_input")) {
+            triggerVoiceInput();
         } else if (action.equals("height_down")) {
             if (isPortrait()) {
                 mHeightPortrait -= 5;
@@ -3227,9 +3504,11 @@ public class LatinIME extends InputMethodService implements
 
     public void onPress(int primaryCode) {
         InputConnection ic = getCurrentInputConnection();
-        if (mKeyboardSwitcher.isVibrateAndSoundFeedbackRequired()) {
+        if (mKeyboardSwitcher.isVibrateAndSoundFeedbackRequired() || !mVibrateOn) {
             vibrate();
-            playKeyClick(primaryCode);
+            if (mKeyboardSwitcher.isVibrateAndSoundFeedbackRequired()) {
+                playKeyClick(primaryCode);
+            }
         }
         final boolean distinctMultiTouch = mKeyboardSwitcher
                 .hasDistinctMultitouch();
@@ -3409,6 +3688,8 @@ public class LatinIME extends InputMethodService implements
 
     private void vibrate() {
         if (!mVibrateOn) {
+            // Even if disabled, try haptic feedback
+            vibrate(-1);
             return;
         }
         vibrate(mVibrateLen);
@@ -3416,8 +3697,16 @@ public class LatinIME extends InputMethodService implements
 
     @SuppressWarnings("deprecation")
     void vibrate(int len) {
+        // App-controlled haptic feedback setting
+        boolean isVibrateSettingsOn = mVibrateOn;
+        if (mKeyboardSwitcher.getInputView() != null) {
+            // Respect app master override: if off, disable all feedback
+            mKeyboardSwitcher.getInputView().setHapticFeedbackEnabled(isVibrateSettingsOn);
+        }
+
         if (len <= 0) {
-            if (mKeyboardSwitcher.getInputView() != null) {
+            if (isVibrateSettingsOn && mKeyboardSwitcher.getInputView() != null) {
+                // If setting is ON, force trigger vibration even if system-wide is disabled
                 mKeyboardSwitcher.getInputView().performHapticFeedback(
                         HapticFeedbackConstants.KEYBOARD_TAP,
                         HapticFeedbackConstants.FLAG_IGNORE_GLOBAL_SETTING);
@@ -3511,8 +3800,16 @@ public class LatinIME extends InputMethodService implements
         mSoundOn = sp.getBoolean(PREF_SOUND_ON, false);
         mPopupOn = sp.getBoolean(PREF_POPUP_ON, mResources
                 .getBoolean(R.bool.default_popup_preview));
-        mAutoCapPref = sp.getBoolean(PREF_AUTO_CAP, getResources().getBoolean(
-                R.bool.default_auto_cap));
+        // Migration for auto_cap from boolean to String
+        try {
+            sp.getString(PREF_AUTO_CAP, "0");
+        } catch (ClassCastException e) {
+            Log.i(TAG, "Migrating auto_cap from boolean to String in LatinIME");
+            boolean oldVal = sp.getBoolean(PREF_AUTO_CAP, true);
+            sp.edit().remove(PREF_AUTO_CAP).commit();
+            sp.edit().putString(PREF_AUTO_CAP, oldVal ? "0" : "2").commit();
+        }
+        mAutoCapPref = Integer.parseInt(sp.getString(PREF_AUTO_CAP, "0"));
         mQuickFixes = sp.getBoolean(PREF_QUICK_FIXES, true);
 
         mShowSuggestions = sp.getBoolean(PREF_SHOW_SUGGESTIONS, mResources
@@ -3544,8 +3841,12 @@ public class LatinIME extends InputMethodService implements
         }
         updateAutoTextEnabled(locale);
         mLanguageSwitcher.loadLocales(sp);
-        mAutoCapActive = mAutoCapPref && mLanguageSwitcher.allowAutoCap();
+        mAutoCapActive = (mAutoCapPref != 2) && mLanguageSwitcher.allowAutoCap();
         mDeadKeysActive = mLanguageSwitcher.allowDeadKeys();
+
+        mSuggestionsInLandscape = sp.getBoolean(PREF_SUGGESTIONS_IN_LANDSCAPE, 
+                mResources.getBoolean(R.bool.default_suggestions_in_landscape));
+        mMacrosInLandscape = sp.getBoolean(PREF_MACROS_IN_LANDSCAPE, true);
     }
 
     private void initSuggestPuncList() {

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:title="@string/title_macro_settings">
+
+    <org.n0pocketworkstation.pckeyboard.ClickablePreferenceCategory
+        android:key="category_macro_1"
+        android:title="Macro Button Title 1"
+        app:iconSpaceReserved="false">
+        <org.n0pocketworkstation.pckeyboard.AutoSummaryEditTextPreference
+            android:key="macro_label_1"
+            android:title="@string/macro_label_hint"
+            android:defaultValue="M1"
+            app:isPreferenceVisible="false" />
+        <org.n0pocketworkstation.pckeyboard.MacroEditorPreference
+            android:key="macro_editor_1"
+            app:iconSpaceReserved="false" />
+        <org.n0pocketworkstation.pckeyboard.MacroEditorPreference
+            android:key="macro_editor_2"
+            app:iconSpaceReserved="false" />
+        <org.n0pocketworkstation.pckeyboard.MacroEditorPreference
+            android:key="macro_editor_3"
+            app:iconSpaceReserved="false" />
+        <org.n0pocketworkstation.pckeyboard.MacroEditorPreference
+            android:key="macro_editor_4"
+            app:iconSpaceReserved="false" />
+        <org.n0pocketworkstation.pckeyboard.MacroEditorPreference
+            android:key="macro_editor_5"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="macro_control_info_1"
+            android:title="@string/macro_control_checkbox"
+            android:summary="@string/macro_control_summary"
+            app:iconSpaceReserved="false" />
+    </org.n0pocketworkstation.pckeyboard.ClickablePreferenceCategory>
+
+    <org.n0pocketworkstation.pckeyboard.ClickablePreferenceCategory
+        android:key="category_macro_2"
+        android:title="Macro Button Title 2"
+        app:iconSpaceReserved="false">
+        <org.n0pocketworkstation.pckeyboard.AutoSummaryEditTextPreference
+            android:key="macro_label_2"
+            android:title="@string/macro_label_hint"
+            android:defaultValue="M2"
+            app:isPreferenceVisible="false" />
+        <org.n0pocketworkstation.pckeyboard.MacroEditorPreference
+            android:key="macro_editor_6"
+            app:iconSpaceReserved="false" />
+        <org.n0pocketworkstation.pckeyboard.MacroEditorPreference
+            android:key="macro_editor_7"
+            app:iconSpaceReserved="false" />
+        <org.n0pocketworkstation.pckeyboard.MacroEditorPreference
+            android:key="macro_editor_8"
+            app:iconSpaceReserved="false" />
+        <org.n0pocketworkstation.pckeyboard.MacroEditorPreference
+            android:key="macro_editor_9"
+            app:iconSpaceReserved="false" />
+        <org.n0pocketworkstation.pckeyboard.MacroEditorPreference
+            android:key="macro_editor_10"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="macro_control_info_2"
+            android:title="@string/macro_control_checkbox"
+            android:summary="@string/macro_control_summary"
+            app:iconSpaceReserved="false" />
+    </org.n0pocketworkstation.pckeyboard.ClickablePreferenceCategory>
+
+    <org.n0pocketworkstation.pckeyboard.ClickablePreferenceCategory
+        android:key="category_macro_3"
+        android:title="Macro Button Title 3"
+        app:iconSpaceReserved="false">
+        <org.n0pocketworkstation.pckeyboard.AutoSummaryEditTextPreference
+            android:key="macro_label_3"
+            android:title="@string/macro_label_hint"
+            android:defaultValue="M3"
+            app:isPreferenceVisible="false" />
+        <org.n0pocketworkstation.pckeyboard.MacroEditorPreference
+            android:key="macro_editor_11"
+            app:iconSpaceReserved="false" />
+        <org.n0pocketworkstation.pckeyboard.MacroEditorPreference
+            android:key="macro_editor_12"
+            app:iconSpaceReserved="false" />
+        <org.n0pocketworkstation.pckeyboard.MacroEditorPreference
+            android:key="macro_editor_13"
+            app:iconSpaceReserved="false" />
+        <org.n0pocketworkstation.pckeyboard.MacroEditorPreference
+            android:key="macro_editor_14"
+            app:iconSpaceReserved="false" />
+        <org.n0pocketworkstation.pckeyboard.MacroEditorPreference
+            android:key="macro_editor_15"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="macro_control_info_3"
+            android:title="@string/macro_control_checkbox"
+            android:summary="@string/macro_control_summary"
+            app:iconSpaceReserved="false" />
+    </org.n0pocketworkstation.pckeyboard.ClickablePreferenceCategory>
+
+    <org.n0pocketworkstation.pckeyboard.ClickablePreferenceCategory
+        android:key="category_macro_4"
+        android:title="Macro Button Title 4"
+        app:iconSpaceReserved="false">
+        <org.n0pocketworkstation.pckeyboard.AutoSummaryEditTextPreference
+            android:key="macro_label_4"
+            android:title="@string/macro_label_hint"
+            android:defaultValue="M4"
+            app:isPreferenceVisible="false" />
+        <org.n0pocketworkstation.pckeyboard.MacroEditorPreference
+            android:key="macro_editor_16"
+            app:iconSpaceReserved="false" />
+        <org.n0pocketworkstation.pckeyboard.MacroEditorPreference
+            android:key="macro_editor_17"
+            app:iconSpaceReserved="false" />
+        <org.n0pocketworkstation.pckeyboard.MacroEditorPreference
+            android:key="macro_editor_18"
+            app:iconSpaceReserved="false" />
+        <org.n0pocketworkstation.pckeyboard.MacroEditorPreference
+            android:key="macro_editor_19"
+            app:iconSpaceReserved="false" />
+        <org.n0pocketworkstation.pckeyboard.MacroEditorPreference
+            android:key="macro_editor_20"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="macro_control_info_4"
+            android:title="@string/macro_control_checkbox"
+            android:summary="@string/macro_control_summary"
+            app:iconSpaceReserved="false" />
+    </org.n0pocketworkstation.pckeyboard.ClickablePreferenceCategory>
+
+    <org.n0pocketworkstation.pckeyboard.ClickablePreferenceCategory
+        android:key="category_macro_5"
+        android:title="Macro Button Title 5"
+        app:iconSpaceReserved="false">
+        <org.n0pocketworkstation.pckeyboard.AutoSummaryEditTextPreference
+            android:key="macro_label_5"
+            android:title="@string/macro_label_hint"
+            android:defaultValue="M5"
+            app:isPreferenceVisible="false" />
+        <org.n0pocketworkstation.pckeyboard.MacroEditorPreference
+            android:key="macro_editor_21"
+            app:iconSpaceReserved="false" />
+        <org.n0pocketworkstation.pckeyboard.MacroEditorPreference
+            android:key="macro_editor_22"
+            app:iconSpaceReserved="false" />
+        <org.n0pocketworkstation.pckeyboard.MacroEditorPreference
+            android:key="macro_editor_23"
+            app:iconSpaceReserved="false" />
+        <org.n0pocketworkstation.pckeyboard.MacroEditorPreference
+            android:key="macro_editor_24"
+            app:iconSpaceReserved="false" />
+        <org.n0pocketworkstation.pckeyboard.MacroEditorPreference
+            android:key="macro_editor_25"
+            app:iconSpaceReserved="false" />
+        <Preference
+            android:key="macro_control_info_5"
+            android:title="@string/macro_control_checkbox"
+            android:summary="@string/macro_control_summary"
+            app:iconSpaceReserved="false" />
+    </org.n0pocketworkstation.pckeyboard.ClickablePreferenceCategory>
+
+</PreferenceScreen>

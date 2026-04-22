@@ -1,43 +1,22 @@
-/*
- * Copyright (C) 2008 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may not
- * use this file except in compliance with the License. You may obtain a copy of
- * the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
- * WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
- * License for the specific language governing permissions and limitations under
- * the License.
- */
-
 package org.n0pocketworkstation.pckeyboard;
 
 import android.app.backup.BackupManager;
-import android.content.ContentResolver;
-import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Vibrator;
-import android.os.VibratorManager;
-import android.provider.Settings;
+import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
-import androidx.annotation.NonNull;
+
 import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.preference.CheckBoxPreference;
+import androidx.preference.EditTextPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceDialogFragmentCompat;
 import androidx.preference.PreferenceFragmentCompat;
 
-public class PrefScreenFeedback extends AppCompatActivity {
+public class PrefScreenMacros extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle icicle) {
@@ -55,40 +34,51 @@ public class PrefScreenFeedback extends AppCompatActivity {
         if (icicle == null) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.settings_container, new FeedbackFragment())
+                    .replace(R.id.settings_container, new MacrosFragment())
                     .commit();
         }
     }
 
-    public static class FeedbackFragment extends PreferenceFragmentCompat
+    public static class MacrosFragment extends PreferenceFragmentCompat
             implements SharedPreferences.OnSharedPreferenceChangeListener, androidx.preference.DialogPreference.TargetFragment {
 
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-            setPreferencesFromResource(R.xml.prefs_feedback, rootKey);
+            setPreferencesFromResource(R.xml.prefs_macros, rootKey);
+            SharedPreferences prefs = getPreferenceManager().getSharedPreferences();
+            if (prefs != null) {
+                prefs.registerOnSharedPreferenceChangeListener(this);
+            }
+            updateCategoryTitles();
         }
 
-        @Override
-        public void onResume() {
-            super.onResume();
-            getPreferenceManager().getSharedPreferences().registerOnSharedPreferenceChangeListener(this);
-            updateVibrationStatus();
-        }
-
-        @Override
-        public void onPause() {
-            super.onPause();
-            getPreferenceManager().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(this);
-        }
-
-        private void updateVibrationStatus() {
-            final CheckBoxPreference vibrateOn = findPreference("vibrate_on");
-            
-            if (vibrateOn != null) {
-                if (vibrateOn.isChecked()) {
-                    vibrateOn.setSummary("Vibration enabled for this keyboard. Ensure system vibration intensity is not set to zero in Android Settings.");
-                } else {
-                    vibrateOn.setSummary("Vibration disabled for this keyboard.");
+        private void updateCategoryTitles() {
+            for (int i = 1; i <= 5; i++) {
+                final String labelKey = "macro_label_" + i;
+                final String catKey = "category_macro_" + i;
+                
+                final EditTextPreference labelPref = findPreference(labelKey);
+                final ClickablePreferenceCategory catPref = findPreference(catKey);
+                
+                if (labelPref != null && catPref != null) {
+                    labelPref.setVisible(false);
+                    String label = labelPref.getText();
+                    if (label == null || label.isEmpty()) label = "M" + i;
+                    
+                    String baseTitle = "Macro Button Title " + i;
+                    String fullTitle = baseTitle + " ( " + label + " )";
+                    SpannableString spannable = new SpannableString(fullTitle);
+                    int start = baseTitle.length();
+                    spannable.setSpan(new ForegroundColorSpan(Color.WHITE), start, fullTitle.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    
+                    catPref.setTitle(spannable);
+                    
+                    catPref.setOnCategoryClickListener(new ClickablePreferenceCategory.OnCategoryClickListener() {
+                        @Override
+                        public void onCategoryClick(ClickablePreferenceCategory category) {
+                            onDisplayPreferenceDialog(labelPref);
+                        }
+                    });
                 }
             }
         }
@@ -119,8 +109,10 @@ public class PrefScreenFeedback extends AppCompatActivity {
         }
 
         public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+            if (key != null && key.startsWith("macro_label_")) {
+                updateCategoryTitles();
+            }
             new BackupManager(requireContext()).dataChanged();
-            updateVibrationStatus();
         }
     }
 }

@@ -52,8 +52,21 @@ public class PluginManager extends BroadcastReceiver {
         Intent dictIntent = new Intent(SOFTKEYBOARD_INTENT_DICT);
         List<ResolveInfo> dictPacks = packageManager.queryBroadcastReceivers(
                 dictIntent, PackageManager.GET_META_DATA);
-
-        // Explicitly check the main AnySoftKeyboard package as it might not have the broadcast receiver
+        
+        // Also query for services, as some packs use those
+        List<ResolveInfo> dictServices = packageManager.queryIntentServices(
+                dictIntent, PackageManager.GET_META_DATA);
+        if (dictServices != null) {
+            dictPacks.addAll(dictServices);
+            Log.i(TAG, "Found " + dictServices.size() + " dictionary services");
+        }
+        
+        List<ResolveInfo> dictReceivers = packageManager.queryBroadcastReceivers(
+                dictIntent, PackageManager.GET_META_DATA);
+        if (dictReceivers != null) {
+            dictPacks.addAll(dictReceivers);
+            Log.i(TAG, "Found " + dictReceivers.size() + " dictionary receivers");
+        }
         // but still contains the dictionary resources and XML.
         try {
             ApplicationInfo askAppInfo = packageManager.getApplicationInfo("com.menny.android.anysoftkeyboard", PackageManager.GET_META_DATA);
@@ -78,17 +91,26 @@ public class PluginManager extends BroadcastReceiver {
         }
 
         for (ResolveInfo ri : dictPacks) {
-            ApplicationInfo appInfo = ri.activityInfo.applicationInfo;
-            String pkgName = appInfo.packageName;
+            String pkgName;
+            android.os.Bundle metaData;
+            if (ri.activityInfo != null) {
+                pkgName = ri.activityInfo.packageName;
+                metaData = ri.activityInfo.metaData;
+            } else if (ri.serviceInfo != null) {
+                pkgName = ri.serviceInfo.packageName;
+                metaData = ri.serviceInfo.metaData;
+            } else {
+                continue;
+            }
+
             boolean success = false;
             try {
-                Resources res = packageManager.getResourcesForApplication(appInfo);
+                Resources res = packageManager.getResourcesForApplication(pkgName);
                 //Log.i(TAG, "Found dictionary plugin package: " + pkgName);
                 int dictId = res.getIdentifier("dictionaries", "xml", pkgName);
                 if (dictId == 0) {
-                    try {
-                        dictId = ri.activityInfo.metaData.getInt(SOFTKEYBOARD_DICT_RESOURCE_METADATA_NAME);
-                    } catch (Exception e) {
+                    if (metaData != null) {
+                        dictId = metaData.getInt(SOFTKEYBOARD_DICT_RESOURCE_METADATA_NAME);
                     }
                 }
                 if (dictId == 0)
@@ -153,14 +175,31 @@ public class PluginManager extends BroadcastReceiver {
 
     static void getHKDictionaries(PackageManager packageManager) {
         Intent dictIntent = new Intent(HK_INTENT_DICT);
-        List<ResolveInfo> dictPacks = packageManager.queryIntentActivities(dictIntent, 0);
+        List<ResolveInfo> dictPacks = packageManager.queryIntentActivities(dictIntent, PackageManager.GET_META_DATA);
+        
+        // Also query for services and receivers, as some packs might use them
+        List<ResolveInfo> dictServices = packageManager.queryIntentServices(dictIntent, PackageManager.GET_META_DATA);
+        if (dictServices != null) dictPacks.addAll(dictServices);
+        
+        List<ResolveInfo> dictReceivers = packageManager.queryBroadcastReceivers(dictIntent, PackageManager.GET_META_DATA);
+        if (dictReceivers != null) dictPacks.addAll(dictReceivers);
+
         for (ResolveInfo ri : dictPacks) {
-            ApplicationInfo appInfo = ri.activityInfo.applicationInfo;
-            String pkgName = appInfo.packageName;
+            String pkgName;
+            android.os.Bundle metaData;
+            if (ri.activityInfo != null) {
+                pkgName = ri.activityInfo.packageName;
+                metaData = ri.activityInfo.metaData;
+            } else if (ri.serviceInfo != null) {
+                pkgName = ri.serviceInfo.packageName;
+                metaData = ri.serviceInfo.metaData;
+            } else {
+                continue;
+            }
+
             boolean success = false;
             try {
-                Resources res = packageManager.getResourcesForApplication(appInfo);
-                //Log.i(TAG, "Found dictionary plugin package: " + pkgName);
+                Resources res = packageManager.getResourcesForApplication(pkgName);
                 int langId = res.getIdentifier("dict_language", "string", pkgName);
                 if (langId == 0) continue;
                 String lang = res.getString(langId);

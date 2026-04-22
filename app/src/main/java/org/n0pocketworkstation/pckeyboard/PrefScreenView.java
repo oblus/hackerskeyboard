@@ -31,6 +31,7 @@ public class PrefScreenView extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle icicle) {
+        PCKeyboardApp.updateLocale(this);
         super.onCreate(icicle);
         setContentView(R.layout.settings_activity);
         setTitle(R.string.pref_screen_view_title);

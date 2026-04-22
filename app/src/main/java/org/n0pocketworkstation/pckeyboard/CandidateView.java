@@ -364,6 +364,10 @@ public class CandidateView extends View {
         return mSuggestions;
     }
 
+    public int getSuggestionsCount() {
+        return mSuggestions.size();
+    }
+
     public void clear() {
         // Don't call mSuggestions.clear() because it's being used for logging
         // in LatinIME.pickSuggestionManually().

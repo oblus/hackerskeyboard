@@ -74,6 +74,8 @@ public class PointerTracker {
 
     // For multi-tap
     private int mLastSentIndex;
+    private int mLastSlidingKeyIndex = NOT_A_KEY;
+    private boolean mKeyAlreadySentInSlide = false;
     private int mTapCount;
     private long mLastTapTime;
     private boolean mInMultiTap;
@@ -287,6 +289,7 @@ public class PointerTracker {
     public void onDownEvent(int x, int y, long eventTime) {
         if (DEBUG)
             debugLog("onDownEvent:", x, y);
+        mLastSlidingKeyIndex = NOT_A_KEY;
         int keyIndex = mKeyState.onDownKey(x, y, eventTime);
         mKeyboardLayoutHasBeenChanged = false;
         mKeyAlreadyProcessed = false;
@@ -307,6 +310,12 @@ public class PointerTracker {
             }
         }
         if (isValidKeyIndex(keyIndex)) {
+            mLastSlidingKeyIndex = keyIndex;
+            mKeyAlreadySentInSlide = false;
+            if (LatinIME.sKeyboardSettings.sendSlideKeys == 4) {
+                detectAndSendKey(keyIndex, x, y, eventTime);
+                mKeyAlreadySentInSlide = true;
+            }
             if (mKeys[keyIndex].repeatable) {
                 repeatKey(keyIndex);
                 mHandler.startKeyRepeatTimer(mDelayBeforeKeyRepeatStart, keyIndex, this);
@@ -315,16 +324,18 @@ public class PointerTracker {
             startLongPressTimer(keyIndex);
         }
         showKeyPreviewAndUpdateKey(keyIndex);
+        
+        if (LatinIME.sKeyboardSettings.sendSlideKeys >= 1 && LatinIME.sKeyboardSettings.sendSlideKeys <= 3) {
+            clearSlideKeys();
+            addSlideKey(getKey(keyIndex)); 
+        }
     }
 
     private static void addSlideKey(Key key) {
-        if (!sSlideKeyHack || LatinIME.sKeyboardSettings.sendSlideKeys == 0) return;
-        if (key == null) return;
-        if (key.modifier) {
-            clearSlideKeys();
-        } else {
-            sSlideKeys.add(key);
-        }
+        if (!sSlideKeyHack || key == null || key.modifier) return;
+        // Zapobiegaj dodawaniu tego samego klawisza dwa razy pod rząd na listę
+        if (!sSlideKeys.isEmpty() && sSlideKeys.get(sSlideKeys.size() - 1) == key) return;
+        sSlideKeys.add(key);
     }
     
     /*package*/ static void clearSlideKeys() {
@@ -334,21 +345,25 @@ public class PointerTracker {
     void sendSlideKeys() {
         if (!sSlideKeyHack) return;
         int slideMode = LatinIME.sKeyboardSettings.sendSlideKeys;
-        if ((slideMode & 4) > 0) {
-            // send all
-            for (Key key : sSlideKeys) {
-                detectAndSendKey(key, key.x, key.y, -1);            
-            }
-        } else {
-            // Send first and/or last key only.
-            int n = sSlideKeys.size();
-            if (n > 0 && (slideMode & 1) > 0) {
-                Key key = sSlideKeys.get(0);
-                detectAndSendKey(key, key.x, key.y, -1);            
-            }
-            if (n > 1 && (slideMode & 2) > 0) {
-                Key key = sSlideKeys.get(n - 1);
-                detectAndSendKey(key, key.x, key.y, -1);            
+        if (slideMode == 4) {
+            clearSlideKeys();
+            return;
+        }
+        int n = sSlideKeys.size();
+        if (n <= 0) return;
+
+        if (slideMode == 1) { // Send first only
+            Key key = sSlideKeys.get(0);
+            detectAndSendKey(key, key.x, key.y, -1);
+        } else if (slideMode == 2) { // Send last only
+            Key key = sSlideKeys.get(n - 1);
+            detectAndSendKey(key, key.x, key.y, -1);
+        } else if (slideMode == 3) { // Send first and last
+            Key first = sSlideKeys.get(0);
+            detectAndSendKey(first, first.x, first.y, -1);
+            if (n > 1) {
+                Key last = sSlideKeys.get(n - 1);
+                detectAndSendKey(last, last.x, last.y, -1);
             }
         }
         clearSlideKeys();
@@ -380,6 +395,15 @@ public class PointerTracker {
                     }
                 }
                 keyState.onMoveToNewKey(keyIndex, x, y);
+                if (isValidKeyIndex(keyIndex) && keyIndex != mLastSlidingKeyIndex) {
+                    if (LatinIME.sKeyboardSettings.sendSlideKeys == 4) {
+                        detectAndSendKey(keyIndex, x, y, eventTime);
+                        mKeyAlreadySentInSlide = true;
+                    } else if (LatinIME.sKeyboardSettings.sendSlideKeys >= 1 && LatinIME.sKeyboardSettings.sendSlideKeys <= 3) {
+                        addSlideKey(getKey(keyIndex));
+                    }
+                    mLastSlidingKeyIndex = keyIndex;
+                }
                 startLongPressTimer(keyIndex);
             } else if (!isMinorMoveBounce) {
                 // The pointer has been slid in to the new key from the previous key, we must call
@@ -399,10 +423,18 @@ public class PointerTracker {
                         mKeyboardLayoutHasBeenChanged = false;
                         keyIndex = keyState.onMoveKey(x, y);
                     }
-                    addSlideKey(oldKey);
+                    // Dodajemy do listy tylko jeśli tryb to 1, 2 lub 3 i tylko raz przy wejściu na nowy klawisz
+                    if (LatinIME.sKeyboardSettings.sendSlideKeys >= 1 && LatinIME.sKeyboardSettings.sendSlideKeys <= 3) {
+                        addSlideKey(getKey(keyIndex)); 
+                    }
                 }
                 keyState.onMoveToNewKey(keyIndex, x, y);
                 startLongPressTimer(keyIndex);
+                if (keyIndex != mLastSlidingKeyIndex && LatinIME.sKeyboardSettings.sendSlideKeys == 4) {
+                    detectAndSendKey(keyIndex, x, y, eventTime);
+                    mLastSlidingKeyIndex = keyIndex;
+                    mKeyAlreadySentInSlide = true;
+                }
             }
         } else {
             if (oldKey != null && !isMinorMoveBounce(x, y, keyIndex)) {
@@ -425,10 +457,17 @@ public class PointerTracker {
         mHandler.cancelKeyTimers();
         mHandler.cancelPopupPreview();
         showKeyPreviewAndUpdateKey(NOT_A_KEY);
+        
+        if (LatinIME.sKeyboardSettings.sendSlideKeys != 4) {
+            sendSlideKeys();
+        }
         mIsInSlidingKeyInput = false;
-        sendSlideKeys();
-        if (mKeyAlreadyProcessed)
+        
+        if (mKeyAlreadyProcessed) {
+            mLastSlidingKeyIndex = NOT_A_KEY;
             return;
+        }
+        
         int keyIndex = mKeyState.onUpKey(x, y);
         if (isMinorMoveBounce(x, y, keyIndex)) {
             // Use previous fixed key index and coordinates.
@@ -436,9 +475,17 @@ public class PointerTracker {
             x = mKeyState.getKeyX();
             y = mKeyState.getKeyY();
         }
-        if (!mIsRepeatableKey) {
-            detectAndSendKey(keyIndex, x, y, eventTime);
+        
+        
+        if (LatinIME.sKeyboardSettings.sendSlideKeys != 4 && LatinIME.sKeyboardSettings.sendSlideKeys != 0) {
+            sendSlideKeys();
+        } else if (!mIsInSlidingKeyInput || LatinIME.sKeyboardSettings.sendSlideKeys == 0) {
+            if (!mKeyAlreadyProcessed && !mKeyAlreadySentInSlide && isValidKeyIndex(keyIndex)) {
+                detectAndSendKey(keyIndex, x, y, eventTime);
+            }
         }
+        mKeyAlreadySentInSlide = false;
+        mLastSlidingKeyIndex = NOT_A_KEY;
 
         if (isValidKeyIndex(keyIndex))
             mProxy.invalidateKey(mKeys[keyIndex]);

@@ -670,7 +670,10 @@ public class KeyboardSwitcher implements
         }
         mInputMethodService.mHandler.post(() -> {
             if (mInputView != null) {
-                mInputMethodService.setInputView(mInputView);
+                // Nie wywołujemy setInputView(mInputView) bezpośrednio, 
+                // bo LatinIME.onCreateInputView() zarządza głównym widokiem (stos pionowy).
+                // Zamiast tego odświeżamy cały widok wejściowy.
+                mInputMethodService.setInputView(mInputMethodService.onCreateInputView());
             }
             mInputMethodService.updateInputViewShown();
         });
