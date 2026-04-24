@@ -263,7 +263,20 @@
             android:summary="Trigger: quick double-tap on space. Inserts a period and space only after a word, prevents periods in the middle of a word or empty field."
             android:persistent="true"
             android:defaultValue="false" />
-AutoSummaryEditTextPreference app:iconSpaceReserved="false"
+
+        <org.n0pocketworkstation.pckeyboard.SeekBarPreferenceString app:iconSpaceReserved="false"
+            android:key="smart_period_sensitivity"
+            android:title="Czułość Double-space (ms)"
+            android:summary="Określa maksymalny czas między dwoma kliknięciami spacji, aby wstawiła kropkę. Mniejsza wartość wymaga szybszego pisania."
+            android:persistent="true"
+            android:defaultValue="500"
+            hk:minValue="200"
+            hk:maxValue="700"
+            hk:step="50"
+            hk:displayFormat="%.0f ms"
+            android:dependency="experimental_smart_period" />
+
+        <org.n0pocketworkstation.pckeyboard.AutoSummaryEditTextPreference app:iconSpaceReserved="false"
             android:key="pref_suggested_punctuation"
             android:title="@string/title_suggested_punctuation"
             android:defaultValue="@string/suggested_punctuations" />

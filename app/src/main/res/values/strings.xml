@@ -495,7 +495,11 @@
     <string name="title_suggestions_in_landscape">Suggestions in landscape mode</string>
     <string name="summary_suggestions_in_landscape_true">Same as in portrait mode</string>
     <string name="summary_suggestions_in_landscape_false">Hide suggestions in landscape mode</string>
- name="title_macros_in_landscape">Macros in landscape mode</string>
+
+    <string name="smart_period_sensitivity_title">Czułość Double-space (ms)</string>
+    <string name="smart_period_sensitivity_summary">Określa czas na podwójne kliknięcie spacji. Obecnie: %s ms</string>
+
+    <string name="title_macros_in_landscape">Macros in landscape mode</string>
     <string name="summary_macros_in_landscape_true">Show macros in landscape mode</string>
     <string name="summary_macros_in_landscape_false">Hide macros in landscape mode</string>
 
@@ -638,7 +642,7 @@
         <item>height_down</item>
         <item>lang_prev</item>
 -       <item>lang_next</item>
-    </string-array>
+    </string-array>    
     <string name="default_swipe_up">extension</string>
     <string name="default_swipe_down">close</string>
     <string name="default_swipe_left">none</string>

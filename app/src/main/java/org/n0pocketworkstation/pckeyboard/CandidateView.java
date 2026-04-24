@@ -53,6 +53,11 @@ public class CandidateView extends View {
     private int mTouchX = OUT_OF_BOUNDS_X_COORD;
     private final Drawable mSelectionHighlight;
     private boolean mTypedWordValid;
+
+    public void setTypedWordValid(boolean valid) {
+        mTypedWordValid = valid;
+        invalidate();
+    }
     
     private boolean mHaveMinimalSuggestion;
     
@@ -249,7 +254,9 @@ public class CandidateView extends View {
                 paint.setTypeface(Typeface.DEFAULT_BOLD);
                 paint.setColor(mColorRecommended);
                 existsAutoCompletion = true;
-!= 0 || (wordLength == 1 && count > 1)) {
+            } else if (i == 0 && mTypedWordValid) {
+                paint.setColor(0xFF0099CC);
+            } else if (i != 0 || (wordLength == 1 && count > 1)) {
                 // HACK: even if i == 0, we use mColorOther when this suggestion's length is 1 and
                 // there are multiple suggestions, such as the default punctuation list.
                 paint.setColor(mColorOther);
@@ -375,7 +382,8 @@ public class CandidateView extends View {
         mTouchX = OUT_OF_BOUNDS_X_COORD;
         mSelectedString = null;
         mSelectedIndex = -1;
-        mShowingAddToDictionary        invalidate();
+        mShowingAddToDictionary = false;
+        invalidate();
         Arrays.fill(mWordWidth, 0);
         Arrays.fill(mWordX, 0);
     }

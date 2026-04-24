@@ -210,6 +210,7 @@ public class LatinIME extends InputMethodService implements
     private boolean mHasDictionary;
     private boolean mAutoSpace;
     private boolean mJustAddedAutoSpace;
+    private boolean mJustAddedSmartPeriod = false;
     private boolean mAutoCorrectEnabled;
     private boolean mReCorrectionEnabled;
     private boolean mExperimentalSmartPeriod;
@@ -248,6 +249,8 @@ public class LatinIME extends InputMethodService implements
     private String mSwipeRightAction;
     private String mVolUpAction;
     private String mVolDownAction;
+
+    private boolean mIgnoreNextSelectionUpdate = false;
 
     public static final GlobalKeyboardSettings sKeyboardSettings = new GlobalKeyboardSettings(); 
     static LatinIME sInstance;
@@ -454,11 +457,17 @@ public class LatinIME extends InputMethodService implements
         pFilter.addAction("android.intent.action.PACKAGE_ADDED");
         pFilter.addAction("android.intent.action.PACKAGE_REPLACED");
         pFilter.addAction("android.intent.action.PACKAGE_REMOVED");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(mPluginManager, pFilter, Context.RECEIVER_NOT_EXPORTED);
         } else {
             registerReceiver(mPluginManager, pFilter);
-        }
+        }*/
+        ContextCompat.registerReceiver(
+                this,
+                mPluginManager,
+                pFilter,
+                ContextCompat.RECEIVER_NOT_EXPORTED
+        );
 
         LatinIMEUtil.GCUtils.getInstance().reset();
         boolean tryGC = true;
@@ -476,12 +485,18 @@ public class LatinIME extends InputMethodService implements
 
         // register to receive ringer mode changes for silent mode
         IntentFilter filter = new IntentFilter(
-                AudioManager.RINGER_MODE_CHANGED_ACTION);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        AudioManager.RINGER_MODE_CHANGED_ACTION);
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             registerReceiver(mReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
         } else {
             registerReceiver(mReceiver, filter);
-        }
+        }*/
+        ContextCompat.registerReceiver(
+                this,
+                mPluginManager,
+                filter,
+                ContextCompat.RECEIVER_NOT_EXPORTED
+        );
         prefs.registerOnSharedPreferenceChangeListener(this);
         setNotification(mKeyboardNotification);
     }
@@ -517,11 +532,17 @@ public class LatinIME extends InputMethodService implements
             final IntentFilter pFilter = new IntentFilter(NotificationReceiver.ACTION_SHOW);
             pFilter.addAction(NotificationReceiver.ACTION_SETTINGS);
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
                 registerReceiver(mNotificationReceiver, pFilter, Context.RECEIVER_NOT_EXPORTED);
             } else {
                 registerReceiver(mNotificationReceiver, pFilter);
-            }
+            }*/
+            ContextCompat.registerReceiver(
+                    this,
+                    mNotificationReceiver,
+                    pFilter,
+                    ContextCompat.RECEIVER_NOT_EXPORTED
+            );
 
             int piFlags = PendingIntent.FLAG_IMMUTABLE;
 
@@ -1079,6 +1100,9 @@ public class LatinIME extends InputMethodService implements
     
     @Override
     public void onStartInputView(EditorInfo attribute, boolean restarting) {
+        mPredicting = true;
+        mComposing.setLength(0);
+        TextEntryState.reset();
         super.onStartInputView(attribute, restarting);
         sKeyboardSettings.editorPackageName = attribute.packageName;
         sKeyboardSettings.editorFieldName = attribute.fieldName;
@@ -1302,6 +1326,33 @@ public class LatinIME extends InputMethodService implements
     public void onUpdateSelection(int oldSelStart, int oldSelEnd,
             int newSelStart, int newSelEnd, int candidatesStart,
             int candidatesEnd) {
+        // Jeśli kursor się przesunął, zerujemy stan Smart Period
+        mJustAddedSmartPeriod = false;
+        InputConnection ic = getCurrentInputConnection();
+        if (mIgnoreNextSelectionUpdate) {
+            mIgnoreNextSelectionUpdate = false;
+            super.onUpdateSelection(oldSelStart, oldSelEnd, newSelStart, newSelEnd,
+                    candidatesStart, candidatesEnd);
+            return;
+        }
+        /*
+        // Jeśli kursor się przesunął poza zakres słowa tworzonego (mComposing), kończymy predykcji
+        if (mPredicting && (newSelStart != candidatesEnd || newSelEnd != candidatesEnd)) {
+        //if (mPredicting && (newSelStart != oldSelStart || newSelEnd != oldSelEnd)) {
+            //InputConnection ic = getCurrentInputConnection();
+            if (ic != null) {
+                ic.finishComposingText();
+            }
+            mComposing.setLength(0);
+            mPredicting = false;
+        }*/
+        if (mPredicting && (newSelStart != candidatesEnd || newSelEnd != candidatesEnd)) {
+            if (ic != null) {
+                ic.finishComposingText();
+            }
+            mComposing.setLength(0);
+            mPredicting = false;
+        }
         super.onUpdateSelection(oldSelStart, oldSelEnd, newSelStart, newSelEnd,
                 candidatesStart, candidatesEnd);
 
@@ -1318,10 +1369,10 @@ public class LatinIME extends InputMethodService implements
             mPredicting = false;
             postUpdateSuggestions();
             TextEntryState.reset();
-            InputConnection ic = getCurrentInputConnection();
-            if (ic != null) {
-                ic.finishComposingText();
-            }
+            //InputConnection ic = getCurrentInputConnection();
+            //if (ic != null) {
+            //    ic.finishComposingText();
+            //}
         } else if (!mPredicting && !mJustAccepted) {
             switch (TextEntryState.getState()) {
             case ACCEPTED_DEFAULT:
@@ -1665,12 +1716,86 @@ public class LatinIME extends InputMethodService implements
         mKeyboardSwitcher.makeKeyboards(true);
     }
 
+    private boolean isCursorAtComposingEnd() {
+        return mLastSelectionStart == mLastSelectionEnd;
+    }
     private void commitTyped(InputConnection inputConnection, boolean manual) {
+        if (inputConnection == null) return;
+
+        // 🔥 nic do commitowania → wychodzimy
+        if (mComposing.length() == 0) return;
+
+        CharSequence text = mComposing.toString(); // zachowaj zanim wyczyścisz
+
+        inputConnection.commitText(text, 1);
+        inputConnection.finishComposingText();
+
+        mIgnoreNextSelectionUpdate = true;
+
+        mCommittedLength = text.length();
+        mComposing.setLength(0); // 🔥 opróżnij bufor
+
+        if (manual) {
+            TextEntryState.manualTyped(text);
+        } else {
+            TextEntryState.acceptedTyped(text);
+        }
+
+        addToDictionaries(text, AutoDictionary.FREQUENCY_FOR_TYPED);
+
+        mPredicting = false;
+
+        updateSuggestions();
+    }
+    /*private void commitTyped(InputConnection inputConnection, boolean manual) {
+        if (inputConnection == null) return;
+
+        // commit tylko jeśli mamy coś do commitowania
+        if (mComposing.length() == 0) return;
+
+        //if (!mPredicting || inputConnection == null) {
+        //    return;
+        //}
+
+        if (mComposing.length() > 0) {
+            CharSequence text = mComposing.toString(); // 🔥 zachowaj zanim wyczyścisz
+
+            inputConnection.commitText(text, 1);
+            inputConnection.finishComposingText(); // brakowało tego
+            mIgnoreNextSelectionUpdate = true;
+
+            mCommittedLength = text.length();
+            mComposing.setLength(0); // KLUCZOWE: opróżnienie worka po wysłaniu tekstu
+
+            if (manual) {
+                TextEntryState.manualTyped(text);
+            } else {
+                TextEntryState.acceptedTyped(text);
+            }
+
+            addToDictionaries(text, AutoDictionary.FREQUENCY_FOR_TYPED);
+        }
+
+        mPredicting = false;
+        updateSuggestions();
+        // przygotuj nowe słowo
+        TextEntryState.reset();
+        mPredicting = true;
+    }*/
+    /*
+    private void commitTyped(InputConnection inputConnection, boolean manual) {
+
+        if (inputConnection != null) {
+            inputConnection.commitText(mComposing, 1);
+            inputConnection.finishComposingText();
+            mIgnoreNextSelectionUpdate = true; // KLUCZ
+        }
         if (mPredicting) {
-            mPredicting = false;
+            //mPredicting = false; //za wczesnie - mimo że mComposing nadal ma dane
             if (mComposing.length() > 0) {
                 if (inputConnection != null) {
                     inputConnection.commitText(mComposing, 1);
+                    inputConnection.finishComposingText(); // brakowało tego
                 }
                 mCommittedLength = mComposing.length();
                 mComposing.setLength(0); // KLUCZOWE: opróżnienie worka po wysłaniu tekstu
@@ -1684,7 +1809,7 @@ public class LatinIME extends InputMethodService implements
             }
             updateSuggestions();
         }
-    }
+    }*/
 
     private void postUpdateShiftKeyState() {
         // TODO(klausw): disabling, I have no idea what this is supposed to accomplish.
@@ -2496,6 +2621,13 @@ public class LatinIME extends InputMethodService implements
             }
             RingCharBuffer.getInstance().push((char) primaryCode, x, y);
             if (isWordSeparator(primaryCode)) {
+                //InputConnection ic = getCurrentInputConnection();
+                //if (ic != null && mPredicting) {
+                    //ic.finishComposingText();
+                    //mComposing.setLength(0);
+                    //mPredicting = false;
+                    //commitTyped(ic, true); // centralne miejsce logiki
+                //}
                 handleSeparator(primaryCode);
             } else {
                 handleCharacter(primaryCode, keyCodes);
@@ -2548,6 +2680,21 @@ public class LatinIME extends InputMethodService implements
     private void handleBackspace() {
         InputConnection ic = getCurrentInputConnection();
         if (ic == null) return;
+        
+        if (mJustAddedSmartPeriod) {
+            // Sprawdź, czy kursor faktycznie jest zaraz za wstawioną kropką i spacją
+            CharSequence textBefore = ic.getTextBeforeCursor(2, 0);
+            if (textBefore != null && textBefore.toString().equals(". ")) {
+                ic.deleteSurroundingText(2, 0);
+                ic.commitText(" ", 1);
+            } else {
+                // Jeśli kursor został przesunięty, traktuj Backspace jako zwykły klawisz
+                sendDownUpKeyEvents(KeyEvent.KEYCODE_DEL);
+            }
+            mJustAddedSmartPeriod = false;
+            return;
+        }
+
         ic.finishComposingText(); // Zamknij wszelkie podkreślone słowa
         sendDownUpKeyEvents(KeyEvent.KEYCODE_DEL); // Wyślij tylko jeden czysty sygnał usuwania
         postUpdateShiftKeyState(); // Odśwież SHIFT
@@ -2662,16 +2809,38 @@ public class LatinIME extends InputMethodService implements
         }
     }
 
+    private boolean isCursorAtWordEnd() {
+        InputConnection ic = getCurrentInputConnection();
+        if (ic == null) return false;
+
+        CharSequence after = ic.getTextAfterCursor(1, 0);
+        return after == null || after.length() == 0 || isWordSeparator(after.charAt(0));
+    }
+    private boolean isCursorAtStart() {
+        InputConnection ic = getCurrentInputConnection();
+        if (ic == null) return true;
+
+        CharSequence before = ic.getTextBeforeCursor(1, 0);
+        return before == null || before.length() == 0;
+    }
     private void handleCharacter(int primaryCode, int[] keyCodes) {
+        //if (mComposing.length() == 0) {
+        //    mPredicting = true;
+        //}
         if (mLastSelectionStart == mLastSelectionEnd
                 && TextEntryState.isCorrecting()) {
             abortCorrection(false);
         }
 
-        if (isAlphabet(primaryCode) && isPredictionOn()
+        if (isAlphabet(primaryCode) && isPredictionOn() && !isCursorInMiddleOfWord()
+                    && !mModCtrl && !mModAlt && !mModMeta
+                    && isCursorAtWordEnd()) {
+        /*if (isAlphabet(primaryCode) && isPredictionOn()
                 && !mModCtrl && !mModAlt && !mModMeta
-                && !isCursorTouchingWord()) {
+                && (isCursorAtStart() || !isCursorTouchingWord()) //&& !isCursorTouchingWord()
+                && isCursorAtWordEnd()) {*/
             if (!mPredicting) {
+            //if (!mPredicting || mComposing.length() == 0) {
                 mPredicting = true;
                 mComposing.setLength(0);
                 saveWordInHistory(mBestWord);
@@ -2692,6 +2861,7 @@ public class LatinIME extends InputMethodService implements
                 mWord.setFirstCharCapitalized(true);
             }
             mComposing.append((char) primaryCode);
+            Log.d(TAG, "predicting=" + mPredicting + " composing=" + mComposing);
             mWord.add(primaryCode, keyCodes);
             InputConnection ic = getCurrentInputConnection();
             if (ic != null) {
@@ -2701,6 +2871,7 @@ public class LatinIME extends InputMethodService implements
                             getCurrentInputEditorInfo()) != 0);
                 }
                 ic.setComposingText(mComposing, 1);
+                setCandidatesViewShown(true);
             }
             postUpdateSuggestions();
         } else {
@@ -2712,165 +2883,92 @@ public class LatinIME extends InputMethodService implements
     }
 
     private void handleSeparator(int primaryCode) {
-        mIsBackspacing = false;
-        // Should dismiss the "Touch again to save" message when handling
-        // separator
-        if (mCandidateView != null
-                && mCandidateView.dismissAddToDictionaryHint()) {
-            postUpdateSuggestions();
+        if (!isCursorAtWordEnd()) {
+            mPredicting = false;
+            mComposing.setLength(0);
         }
-
-        boolean pickedDefault = false;
-        // Handle separator
         InputConnection ic = getCurrentInputConnection();
-        if (ic != null) {
-            ic.beginBatchEdit();
-            abortCorrection(false);
+        if (ic == null) return;
+
+        CharSequence before = ic.getTextBeforeCursor(1, 0);
+
+        if (mComposing.length() > 0 && before != null) {
+            char last = before.charAt(0);
+            if (isWordSeparator(last)) {
+                // 🔥 composing nie pasuje do tekstu → wyłącz
+                mComposing.setLength(0);
+                mPredicting = false;
+            }
         }
+        // 🔥 1. ŚRODEK SŁOWA → zwykły insert (bez magii)
+        if (isCursorInMiddleOfWord()) {
+            ic.finishComposingText();
+            mComposing.setLength(0);
+            mPredicting = false;
 
-        if (primaryCode == ASCII_SPACE) {
-            long now = SystemClock.uptimeMillis();
-            boolean isDoubleSpaceAttempt = (mLastKey == ASCII_SPACE && (now - mLastKeyTime < 500));
-
-            if (isDoubleSpaceAttempt && ic != null) {
-                // Inteligentny kontekst (Smart Context) - tylko gdy opcja włączona
-                if (mExperimentalSmartPeriod) {
-                    CharSequence before = ic.getTextBeforeCursor(2, 0);
-                    CharSequence after = ic.getTextAfterCursor(1, 0);
-
-                    // 1. Blokada "Puste Pole" i "Same Spacje" - musi być litera/cyfra przed
-                    boolean hasLetterOrDigit = false;
-                    if (before != null && before.length() > 0) {
-                        for (int i = 0; i < before.length(); i++) {
-                            if (Character.isLetterOrDigit(before.charAt(i))) {
-                                hasLetterOrDigit = true;
-                                break;
-                            }
-                        }
-                    } else {
-                        isDoubleSpaceAttempt = false;
-                    }
-                    if (isDoubleSpaceAttempt && !hasLetterOrDigit) {
-                        isDoubleSpaceAttempt = false;
-                    }
-
-                    // 2. Blokada "Środka Tekstu" - jeśli po prawej jest znak (nie spacja/koniec linii), nie wstawiamy kropki
-                    if (isDoubleSpaceAttempt && after != null && after.length() > 0 && !Character.isWhitespace(after.charAt(0))) {
-                        isDoubleSpaceAttempt = false;
-                    }
-
-                    // 3. Sprawdzenie Lewej Strony - unikamy potrójnych spacji i podwójnych kropek
-                    if (isDoubleSpaceAttempt && before != null && before.length() >= 1) {
-                        char lastCharBefore = before.charAt(before.length() - 1);
-                        if (lastCharBefore == '.') {
-                            isDoubleSpaceAttempt = false; // Nie wstawiamy kropki po kropce
-                        }
-                        if (isDoubleSpaceAttempt && before.length() >= 2) {
-                            char secondLastCharBefore = before.charAt(before.length() - 2);
-                            if (secondLastCharBefore == '.' || (lastCharBefore == ' ' && secondLastCharBefore == ' ')) {
-                                isDoubleSpaceAttempt = false;
-                            }
-                        }
-                    }
-                } else {
-                    isDoubleSpaceAttempt = false;
-                }
-
-                if (isDoubleSpaceAttempt) {
-                    if (mPredicting) {
-                        commitTyped(ic, true);
-                    }
-                    ic.beginBatchEdit();
-                    // Scenariusz zamiany: usuwamy spację jeśli jest przed kursorem
-                    CharSequence lastChar = ic.getTextBeforeCursor(1, 0);
-                    if (lastChar != null && lastChar.length() > 0 && lastChar.charAt(0) == ' ') {
-                        ic.deleteSurroundingText(1, 0);
-                    }
-                    ic.commitText(". ", 1);
-                    ic.endBatchEdit();
-                    mLastKey = -1; // Twardy reset
-                    mLastKeyTime = 0;
-                    updateShiftKeyState(getCurrentInputEditorInfo());
-                    return;
-                }
-            }
-
-            if (mPredicting) {
-                pickedDefault = pickDefaultSuggestion();
-                if (!pickedDefault) {
-                    commitTyped(ic, true);
-                }
-            }
-
-            sendModifiableKeyChar((char) ASCII_SPACE);
-            mLastKey = ASCII_SPACE;
-            mLastKeyTime = now;
-            updateShiftKeyState(getCurrentInputEditorInfo());
-            if (ic != null) {
-                ic.endBatchEdit();
-            }
+            sendModifiableKeyChar((char) primaryCode);
             return;
         }
 
-        if (mPredicting) {
-            // In certain languages where single quote is a separator, it's
-            // better
-            // not to auto correct, but accept the typed word. For instance,
-            // in Italian dov' should not be expanded to dove' because the
-            // elision
-            // requires the last vowel to be removed.
-            if (mAutoCorrectOn
-                    && primaryCode != '\''
-                    && (mJustRevertedSeparator == null
-                            || mJustRevertedSeparator.length() == 0
-                            || mJustRevertedSeparator.charAt(0) != primaryCode)) {
-                pickedDefault = pickDefaultSuggestion();
-                if (!pickedDefault) {
+        long now = SystemClock.uptimeMillis();
+
+        // 🔥 2. DOUBLE SPACE → ". "
+        if (primaryCode == ASCII_SPACE) {
+            boolean isDoubleSpace = (mLastKey == ASCII_SPACE &&
+                    (now - mLastKeyTime < 500)); // możesz podpiąć prefs
+
+            if (isDoubleSpace) {
+                ic.beginBatchEdit();
+
+                // commit słowa jeśli trzeba
+                /*if (mPredicting) {
+                    commitTyped(ic, true);
+                }*/
+                if (mPredicting && mComposing.length() > 0) {
                     commitTyped(ic, true);
                 }
-                // Picked the suggestion by the space key. We consider this
-                // as "added an auto space" in autocomplete mode, but as manually
-                // typed space in "quick fixes" mode.
-                if (primaryCode == ASCII_SPACE) {
-                    if (mAutoCorrectEnabled) {
-                        mJustAddedAutoSpace = true;
-                    } else {
-                        TextEntryState.manualTyped("");
-                    }
+                // usuń jedną spację
+                //CharSequence before = ic.getTextBeforeCursor(1, 0);
+                if (before != null && before.length() > 0 && before.charAt(0) == ' ') {
+                    ic.deleteSurroundingText(1, 0);
                 }
-            } else {
-                commitTyped(ic, true);
+
+                // wstaw ". "
+                ic.commitText(". ", 1);
+
+                ic.endBatchEdit();
+
+                mLastKey = -1;
+                mLastKeyTime = 0;
+                mJustAddedSmartPeriod = true;
+
+                updateShiftKeyState(getCurrentInputEditorInfo());
+                return;
             }
         }
-        if (mJustAddedAutoSpace && primaryCode == ASCII_ENTER) {
-            removeTrailingSpace();
-            mJustAddedAutoSpace = false;
+
+        // 3. NORMALNY SEPARATOR
+
+        if (mPredicting && mComposing.length() > 0) {
+            commitTyped(ic, true);
         }
+
+        // KLUCZ: zakończ słowo
+        mPredicting = false;
+        mComposing.setLength(0);
+
         sendModifiableKeyChar((char) primaryCode);
 
-        // Handle the case of ". ." -> " .." with auto-space if necessary
-        // before changing the TextEntryState.
-        if (TextEntryState.getState() == TextEntryState.State.PUNCTUATION_AFTER_ACCEPTED
-                && primaryCode == ASCII_PERIOD) {
-            reswapPeriodAndSpace();
+        // update stanu
+        if (primaryCode == ASCII_SPACE) {
+            mLastKey = ASCII_SPACE;
+            mLastKeyTime = now;
+        } else {
+            mLastKey = primaryCode;
         }
 
-        TextEntryState.typedCharacter((char) primaryCode, true);
-        if (TextEntryState.getState() == TextEntryState.State.PUNCTUATION_AFTER_ACCEPTED
-                && primaryCode != ASCII_ENTER) {
-            swapPunctuationAndSpace();
-        } else if (isPredictionOn() && primaryCode == ASCII_SPACE) {
-            doubleSpace();
-        }
-        if (pickedDefault) {
-            TextEntryState.backToAcceptedDefault(mWord.getTypedWord());
-        }
         updateShiftKeyState(getCurrentInputEditorInfo());
-        if (ic != null) {
-            ic.endBatchEdit();
-        }
     }
-
     private void handleClose() {
         commitTyped(getCurrentInputConnection(), true);
         requestHideSelf(0);
@@ -2987,6 +3085,9 @@ public class LatinIME extends InputMethodService implements
             return;
         }
 
+        boolean typedWordValid = mSuggest.isValidWord(mComposing);
+        mCandidateView.setTypedWordValid(typedWordValid);
+
         showSuggestions(mWord);
     }
 
@@ -3042,7 +3143,8 @@ public class LatinIME extends InputMethodService implements
     private void showSuggestions(List<CharSequence> stringList,
             CharSequence typedWord, boolean typedWordValid,
             boolean correctionAvailable) {
-        setSuggestions(stringList, false, typedWordValid, correctionAvailable);
+        boolean typedWordValidForColor = mSuggest.isValidWord(mComposing);
+        setSuggestions(stringList, false, typedWordValidForColor, correctionAvailable);
         setCandidatesViewShown(isCandidateStripVisible() || mSuggestionForceOn || mCompletionOn || (mMacroBar != null && mMacroBar.getVisibility() == View.VISIBLE));
         if (stringList != null && stringList.size() > 0) {
             if (correctionAvailable && !typedWordValid && stringList.size() > 1) {
@@ -3133,8 +3235,8 @@ public class LatinIME extends InputMethodService implements
         if (mAutoSpace && !correcting) {
             sendSpace();
             mJustAddedAutoSpace = true;
-            mLastKey = ASCII_SPACE;
-            mLastKeyTime = SystemClock.uptimeMillis() - 1000;
+            mLastKey = -1;
+            mLastKeyTime = 0;
         }
 
         final boolean showingAddToDictionaryHint = index == 0
@@ -3356,7 +3458,20 @@ public class LatinIME extends InputMethodService implements
         return TextUtils.equals(text, beforeText);
     }
 
+    private boolean isCursorInMiddleOfWord() {
+        InputConnection ic = getCurrentInputConnection();
+        if (ic == null) return false;
+
+        CharSequence before = ic.getTextBeforeCursor(1, 0);
+        CharSequence after = ic.getTextAfterCursor(1, 0);
+
+        return before != null && before.length() > 0 && !isWordSeparator(before.charAt(0))
+                && after != null && after.length() > 0 && !isWordSeparator(after.charAt(0));
+    }
     public void revertLastWord(boolean deleteChar) {
+        if (isCursorInMiddleOfWord()) {
+            return; // NIC NIE RÓB
+        }
         final int length = mComposing.length();
         if (!mPredicting && length > 0) {
             final InputConnection ic = getCurrentInputConnection();
