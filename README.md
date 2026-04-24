@@ -11,7 +11,7 @@
 **Reverse Tab Key:** New feature to reverse Tab key behavior in web entry modes, improving navigation in complex web forms.
 
 **Suggestion Improvements:**
-- Added a "Minimum number letters" slider (2-16) in settings to control exactly when suggestions appear.
+- Added a "Minimum number of letters" slider (2-16) in settings to control exactly when suggestions appear.
 - Fixed and improved word completion and prediction logic for a smoother typing experience.
 
 **Enhanced Language & Dictionary Support:**

@@ -10,6 +10,12 @@
         android:title="@string/title_keyboard_view_settings"
         android:key="graphics_settings">
 
+        <PreferenceScreen app:iconSpaceReserved="false"
+            android:title="@string/pref_screen_view_title"
+            android:summary="@string/pref_screen_view_title_summary">
+            <intent android:action="org.n0pocketworkstation.pckeyboard.PREFS_VIEW" />
+        </PreferenceScreen>
+
         <org.n0pocketworkstation.pckeyboard.SeekBarPreferenceString app:iconSpaceReserved="false"
             android:defaultValue="@string/default_height_portrait"
             hk:minValue="15"
@@ -63,19 +69,6 @@
             android:summaryOn="@string/summary_macros_in_landscape_true"
             android:summaryOff="@string/summary_macros_in_landscape_false"
             app:iconSpaceReserved="false" />
-
-        <CheckBoxPreference app:iconSpaceReserved="false"
-            android:key="pref_revert_theme_color"
-            android:title="@string/title_revert_theme_color"
-            android:summary="@string/summary_revert_theme_color"
-            android:persistent="true"
-            android:defaultValue="false" />
-
-        <PreferenceScreen app:iconSpaceReserved="false"
-            android:title="@string/pref_screen_view_title"
-            android:summary="@string/pref_screen_view_title_summary">
-            <intent android:action="org.n0pocketworkstation.pckeyboard.PREFS_VIEW" />
-        </PreferenceScreen>
     </PreferenceCategory>
 
     <!-- SECTION 2: TYPING & LAYOUT -->
@@ -83,25 +76,11 @@
         android:title="@string/title_key_layout_options"
         android:key="layout_settings">
 
-        <PreferenceScreen app:iconSpaceReserved="false"
-            android:title="@string/language_selection_title"
-            android:summary="@string/language_selection_summary">
-            <intent android:action="org.n0pocketworkstation.pckeyboard.INPUT_LANGUAGE_SELECTION" />
-        </PreferenceScreen>
-
         <CheckBoxPreference app:iconSpaceReserved="false"
             android:key="pref_swap_action_keys"
             android:title="Modern Action Keys"
             android:summary="Swaps Enter and Backspace to match modern mobile layouts"
             android:defaultValue="false" />
-
-        <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference app:iconSpaceReserved="false"
-            android:key="auto_cap_mode"
-            android:title="@string/auto_cap"
-            android:persistent="true"
-            android:entries="@array/auto_cap_modes_labels"
-            android:entryValues="@array/auto_cap_modes_values"
-            android:defaultValue="0" />
 
         <CheckBoxPreference app:iconSpaceReserved="false"
             android:key="pref_caps_lock"
@@ -255,6 +234,14 @@
             hk:showSummaryValue="false"
             android:dependency="show_suggestions" />
 
+        <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference app:iconSpaceReserved="false"
+            android:key="auto_cap_mode"
+            android:title="@string/auto_cap"
+            android:persistent="true"
+            android:entries="@array/auto_cap_modes_labels"
+            android:entryValues="@array/auto_cap_modes_values"
+            android:defaultValue="0" />
+
         <CheckBoxPreference app:iconSpaceReserved="false"
             android:key="auto_complete"
             android:title="@string/auto_complete"
@@ -270,7 +257,13 @@
             android:persistent="true"
             android:defaultValue="@bool/default_recorrection_enabled" />
 
-        <org.n0pocketworkstation.pckeyboard.AutoSummaryEditTextPreference app:iconSpaceReserved="false"
+        <CheckBoxPreference app:iconSpaceReserved="false"
+            android:key="experimental_smart_period"
+            android:title="Double-space Period (experimental)"
+            android:summary="Trigger: quick double-tap on space. Inserts a period and space only after a word, prevents periods in the middle of a word or empty field."
+            android:persistent="true"
+            android:defaultValue="false" />
+AutoSummaryEditTextPreference app:iconSpaceReserved="false"
             android:key="pref_suggested_punctuation"
             android:title="@string/title_suggested_punctuation"
             android:defaultValue="@string/suggested_punctuations" />
@@ -281,6 +274,12 @@
             android:summary="@string/quick_fixes_summary"
             android:persistent="true"
             android:defaultValue="@bool/default_quick_fixes" />
+
+        <PreferenceScreen app:iconSpaceReserved="false"
+            android:title="@string/language_selection_title"
+            android:summary="@string/language_selection_summary">
+            <intent android:action="org.n0pocketworkstation.pckeyboard.INPUT_LANGUAGE_SELECTION" />
+        </PreferenceScreen>
 
         <Preference app:iconSpaceReserved="false"
             android:key="pref_detected_dictionaries"
@@ -322,6 +321,13 @@
             android:key="import_settings"
             android:title="Import Settings (JSON)"
             android:summary="" />
+
+        <CheckBoxPreference app:iconSpaceReserved="false"
+            android:key="pref_revert_theme_color"
+            android:title="@string/title_revert_theme_color"
+            android:summary="@string/summary_revert_theme_color"
+            android:persistent="true"
+            android:defaultValue="false" />
 
         <Preference app:iconSpaceReserved="false"
             android:key="label_version"

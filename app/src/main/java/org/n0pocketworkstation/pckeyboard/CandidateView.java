@@ -249,7 +249,7 @@ public class CandidateView extends View {
                 paint.setTypeface(Typeface.DEFAULT_BOLD);
                 paint.setColor(mColorRecommended);
                 existsAutoCompletion = true;
-            } else if (i != 0 || (wordLength == 1 && count > 1)) {
+!= 0 || (wordLength == 1 && count > 1)) {
                 // HACK: even if i == 0, we use mColorOther when this suggestion's length is 1 and
                 // there are multiple suggestions, such as the default punctuation list.
                 paint.setColor(mColorOther);
@@ -375,8 +375,7 @@ public class CandidateView extends View {
         mTouchX = OUT_OF_BOUNDS_X_COORD;
         mSelectedString = null;
         mSelectedIndex = -1;
-        mShowingAddToDictionary = false;
-        invalidate();
+        mShowingAddToDictionary        invalidate();
         Arrays.fill(mWordWidth, 0);
         Arrays.fill(mWordX, 0);
     }

@@ -231,7 +231,7 @@
     "project.structure.side.proportion": "0.0",
     "recommended.upgrade.do.not.ask.for.project": "true",
     "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "org.jetbrains.plugins.github.ui.GithubSettingsConfigurable"
+    "settings.editor.selected.configurable": "templates.modelproviders.configurable"
   }
 }]]></component>
   <component name="RunManager" selected="Android App.New Run Config">
@@ -407,6 +407,9 @@
       <item itemvalue="Gradle.syncG&amp;buildApk" />
     </list>
   </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="b725c78f-14b3-47e1-be79-6be0db0157bb" name="Changes" comment="" />
@@ -514,12 +517,12 @@
       <map>
         <entry key="org.n0pocketworkstation.pckeyboard">
           <value>
-            <CheckInfo lastCheckTimestamp="1776701644838" />
+            <CheckInfo lastCheckTimestamp="1776897908070" />
           </value>
         </entry>
         <entry key="org.n0pocketworkstation.pckeyboard.test">
           <value>
-            <CheckInfo lastCheckTimestamp="1776701644838" />
+            <CheckInfo lastCheckTimestamp="1776897908070" />
           </value>
         </entry>
         <entry key="org.nopocketworkstation.pckeyboard">

@@ -136,6 +136,7 @@ public class LatinIME extends InputMethodService implements
     public static final String PREF_SELECTED_LANGUAGES = "selected_languages";
     public static final String PREF_INPUT_LANGUAGE = "input_language";
     private static final String PREF_RECORRECTION_ENABLED = "recorrection_enabled";
+    private static final String PREF_EXPERIMENTAL_SMART_PERIOD = "experimental_smart_period";
     static final String PREF_FULLSCREEN_OVERRIDE = "fullscreen_override";
     static final String PREF_FORCE_KEYBOARD_ON = "force_keyboard_on";
     static final String PREF_KEYBOARD_NOTIFICATION = "keyboard_notification";
@@ -211,6 +212,7 @@ public class LatinIME extends InputMethodService implements
     private boolean mJustAddedAutoSpace;
     private boolean mAutoCorrectEnabled;
     private boolean mReCorrectionEnabled;
+    private boolean mExperimentalSmartPeriod;
     // Bigram Suggestion is disabled in this version.
     private final boolean mBigramSuggestionEnabled = false;
     private boolean mAutoCorrectOn;
@@ -272,6 +274,7 @@ public class LatinIME extends InputMethodService implements
     private boolean mJustAccepted;
     private CharSequence mJustRevertedSeparator;
     private int mDeleteCount;
+    private int mLastKey;
     private long mLastKeyTime;
 
     // Modifier keys state
@@ -410,6 +413,8 @@ public class LatinIME extends InputMethodService implements
         Resources res = getResources();
         mReCorrectionEnabled = prefs.getBoolean(PREF_RECORRECTION_ENABLED,
                 res.getBoolean(R.bool.default_recorrection_enabled));
+        mExperimentalSmartPeriod = prefs.getBoolean(PREF_EXPERIMENTAL_SMART_PERIOD, false);
+        mExperimentalSmartPeriod = prefs.getBoolean(PREF_EXPERIMENTAL_SMART_PERIOD, false);
         mConnectbotTabHack = prefs.getBoolean(PREF_CONNECTBOT_TAB_HACK,
                 res.getBoolean(R.bool.default_connectbot_tab_hack));
         mFullscreenOverride = prefs.getBoolean(PREF_FULLSCREEN_OVERRIDE,
@@ -2368,6 +2373,7 @@ public class LatinIME extends InputMethodService implements
             mComposing.setLength(0);
             mIsBackspacing = true;
             handleBackspace();
+            postUpdateShiftKeyState();
             return;
         case Keyboard.KEYCODE_SHIFT:
             // Shift key is handled in onPress() when device has distinct
@@ -2493,6 +2499,7 @@ public class LatinIME extends InputMethodService implements
                 handleSeparator(primaryCode);
             } else {
                 handleCharacter(primaryCode, keyCodes);
+                mLastKey = primaryCode; // Zapamiętaj ostatni znak, by spacja wiedziała co było wcześniej
             }
             // Cancel the just reverted state
             mJustRevertedSeparator = null;
@@ -2544,6 +2551,8 @@ public class LatinIME extends InputMethodService implements
         ic.finishComposingText(); // Zamknij wszelkie podkreślone słowa
         sendDownUpKeyEvents(KeyEvent.KEYCODE_DEL); // Wyślij tylko jeden czysty sygnał usuwania
         postUpdateShiftKeyState(); // Odśwież SHIFT
+        mLastKey = -1; // Reset stanu kropki po Backspace
+        mLastKeyTime = 0;
     }
 
     private void setModCtrl(boolean val) {
@@ -2720,11 +2729,87 @@ public class LatinIME extends InputMethodService implements
         }
 
         if (primaryCode == ASCII_SPACE) {
-            if (mPredicting && mCandidateView != null && mCandidateView.isShown()) {
-                pickDefaultSuggestion();
-                mPredicting = false;
-                mComposing.setLength(0);
+            long now = SystemClock.uptimeMillis();
+            boolean isDoubleSpaceAttempt = (mLastKey == ASCII_SPACE && (now - mLastKeyTime < 500));
+
+            if (isDoubleSpaceAttempt && ic != null) {
+                // Inteligentny kontekst (Smart Context) - tylko gdy opcja włączona
+                if (mExperimentalSmartPeriod) {
+                    CharSequence before = ic.getTextBeforeCursor(2, 0);
+                    CharSequence after = ic.getTextAfterCursor(1, 0);
+
+                    // 1. Blokada "Puste Pole" i "Same Spacje" - musi być litera/cyfra przed
+                    boolean hasLetterOrDigit = false;
+                    if (before != null && before.length() > 0) {
+                        for (int i = 0; i < before.length(); i++) {
+                            if (Character.isLetterOrDigit(before.charAt(i))) {
+                                hasLetterOrDigit = true;
+                                break;
+                            }
+                        }
+                    } else {
+                        isDoubleSpaceAttempt = false;
+                    }
+                    if (isDoubleSpaceAttempt && !hasLetterOrDigit) {
+                        isDoubleSpaceAttempt = false;
+                    }
+
+                    // 2. Blokada "Środka Tekstu" - jeśli po prawej jest znak (nie spacja/koniec linii), nie wstawiamy kropki
+                    if (isDoubleSpaceAttempt && after != null && after.length() > 0 && !Character.isWhitespace(after.charAt(0))) {
+                        isDoubleSpaceAttempt = false;
+                    }
+
+                    // 3. Sprawdzenie Lewej Strony - unikamy potrójnych spacji i podwójnych kropek
+                    if (isDoubleSpaceAttempt && before != null && before.length() >= 1) {
+                        char lastCharBefore = before.charAt(before.length() - 1);
+                        if (lastCharBefore == '.') {
+                            isDoubleSpaceAttempt = false; // Nie wstawiamy kropki po kropce
+                        }
+                        if (isDoubleSpaceAttempt && before.length() >= 2) {
+                            char secondLastCharBefore = before.charAt(before.length() - 2);
+                            if (secondLastCharBefore == '.' || (lastCharBefore == ' ' && secondLastCharBefore == ' ')) {
+                                isDoubleSpaceAttempt = false;
+                            }
+                        }
+                    }
+                } else {
+                    isDoubleSpaceAttempt = false;
+                }
+
+                if (isDoubleSpaceAttempt) {
+                    if (mPredicting) {
+                        commitTyped(ic, true);
+                    }
+                    ic.beginBatchEdit();
+                    // Scenariusz zamiany: usuwamy spację jeśli jest przed kursorem
+                    CharSequence lastChar = ic.getTextBeforeCursor(1, 0);
+                    if (lastChar != null && lastChar.length() > 0 && lastChar.charAt(0) == ' ') {
+                        ic.deleteSurroundingText(1, 0);
+                    }
+                    ic.commitText(". ", 1);
+                    ic.endBatchEdit();
+                    mLastKey = -1; // Twardy reset
+                    mLastKeyTime = 0;
+                    updateShiftKeyState(getCurrentInputEditorInfo());
+                    return;
+                }
             }
+
+            if (mPredicting) {
+                pickedDefault = pickDefaultSuggestion();
+                if (!pickedDefault) {
+                    commitTyped(ic, true);
+                }
+            }
+
+            sendModifiableKeyChar((char) ASCII_SPACE);
+            mLastKey = ASCII_SPACE;
+            mLastKeyTime = now;
+            updateShiftKeyState(getCurrentInputEditorInfo());
+            if (ic != null) {
+                ic.endBatchEdit();
+            }
+            return;
         }
 
         if (mPredicting) {
@@ -3048,6 +3133,8 @@ public class LatinIME extends InputMethodService implements
         if (mAutoSpace && !correcting) {
             sendSpace();
             mJustAddedAutoSpace = true;
+            mLastKey = ASCII_SPACE;
+            mLastKeyTime = SystemClock.uptimeMillis() - 1000;
         }
 
         final boolean showingAddToDictionaryHint = index == 0
@@ -3106,6 +3193,8 @@ public class LatinIME extends InputMethodService implements
         mComposing.setLength(0); // Fizyczne wyczyszczenie bufora
         mIsBackspacing = false;
         mCommittedLength = suggestion.length();
+        mLastKey = ASCII_SPACE;
+        mLastKeyTime = SystemClock.uptimeMillis() - 1000;
         ((LatinKeyboard) inputView.getKeyboard()).setPreferredLetters(null);
         // If we just corrected a word, then don't show punctuations
         if (!correcting) {
@@ -3381,12 +3470,8 @@ public class LatinIME extends InputMethodService implements
             mReCorrectionEnabled = sharedPreferences.getBoolean(
                     PREF_RECORRECTION_ENABLED, res
                             .getBoolean(R.bool.default_recorrection_enabled));
-            //if (mReCorrectionEnabled) {
-                // It doesn't work right on pre-Gingerbread phones.
-            //    Toast.makeText(getApplicationContext(),
-            //            res.getString(R.string.recorrect_warning), Toast.LENGTH_LONG)
-            //            .show();
-            //}
+        } else if (PREF_EXPERIMENTAL_SMART_PERIOD.equals(key)) {
+            mExperimentalSmartPeriod = sharedPreferences.getBoolean(PREF_EXPERIMENTAL_SMART_PERIOD, false);
         } else if (PREF_CONNECTBOT_TAB_HACK.equals(key)) {
             mConnectbotTabHack = sharedPreferences.getBoolean(
                     PREF_CONNECTBOT_TAB_HACK, res
