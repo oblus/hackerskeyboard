@@ -20,9 +20,9 @@
 - **Gradle**: Ignore XML deprecation v3 warnings. Do not modify compilerArgs (Xlint) in build.gradle.
 
 ## Performance & Context
-- **Be Concise**: Provide only modified lines of code.
-- **Selective Context**: Ignore UI/Layout code unless specifically asked or relevant to logic.
-- **No verbose explanations**: Fix the error first, explain only if requested afterwards.
+- **Code Integrity**: Prioritize a complete, working solution over conciseness. You are allowed to rewrite entire methods if the current implementation is fundamentally broken.
+- **Context Awareness**: Always consider the relationship between UI state, SharedPreferences, and InputConnection logic.
+- **No verbose explanations**: Focus on fixing the error. Explain only if requested.
 
 ## Terminal & Tools
 - **Environment**: Windows 11 with GNUWin32/Cygwin tools installed.
@@ -32,6 +32,8 @@
 - **Build APK Procedure**: Only build the APK after code changes. Execute in order:
   1. `.\gradlew assembleDebug`
   2. `Get-Date -Format "HH:mm:ss (yyyy-MM-dd)"`
+- **Build Safety**: Before running `.\gradlew`, always ensure files are saved. Since you cannot click "Keep All", instruct the environment to flush buffers or wait 2 seconds after code generation before starting the build.
+- **Error Recovery**: If the build fails, analyze the terminal output immediately within the current chat session and provide a fix. Do not wait for me to trigger "Fix with AI".
 - **Output**: After build, display: "Build finished at: [timestamp]".
 - **Debugging**: Focus on Logic and NullPointerExceptions first. Use PowerShell freely for file management within the project.
 - If direct file editing fails, always provide the full code block in the chat response.
