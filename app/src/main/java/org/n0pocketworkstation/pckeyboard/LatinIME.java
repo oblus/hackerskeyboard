@@ -1179,7 +1179,6 @@ public class LatinIME extends InputMethodService implements
                 if ((attribute.inputType & EditorInfo.TYPE_TEXT_FLAG_AUTO_CORRECT) == 0) {
                     mInputTypeNoAutoCorrect = true;
                 }
-                mAutoCapActive = false;
             }
 
             // If NO_SUGGESTIONS is set, don't do prediction.
@@ -1207,9 +1206,6 @@ public class LatinIME extends InputMethodService implements
         // }
         resetPrediction();
         loadSettings();
-        if (variation == EditorInfo.TYPE_TEXT_VARIATION_WEB_EDIT_TEXT) {
-            mAutoCapActive = false;
-        }
         mAutoCapActive = (mAutoCapPref != 2) && mLanguageSwitcher.allowAutoCap();
         updateShiftKeyState(attribute);
 
@@ -1675,32 +1671,39 @@ public class LatinIME extends InputMethodService implements
     }
 
     private void postUpdateShiftKeyState() {
-        // TODO(klausw): disabling, I have no idea what this is supposed to accomplish.
-//        //updateShiftKeyState(getCurrentInputEditorInfo());
-//
-//        // FIXME: why the delay?
-//        mHandler.removeMessages(MSG_UPDATE_SHIFT_STATE);
-//        // TODO: Should remove this 300ms delay?
-//        mHandler.sendMessageDelayed(mHandler
-//                .obtainMessage(MSG_UPDATE_SHIFT_STATE), 300);
+        mHandler.removeMessages(MSG_UPDATE_SHIFT_STATE);
+        // Klaus: Delay is necessary because the text buffer is not always updated immediately
+        // after a key press. 50ms is enough for most cases.
+        mHandler.sendMessageDelayed(mHandler
+                .obtainMessage(MSG_UPDATE_SHIFT_STATE), 50);
     }
 
     public void updateShiftKeyState(EditorInfo attr) {
         InputConnection ic = getCurrentInputConnection();
         if (ic != null && attr != null && mKeyboardSwitcher.isAlphabetMode()) {
             int oldState = getShiftState();
-            boolean isShifted = mShiftKeyState.isChording();
-            boolean isCapsLock = (oldState == Keyboard.SHIFT_CAPS_LOCKED || oldState == Keyboard.SHIFT_LOCKED);
-            boolean isCaps = isCapsLock || getCursorCapsMode(ic, attr) != 0;
-            //Log.i(TAG, "updateShiftKeyState isShifted=" + isShifted + " isCaps=" + isCaps + " isMomentary=" + mShiftKeyState.isMomentary() + " cursorCaps=" + getCursorCapsMode(ic, attr));
-            int newState = Keyboard.SHIFT_OFF;
-            if (isShifted) {
-                newState = (mSavedShiftState == Keyboard.SHIFT_LOCKED) ? Keyboard.SHIFT_CAPS : Keyboard.SHIFT_ON;
-            } else if (isCaps) {
-                newState = isCapsLock ? getCapsOrShiftLockState() : Keyboard.SHIFT_CAPS;
+            
+            // If user manually locked shift/caps, don't auto-change it
+            if (oldState == Keyboard.SHIFT_CAPS_LOCKED || oldState == Keyboard.SHIFT_LOCKED) {
+                return;
             }
-            //Log.i(TAG, "updateShiftKeyState " + oldState + " -> " + newState);
-            mKeyboardSwitcher.setShiftState(newState);
+
+            if (mShiftKeyState.isChording()) {
+                return;
+            }
+
+            int caps = getCursorCapsMode(ic, attr);
+            int newState = Keyboard.SHIFT_OFF;
+            if ((caps & TextUtils.CAP_MODE_CHARACTERS) != 0) {
+                newState = getCapsOrShiftLockState();
+            } else if (caps != 0) {
+                // Use SHIFT_ON (1) for single capitalization (sentences/words)
+                newState = Keyboard.SHIFT_ON;
+            }
+            
+            if (oldState != newState) {
+                mKeyboardSwitcher.setShiftState(newState);
+            }
         }
         if (ic != null) {
             // Clear modifiers other than shift, to avoid them getting stuck
@@ -1736,31 +1739,54 @@ public class LatinIME extends InputMethodService implements
 
     private int getCursorCapsMode(InputConnection ic, EditorInfo attr) {
         int caps = 0;
-        EditorInfo ei = getCurrentInputEditorInfo();
-        if (mAutoCapActive && ei != null && ei.inputType != EditorInfo.TYPE_NULL) {
+        if (mAutoCapActive && attr != null && attr.inputType != EditorInfo.TYPE_NULL) {
             int mode = mAutoCapPref;
-            boolean excluded = false;
             int variation = attr.inputType & EditorInfo.TYPE_MASK_VARIATION;
             int clazz = attr.inputType & EditorInfo.TYPE_MASK_CLASS;
 
             if (clazz != EditorInfo.TYPE_CLASS_TEXT) {
-                excluded = true;
-            } else if (variation == EditorInfo.TYPE_TEXT_VARIATION_PASSWORD
+                return 0;
+            }
+
+            // Standard exclusions for auto-cap
+            if (variation == EditorInfo.TYPE_TEXT_VARIATION_PASSWORD
                     || variation == EditorInfo.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD
                     || variation == EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
                     || variation == EditorInfo.TYPE_TEXT_VARIATION_URI
-                    || variation == EditorInfo.TYPE_TEXT_VARIATION_WEB_EDIT_TEXT) {
-                excluded = true;
+                    || variation == EditorInfo.TYPE_TEXT_VARIATION_FILTER
+                    || variation == 0xd0 /* TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS */
+                    || variation == 0xe0 /* TYPE_TEXT_VARIATION_WEB_PASSWORD */) {
+                return 0;
             }
 
-            if (mode == 1 && !excluded) {
-                caps = ic.getCursorCapsMode(TextUtils.CAP_MODE_SENTENCES);
-            } else {
-                caps = ic.getCursorCapsMode(attr.inputType);
+            // Determine what modes to check for.
+            int mask = attr.inputType & (TextUtils.CAP_MODE_CHARACTERS 
+                    | TextUtils.CAP_MODE_WORDS 
+                    | TextUtils.CAP_MODE_SENTENCES);
+            
+            // "Smart always" (1) logic:
+            // If the app explicitly requested words or chars, use that.
+            // Otherwise, ALWAYS add sentences.
+            if (mode == 1) {
+                if ((mask & (TextUtils.CAP_MODE_WORDS | TextUtils.CAP_MODE_CHARACTERS)) == 0) {
+                    mask |= TextUtils.CAP_MODE_SENTENCES;
+                }
+            } else if (mask == 0) {
+                // "Default" (0) logic: only add sentences for known normal text variations
+                mask |= TextUtils.CAP_MODE_SENTENCES;
             }
-            Log.d("LatinIME-Cap", "Mode: " + mode + ", Caps: " + caps + " (excluded=" + excluded + ")");
+            
+            if (mask != 0) {
+                caps = ic.getCursorCapsMode(mask);
+            }
         }
         return caps;
+    }
+
+
+    private void updateShiftKeyStateDelayed() {
+        mHandler.removeMessages(MSG_UPDATE_SHIFT_STATE);
+        mHandler.sendEmptyMessageDelayed(MSG_UPDATE_SHIFT_STATE, 50);
     }
 
     private void swapPunctuationAndSpace() {
@@ -1775,7 +1801,7 @@ public class LatinIME extends InputMethodService implements
             ic.deleteSurroundingText(2, 0);
             ic.commitText(lastTwo.charAt(1) + " ", 1);
             ic.endBatchEdit();
-            updateShiftKeyState(getCurrentInputEditorInfo());
+            updateShiftKeyStateDelayed();
             mJustAddedAutoSpace = true;
         }
     }
@@ -1793,7 +1819,7 @@ public class LatinIME extends InputMethodService implements
             ic.deleteSurroundingText(3, 0);
             ic.commitText(" ..", 1);
             ic.endBatchEdit();
-            updateShiftKeyState(getCurrentInputEditorInfo());
+            updateShiftKeyStateDelayed();
         }
     }
 
@@ -1813,7 +1839,7 @@ public class LatinIME extends InputMethodService implements
             ic.deleteSurroundingText(2, 0);
             ic.commitText(". ", 1);
             ic.endBatchEdit();
-            updateShiftKeyState(getCurrentInputEditorInfo());
+            updateShiftKeyStateDelayed();
             mJustAddedAutoSpace = true;
         }
     }
@@ -2468,7 +2494,7 @@ public class LatinIME extends InputMethodService implements
                     //Log.i(TAG, "double dead key");
                     break; // pressing a dead key twice produces spacing equivalent
                 }
-                updateShiftKeyState(getCurrentInputEditorInfo());
+                updateShiftKeyStateDelayed();
                 break;
             }
             if (processMultiKey(primaryCode)) {
@@ -2515,7 +2541,7 @@ public class LatinIME extends InputMethodService implements
         maybeRemovePreviousPeriod(text);
         ic.commitText(text, 1);
         ic.endBatchEdit();
-        updateShiftKeyState(getCurrentInputEditorInfo());
+        updateShiftKeyStateDelayed();
         mKeyboardSwitcher.onKey(0); // dummy key code.
         mJustRevertedSeparator = null;
         mJustAddedAutoSpace = false;
@@ -2734,7 +2760,7 @@ public class LatinIME extends InputMethodService implements
         } else {
             sendModifiableKeyChar((char) primaryCode);
         }
-        updateShiftKeyState(getCurrentInputEditorInfo());
+        updateShiftKeyStateDelayed();
         TextEntryState.typedCharacter((char) primaryCode,
                 isWordSeparator(primaryCode));
     }
@@ -2808,10 +2834,11 @@ public class LatinIME extends InputMethodService implements
         if (pickedDefault) {
             TextEntryState.backToAcceptedDefault(mWord.getTypedWord());
         }
-        updateShiftKeyState(getCurrentInputEditorInfo());
         if (ic != null) {
             ic.endBatchEdit();
         }
+        updateShiftKeyState(getCurrentInputEditorInfo());
+        updateShiftKeyStateDelayed();
     }
 
     private void handleClose() {
@@ -3043,7 +3070,7 @@ public class LatinIME extends InputMethodService implements
             if (mCandidateView != null) {
                 mCandidateView.clear();
             }
-            updateShiftKeyState(getCurrentInputEditorInfo());
+            updateShiftKeyStateDelayed();
             if (ic != null) {
                 ic.endBatchEdit();
             }
@@ -3137,7 +3164,7 @@ public class LatinIME extends InputMethodService implements
         if (!correcting) {
             setNextSuggestions();
         }
-        updateShiftKeyState(getCurrentInputEditorInfo());
+        updateShiftKeyStateDelayed();
     }
 
     /**
@@ -3333,7 +3360,7 @@ public class LatinIME extends InputMethodService implements
 
     private void sendSpace() {
         sendModifiableKeyChar((char) ASCII_SPACE);
-        updateShiftKeyState(getCurrentInputEditorInfo());
+        updateShiftKeyStateDelayed();
         // onKey(KEY_SPACE[0], KEY_SPACE);
     }
 
@@ -3392,8 +3419,7 @@ public class LatinIME extends InputMethodService implements
             mKeyboardModeOverridePortrait = 0;
         }
         if (sKeyboardSettings.hasFlag(GlobalKeyboardSettings.FLAG_PREF_RESET_KEYBOARDS)) {
-            mKeyboardSwitcher.makeKeyboards(true);
-            mKeyboardSwitcher.setKeyboardMode(mKeyboardSwitcher.getKeyboardMode(), 0, mEnableVoiceButton && mEnableVoice);
+            toggleLanguage(true, true);
         }
         int unhandledFlags = sKeyboardSettings.unhandledFlags();
         if (unhandledFlags != GlobalKeyboardSettings.FLAG_PREF_NONE) {
@@ -3432,11 +3458,12 @@ public class LatinIME extends InputMethodService implements
                     PREF_KEYBOARD_NOTIFICATION, res
                             .getBoolean(R.bool.default_keyboard_notification));
             setNotification(mKeyboardNotification);
+        } else if (PREF_SUGGESTIONS_IN_LANDSCAPE.equals(key)) {
             mSuggestionsInLandscape = sharedPreferences.getBoolean(
                     PREF_SUGGESTIONS_IN_LANDSCAPE, res
                             .getBoolean(R.bool.default_suggestions_in_landscape));
-            // No direct call to setCandidatesViewShown here to avoid potential UI flicker/stack issues.
-            // The needReload flag will handle the necessary updates.
+            mSuggestionForceOff = false;
+            mSuggestionForceOn = false;
             needReload = true;
         } else if (PREF_MACROS_IN_LANDSCAPE.equals(key)) {
             mMacrosInLandscape = sharedPreferences.getBoolean(PREF_MACROS_IN_LANDSCAPE, true);
@@ -3447,7 +3474,7 @@ public class LatinIME extends InputMethodService implements
                     PREF_SHOW_SUGGESTIONS, res.getBoolean(R.bool.default_suggestions));
             mSuggestionForceOff = false;
             mSuggestionForceOn = false;
-            setCandidatesViewShown(mShowSuggestions);
+            // setCandidatesViewShown(mShowSuggestions); // Removed to prevent hang in settings
             needReload = true;
         } else if (PREF_MIN_LETTERS_SUGGESTION.equals(key)) {
             // Already handled by sKeyboardSettings.sharedPreferenceChanged

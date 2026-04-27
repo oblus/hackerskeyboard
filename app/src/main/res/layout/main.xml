@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true">
@@ -82,7 +83,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:textSize="10sp" />
+            android:textSize="10sp"
+            tools:ignore="SmallSp" />
 
         <EditText
             android:id="@+id/main_setup_edit_test_text"
@@ -90,6 +92,7 @@
             android:layout_height="wrap_content"
             android:hint="@string/main_setup_test_text"
             android:inputType="text"
+            android:imeOptions="actionDone"
             android:maxLines="1" />
 
         <EditText
@@ -98,6 +101,7 @@
             android:layout_height="wrap_content"
             android:hint="@string/main_setup_test_password"
             android:inputType="textPassword"
+            android:imeOptions="actionDone"
             android:maxLines="1" />
 
         <EditText
@@ -106,6 +110,7 @@
             android:layout_height="wrap_content"
             android:hint="@string/main_setup_test_email"
             android:inputType="textEmailAddress"
+            android:imeOptions="actionSend"
             android:maxLines="1" />
 
         <EditText
@@ -114,6 +119,7 @@
             android:layout_height="wrap_content"
             android:hint="@string/main_setup_test_uri"
             android:inputType="textUri"
+            android:imeOptions="actionGo"
             android:maxLines="1" />
 
         <EditText
@@ -130,6 +136,7 @@
             android:layout_height="wrap_content"
             android:hint="@string/main_setup_test_phone"
             android:inputType="phone"
+            android:imeOptions="actionDone"
             android:maxLines="1" />
 
         <EditText
@@ -138,6 +145,7 @@
             android:layout_height="wrap_content"
             android:hint="@string/main_setup_test_short_message"
             android:inputType="textShortMessage"
+            android:imeOptions="actionSend"
             android:maxLines="1" />
 
         <EditText
@@ -242,6 +250,7 @@
             android:layout_height="wrap_content"
             android:hint="@string/main_setup_test_filter"
             android:inputType="textFilter"
+            android:imeOptions="actionSearch"
             android:maxLines="1" />
 
         <EditText
@@ -312,7 +321,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/main_setup_test_ime_multi_line"
-            android:inputType="textImeMultiLine" />
+            android:inputType="textImeMultiLine"
+            android:imeOptions="actionNext" />
 
         <EditText
             android:id="@+id/main_setup_edit_test_web_email_address"
@@ -328,6 +338,7 @@
             android:layout_height="wrap_content"
             android:hint="@string/main_setup_test_web_password"
             android:inputType="textWebPassword"
+            android:imeOptions="actionDone"
             android:maxLines="1" />
     </LinearLayout>
 </ScrollView>
