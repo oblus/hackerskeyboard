@@ -1,0 +1,65 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+  <group android:scaleX="0.63461536"
+      android:scaleY="0.63461536"
+      android:translateX="19.73077"
+      android:translateY="17.192308">
+
+      <!-- Group to scale the entire icon design to be even larger -->
+      <group
+          android:pivotX="54"
+          android:pivotY="54"
+          android:scaleX="1.4"
+          android:scaleY="1.4">
+
+          <!-- Keycap Shadow/Side -->
+          <path
+              android:pathData="M24,30h60c4,0 7,3 7,7v40c0,4 -3,7 -7,7h-60c-4,0 -7,-3 -7,-7v-40C17,33 20,30 24,30z"
+              android:fillColor="#121212" />
+
+          <!-- Keycap Surface with Gradient for 3D depth -->
+          <path
+              android:pathData="M26,32h56c3,0 5,2 5,5v34c0,3 -2,5 -5,5h-56c-3,0 -5,-2 -5,-5v-34C21,34 23,32 26,32z">
+              <aapt:attr name="android:fillColor">
+                  <gradient
+                      android:startX="54"
+                      android:startY="32"
+                      android:endX="54"
+                      android:endY="76"
+                      android:type="linear">
+                      <item android:offset="0" android:color="#333333" />
+                      <item android:offset="1" android:color="#1A1A1A" />
+                  </gradient>
+              </aapt:attr>
+          </path>
+
+          <!-- "Esc" Text - Aligned, Balanced and 1.5x Larger -->
+          <group
+              android:translateX="-2"
+              android:translateY="-2">
+              <!-- 'E' (Uppercase) - Height: 21, Width: 15 -->
+              <path
+                  android:fillColor="#ECEFF1"
+                  android:pathData="M30,41 h15 v3 h-12 v6 h9 v3 h-9 v6 h12 v3 h-15 z" />
+              <!-- 's' (Lowercase) - Height: 15, Width: 12 -->
+              <path
+                  android:fillColor="#ECEFF1"
+                  android:pathData="M49,47 h12 v3 h-9 v3 h9 v9 h-12 v-3 h9 v-3 h-9 v-9 z" />
+              <!-- 'c' (Lowercase) - Height: 15, Width: 12 -->
+              <path
+                  android:fillColor="#ECEFF1"
+                  android:pathData="M65,47 h12 v3 h-9 v9 h9 v3 h-12 z" />
+          </group>
+
+          <!-- Optional: A small "LED" indicator in the corner for that Hacker look -->
+          <path
+              android:pathData="M78,38h4v4h-4z"
+              android:fillColor="#00ACC1" />
+      </group>
+
+  </group>
+</vector>

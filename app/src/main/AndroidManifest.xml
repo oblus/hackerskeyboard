@@ -1,0 +1,144 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools">
+
+
+    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.READ_USER_DICTIONARY" />
+    <uses-permission android:name="android.permission.WRITE_USER_DICTIONARY" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
+    <uses-feature android:name="android.hardware.faketouch" android:required="false" />
+    <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
+
+    <queries>
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
+        <package android:name="org.n0pocketworkstation.dict" />
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.DEFAULT" />
+            <data android:scheme="package" />
+        </intent>
+        <!-- For AnySoftKeyboard language packs -->
+        <package android:name="com.anysoftkeyboard.languagepack.osspolish" />
+        <package android:name="com.anysoftkeyboard.languagepack.german" />
+        <package android:name="com.anysoftkeyboard.languagepack.spain" />
+        <package android:name="com.menny.anysoftkeyboard.pack.dictionaries" />
+        <intent>
+            <action android:name="com.menny.android.anysoftkeyboard.DICTIONARY" />
+        </intent>
+        <intent>
+            <action android:name="org.n0pocketworkstation.DICT" />
+        </intent>
+        <!-- Generic query for any package that might provide dictionaries via broadcast -->
+        <intent>
+            <action android:name="android.intent.action.SEND" />
+            <data android:mimeType="application/octet-stream" />
+        </intent>
+    </queries>
+
+    <application android:name="org.n0pocketworkstation.pckeyboard.PCKeyboardApp"
+            android:label="@string/english_ime_name"
+            android:allowBackup="true"
+            android:backupAgent="org.n0pocketworkstation.pckeyboard.LatinIMEBackupAgent"
+            android:restoreAnyVersion="true"
+            android:hardwareAccelerated="false"
+            android:killAfterRestore="false"
+            android:icon="@mipmap/ic_launcher"
+            android:roundIcon="@mipmap/ic_launcher_round"
+            android:theme="@style/AppTheme">
+
+        <service
+            android:name="org.n0pocketworkstation.pckeyboard.LatinIME"
+            android:label="@string/english_ime_name"
+            android:permission="android.permission.BIND_INPUT_METHOD"
+            android:exported="true"
+            android:directBootAware="true"
+            tools:targetApi="24">
+            <!--Since you are enabling Direct Boot,
+            you must ensure your keyboard doesn't
+            crash by trying to access encrypted data
+            before the user unlocks the phone.
+            In your LatinIME service (and any other
+            parts that run at startup), you should use
+            createDeviceProtectedStorageContext()
+            to access files if needed before unlock
+            If you only use the default PreferenceManager
+            or getSharedPreferences without this context,
+            the app will not be able to read its settings
+            until the user enters their PIN/pattern for the
+            first time after a reboot -->
+            <intent-filter>
+                <action android:name="android.view.InputMethod" />
+            </intent-filter>
+            <meta-data android:name="android.view.im" android:resource="@xml/method" />
+        </service>
+
+        <activity android:name="org.n0pocketworkstation.pckeyboard.Main" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity>
+
+        <activity android:name="org.n0pocketworkstation.pckeyboard.LatinIMESettings" android:exported="false" android:label="@string/english_ime_settings">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="org.n0pocketworkstation.pckeyboard.SETTINGS"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="org.n0pocketworkstation.pckeyboard.InputLanguageSelection"
+                android:exported="false"
+                android:label="@string/language_selection_title">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="org.n0pocketworkstation.pckeyboard.INPUT_LANGUAGE_SELECTION"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="org.n0pocketworkstation.pckeyboard.PrefScreenActions"
+            android:exported="false"
+                android:label="@string/pref_screen_actions_title">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="org.n0pocketworkstation.pckeyboard.PREFS_ACTIONS"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+            
+        <activity android:name="org.n0pocketworkstation.pckeyboard.PrefScreenView"
+            android:exported="false"
+                android:label="@string/pref_screen_actions_title">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="org.n0pocketworkstation.pckeyboard.PREFS_VIEW"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="org.n0pocketworkstation.pckeyboard.PrefScreenFeedback"
+            android:exported="false"
+                android:label="@string/pref_screen_feedback_title">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="org.n0pocketworkstation.pckeyboard.PREFS_FEEDBACK"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <activity android:name="org.n0pocketworkstation.pckeyboard.PrefScreenMacros"
+            android:exported="false"
+            android:label="@string/title_macro_settings">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="org.n0pocketworkstation.pckeyboard.PREFS_MACROS"/>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+</application>
+</manifest>

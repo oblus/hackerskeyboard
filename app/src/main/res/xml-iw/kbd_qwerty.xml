@@ -1,0 +1,545 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/* 
+**
+** Copyright 2010, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
+-->
+
+<Keyboard
+    xmlns:android="http://schemas.android.com/apk/res/android" xmlns:hk="http://schemas.android.com/apk/res-auto"
+    hk:keyWidth="10%p"
+    hk:horizontalGap="0px"
+    hk:verticalGap="@dimen/key_bottom_gap"
+>
+    <Row
+        hk:rowEdgeFlags="top"
+    >
+        <Key
+            hk:keyLabel="ק"
+            hk:horizontalGap="5%p"
+            hk:keyEdgeFlags="left" />
+        <Key
+            hk:keyLabel="ר" />
+        <Key
+            hk:keyLabel="א" />
+        <Key
+            hk:keyLabel="ט" />
+        <Key
+            hk:keyLabel="ו" />
+        <Key
+            hk:keyLabel="ן" />
+        <Key
+            hk:keyLabel="ם" />
+        <Key
+            hk:keyLabel="פ" />
+        <Key
+            hk:codes="@integer/key_delete"
+            hk:keyIcon="@drawable/sym_keyboard_delete"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_delete"
+            hk:keyWidth="13.75%p"
+            hk:isModifier="true"
+            hk:horizontalGap="1.25%p"
+            hk:isRepeatable="true"
+            hk:keyEdgeFlags="right" />
+    </Row>
+    <Row>
+        <Key
+            hk:keyLabel="ש"
+            hk:keyEdgeFlags="left" />
+        <Key
+            hk:keyLabel="ד" />
+        <Key
+            hk:keyLabel="ג" />
+        <Key
+            hk:keyLabel="כ" />
+        <Key
+            hk:keyLabel="ע" />
+        <Key
+            hk:keyLabel="י" />
+        <Key
+            hk:keyLabel="ח" />
+        <Key
+            hk:keyLabel="ל" />
+        <Key
+            hk:keyLabel="ך" />
+        <Key
+            hk:keyLabel="ף"
+            hk:keyEdgeFlags="right" />
+    </Row>
+    <Row>
+        <Key
+            hk:keyLabel="ז"
+            hk:horizontalGap="5%p"
+            hk:keyEdgeFlags="left" />
+        <Key
+            hk:keyLabel="ס" />
+        <Key
+            hk:keyLabel="ב" />
+        <Key
+            hk:keyLabel="ה" />
+        <Key
+            hk:keyLabel="נ" />
+        <Key
+            hk:keyLabel="מ" />
+        <Key
+            hk:keyLabel="צ" />
+        <Key
+            hk:keyLabel="ת" />
+        <Key
+            hk:keyLabel="ץ"
+            hk:keyEdgeFlags="right" />
+    </Row>
+    <Row
+        hk:keyboardMode="@+id/mode_normal"
+        hk:keyWidth="10%p"
+        hk:rowEdgeFlags="bottom"
+    >
+        <Key
+            hk:codes="@integer/key_symbol"
+            hk:keyLabel="@string/label_symbol_key"
+            hk:keyWidth="20%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="left" />
+        <Key
+            hk:codes="@integer/key_f1"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_space"
+            hk:keyIcon="@drawable/sym_keyboard_space"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_space"
+            hk:keyWidth="40%p"
+            hk:isModifier="true" />
+        <Key
+            hk:keyLabel="."
+            hk:keyIcon="@drawable/hint_popup"
+            hk:popupKeyboard="@xml/popup_punctuation"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_return"
+            hk:keyIcon="@drawable/sym_keyboard_return"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_return"
+            hk:keyWidth="20%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="right" />
+    </Row>
+    <Row
+        hk:keyboardMode="@+id/mode_url"
+        hk:keyWidth="10%p"
+        hk:rowEdgeFlags="bottom"
+    >
+        <Key
+            hk:codes="@integer/key_symbol"
+            hk:keyLabel="@string/label_symbol_key"
+            hk:keyWidth="20%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="left" />
+        <Key
+            hk:codes="@integer/key_f1"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_space"
+            hk:keyIcon="@drawable/sym_keyboard_space"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_space"
+            hk:keyWidth="40%p"
+            hk:isModifier="true" />
+        <Key
+            hk:keyLabel="."
+            hk:keyIcon="@drawable/hint_popup"
+            hk:popupKeyboard="@xml/popup_punctuation"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_return"
+            hk:keyIcon="@drawable/sym_keyboard_return"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_return"
+            hk:keyWidth="20%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="right" />
+    </Row>
+    <Row
+        hk:keyboardMode="@+id/mode_email"
+        hk:keyWidth="10%p"
+        hk:rowEdgeFlags="bottom"
+    >
+        <Key
+            hk:codes="@integer/key_symbol"
+            hk:keyLabel="@string/label_symbol_key"
+            hk:keyWidth="20%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="left" />
+        <Key
+            hk:codes="@integer/key_f1"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_space"
+            hk:keyIcon="@drawable/sym_keyboard_space"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_space"
+            hk:keyWidth="40%p"
+            hk:isModifier="true" />
+        <Key
+            hk:keyLabel="."
+            hk:keyIcon="@drawable/hint_popup"
+            hk:popupKeyboard="@xml/popup_punctuation"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_return"
+            hk:keyIcon="@drawable/sym_keyboard_return"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_return"
+            hk:keyWidth="20%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="right" />
+    </Row>
+    <Row
+        hk:keyboardMode="@+id/mode_im"
+        hk:keyWidth="10%p"
+        hk:rowEdgeFlags="bottom"
+    >
+        <Key
+            hk:codes="@integer/key_symbol"
+            hk:keyLabel="@string/label_symbol_key"
+            hk:keyWidth="20%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="left" />
+        <Key
+            hk:codes="@integer/key_f1"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_space"
+            hk:keyIcon="@drawable/sym_keyboard_space"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_space"
+            hk:keyWidth="40%p"
+            hk:isModifier="true" />
+        <Key
+            hk:keyLabel="."
+            hk:keyIcon="@drawable/hint_popup"
+            hk:popupKeyboard="@xml/popup_punctuation"
+            hk:isModifier="true" />
+        <Key
+            hk:keyLabel=":-)"
+            hk:keyOutputText=":-) "
+            hk:keyIcon="@drawable/hint_popup"
+            hk:popupKeyboard="@xml/popup_smileys"
+            hk:keyWidth="20%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="right" />
+    </Row>
+    <Row
+        hk:keyboardMode="@+id/mode_webentry"
+        hk:keyWidth="10%p"
+        hk:rowEdgeFlags="bottom"
+    >
+        <Key
+            hk:codes="@integer/key_symbol"
+            hk:keyLabel="@string/label_symbol_key"
+            hk:keyWidth="20%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="left" />
+        <Key
+            hk:codes="@integer/key_f1"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_space"
+            hk:keyIcon="@drawable/sym_keyboard_space"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_space"
+            hk:keyWidth="30%p"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_tab"
+            hk:keyIcon="@drawable/sym_keyboard_tab"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_tab"
+            hk:isModifier="true" />
+        <Key
+            hk:keyLabel="."
+            hk:keyIcon="@drawable/hint_popup"
+            hk:popupKeyboard="@xml/popup_punctuation"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_return"
+            hk:keyIcon="@drawable/sym_keyboard_return"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_return"
+            hk:keyWidth="20%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="right" />
+    </Row>
+<Row
+        hk:keyboardMode="@+id/mode_webentry_notab"
+        hk:keyWidth="10%p"
+        hk:rowEdgeFlags="bottom"
+    >
+        <Key
+            hk:codes="@integer/key_symbol"
+            hk:keyLabel="@string/label_symbol_key"
+            hk:keyWidth="20%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="left" />
+        <Key
+            hk:codes="@integer/key_f1"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_space"
+            hk:keyIcon="@drawable/sym_keyboard_space"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_space"
+            hk:keyWidth="40%p"
+            hk:isModifier="true" />
+        
+        <Key
+            hk:keyLabel="."
+            hk:keyIcon="@drawable/hint_popup"
+            hk:popupKeyboard="@xml/popup_punctuation"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_return"
+            hk:keyIcon="@drawable/sym_keyboard_return"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_return"
+            hk:keyWidth="20%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="right" />
+    </Row>
+    <Row
+        hk:keyboardMode="@+id/mode_normal_with_settings_key"
+        hk:keyWidth="10%p"
+        hk:rowEdgeFlags="bottom"
+    >
+        <Key
+            hk:codes="@integer/key_symbol"
+            hk:keyLabel="@string/label_symbol_key"
+            hk:keyWidth="15%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="left" />
+        <Key
+            hk:codes="@integer/key_settings"
+            hk:keyIcon="@drawable/sym_keyboard_settings"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_settings"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_f1"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_space"
+            hk:keyIcon="@drawable/sym_keyboard_space"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_space"
+            hk:keyWidth="30%p"
+            hk:isModifier="true" />
+        <Key
+            hk:keyLabel="."
+            hk:keyIcon="@drawable/hint_popup"
+            hk:popupKeyboard="@xml/popup_punctuation"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_return"
+            hk:keyIcon="@drawable/sym_keyboard_return"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_return"
+            hk:keyWidth="25%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="right" />
+    </Row>
+    <Row
+        hk:keyboardMode="@+id/mode_url_with_settings_key"
+        hk:keyWidth="10%p"
+        hk:rowEdgeFlags="bottom"
+    >
+        <Key
+            hk:codes="@integer/key_symbol"
+            hk:keyLabel="@string/label_symbol_key"
+            hk:keyWidth="15%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="left" />
+        <Key
+            hk:codes="@integer/key_settings"
+            hk:keyIcon="@drawable/sym_keyboard_settings"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_settings"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_f1"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_space"
+            hk:keyIcon="@drawable/sym_keyboard_space"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_space"
+            hk:keyWidth="30%p"
+            hk:isModifier="true" />
+        <Key
+            hk:keyLabel="."
+            hk:keyIcon="@drawable/hint_popup"
+            hk:popupKeyboard="@xml/popup_punctuation"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_return"
+            hk:keyIcon="@drawable/sym_keyboard_return"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_return"
+            hk:keyWidth="25%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="right" />
+    </Row>
+    <Row
+        hk:keyboardMode="@+id/mode_email_with_settings_key"
+        hk:keyWidth="10%p"
+        hk:rowEdgeFlags="bottom"
+    >
+        <Key
+            hk:codes="@integer/key_symbol"
+            hk:keyLabel="@string/label_symbol_key"
+            hk:keyWidth="15%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="left" />
+        <Key
+            hk:codes="@integer/key_settings"
+            hk:keyIcon="@drawable/sym_keyboard_settings"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_settings"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_f1"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_space"
+            hk:keyIcon="@drawable/sym_keyboard_space"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_space"
+            hk:keyWidth="30%p"
+            hk:isModifier="true" />
+        <Key
+            hk:keyLabel="."
+            hk:keyIcon="@drawable/hint_popup"
+            hk:popupKeyboard="@xml/popup_punctuation"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_return"
+            hk:keyIcon="@drawable/sym_keyboard_return"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_return"
+            hk:keyWidth="25%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="right" />
+    </Row>
+    <Row
+        hk:keyboardMode="@+id/mode_im_with_settings_key"
+        hk:keyWidth="10%p"
+        hk:rowEdgeFlags="bottom"
+    >
+        <Key
+            hk:codes="@integer/key_symbol"
+            hk:keyLabel="@string/label_symbol_key"
+            hk:keyWidth="15%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="left" />
+        <Key
+            hk:codes="@integer/key_settings"
+            hk:keyIcon="@drawable/sym_keyboard_settings"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_settings"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_f1"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_space"
+            hk:keyIcon="@drawable/sym_keyboard_space"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_space"
+            hk:keyWidth="30%p"
+            hk:isModifier="true" />
+        <Key
+            hk:keyLabel="."
+            hk:keyIcon="@drawable/hint_popup"
+            hk:popupKeyboard="@xml/popup_punctuation"
+            hk:isModifier="true" />
+        <Key
+            hk:keyLabel=":-)"
+            hk:keyOutputText=":-) "
+            hk:keyIcon="@drawable/hint_popup"
+            hk:popupKeyboard="@xml/popup_smileys"
+            hk:keyWidth="25%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="right" />
+    </Row>
+    <Row
+        hk:keyboardMode="@+id/mode_webentry_with_settings_key"
+        hk:keyWidth="10%p"
+        hk:rowEdgeFlags="bottom"
+    >
+        <Key
+            hk:codes="@integer/key_symbol"
+            hk:keyLabel="@string/label_symbol_key"
+            hk:keyWidth="15%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="left" />
+        <Key
+            hk:codes="@integer/key_settings"
+            hk:keyIcon="@drawable/sym_keyboard_settings"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_settings"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_f1"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_space"
+            hk:keyIcon="@drawable/sym_keyboard_space"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_space"
+            hk:keyWidth="30%p"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_tab"
+            hk:keyIcon="@drawable/sym_keyboard_tab"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_tab"
+            hk:isModifier="true" />
+        <Key
+            hk:keyLabel="."
+            hk:keyIcon="@drawable/hint_popup"
+            hk:popupKeyboard="@xml/popup_punctuation"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_return"
+            hk:keyIcon="@drawable/sym_keyboard_return"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_return"
+            hk:keyWidth="15%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="right" />
+    </Row>
+<Row
+        hk:keyboardMode="@+id/mode_webentry_notab_with_settings_key"
+        hk:keyWidth="10%p"
+        hk:rowEdgeFlags="bottom"
+    >
+        <Key
+            hk:codes="@integer/key_symbol"
+            hk:keyLabel="@string/label_symbol_key"
+            hk:keyWidth="15%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="left" />
+        <Key
+            hk:codes="@integer/key_settings"
+            hk:keyIcon="@drawable/sym_keyboard_settings"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_settings"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_f1"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_space"
+            hk:keyIcon="@drawable/sym_keyboard_space"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_space"
+            hk:keyWidth="40%p"
+            hk:isModifier="true" />
+        
+        <Key
+            hk:keyLabel="."
+            hk:keyIcon="@drawable/hint_popup"
+            hk:popupKeyboard="@xml/popup_punctuation"
+            hk:isModifier="true" />
+        <Key
+            hk:codes="@integer/key_return"
+            hk:keyIcon="@drawable/sym_keyboard_return"
+            hk:iconPreview="@drawable/sym_keyboard_feedback_return"
+            hk:keyWidth="15%p"
+            hk:isModifier="true"
+            hk:keyEdgeFlags="right" />
+    </Row>
+</Keyboard>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+    <!-- This container will serve as a place for the macro bar (added in code) -->
+
+    <LinearLayout
+        android:id="@+id/suggestion_strip_container"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/keyboard_suggest_strip"
+        >
+
+        <ImageButton
+            android:id="@+id/macro_toggle"
+            android:layout_width="40dp"
+            android:layout_height="@dimen/candidate_strip_height"
+            android:background="?android:attr/selectableItemBackground"
+            android:src="@android:drawable/ic_menu_edit"
+            android:tint="#FF00FFFF"
+            android:padding="8dp"
+            android:scaleType="centerInside" />
+
+        <org.n0pocketworkstation.pckeyboard.CandidateView
+            android:id="@+id/candidates"
+            android:layout_width="0dp"
+            android:layout_height="@dimen/candidate_strip_height"
+            android:layout_weight="1"
+            android:fadingEdge="horizontal"
+            android:fadingEdgeLength="@dimen/candidate_strip_fading_edge_length"
+            />
+
+    </LinearLayout>
+</LinearLayout>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/* 
+**
+** Copyright 2008, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
+    hk:keyHeight="@dimen/key_height"
+
+Unavailable accents:
+        <Key hk:keyLabel="&#x309;"/>
+        <Key hk:keyLabel="&#x30D;"/>
+-->
+
+<Keyboard xmlns:android="http://schemas.android.com/apk/res/android" xmlns:hk="http://schemas.android.com/apk/res-auto"
+    hk:keyWidth="7.1428571485%p"
+    hk:horizontalGap="0px"
+    hk:verticalGap="0px"
+    >
+
+    <Row hk:rowEdgeFlags="top|bottom">
+        <Key hk:keyLabel="&#x300;" hk:keyEdgeFlags="left"/>
+        <Key hk:keyLabel="&#x301;"/>
+        <Key hk:keyLabel="&#x302;"/>        
+        <Key hk:keyLabel="&#x303;"/>
+        <Key hk:keyLabel="&#x304;"/>
+        <Key hk:keyLabel="&#x305;"/>
+        <Key hk:keyLabel="&#x306;"/>
+        <Key hk:keyLabel="&#x307;"/>
+        <Key hk:keyLabel="&#x308;"/>
+        <Key hk:keyLabel="&#x30A;"/>
+        <Key hk:keyLabel="&#x30B;"/>
+        <Key hk:keyLabel="&#x30C;"/>
+	<Key
+            hk:codes="@integer/key_home"
+            hk:isModifier="true"            
+            hk:keyLabel="Home" />
+	<Key
+            hk:codes="@integer/key_end"
+            hk:isModifier="true"            
+            hk:keyLabel="End"
+            hk:keyEdgeFlags="right" />
+        />
+    </Row>
+</Keyboard>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<org.n0pocketworkstation.pckeyboard.LatinKeyboardView
+    xmlns:android="http://schemas.android.com/apk/res/android" xmlns:hk="http://schemas.android.com/apk/res-auto"
+    style="@style/Theme.ModernAMOLED"
+    android:id="@+id/keyboard"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_alignParentBottom="true" />

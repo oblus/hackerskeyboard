@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+/* 
+**
+** Copyright 2008, The Android Open Source Project
+**
+** Licensed under the Apache License, Version 2.0 (the "License"); 
+** you may not use this file except in compliance with the License. 
+** You may obtain a copy of the License at 
+**
+**     http://www.apache.org/licenses/LICENSE-2.0 
+**
+** Unless required by applicable law or agreed to in writing, software 
+** distributed under the License is distributed on an "AS IS" BASIS, 
+** WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+** See the License for the specific language governing permissions and 
+** limitations under the License.
+*/
+    hk:keyHeight="@dimen/key_height"
+-->
+
+<Keyboard xmlns:android="http://schemas.android.com/apk/res/android" xmlns:hk="http://schemas.android.com/apk/res-auto"
+    hk:keyWidth="10%p"
+    hk:horizontalGap="0px"
+    hk:verticalGap="0px"
+    >
+
+    <Row hk:rowEdgeFlags="top">
+        <Key hk:keyLabel="!" hk:keyEdgeFlags="left"/>
+        <Key hk:keyLabel="\@"/>
+        <Key hk:keyLabel="\#"/>        
+        <Key hk:keyLabel="&amp;"/>
+        <Key hk:keyLabel="-"/>
+        <Key hk:keyLabel="\'"/>
+        <Key hk:keyLabel=":"/>
+        <Key hk:keyLabel="&quot;"/>
+        <Key hk:keyLabel="/"/>
+        <Key hk:keyLabel="\?" hk:keyEdgeFlags="right"
+        />
+    </Row>
+
+    <Row hk:rowEdgeFlags="bottom">
+        <Key hk:codes="49" hk:keyLabel="1" hk:keyEdgeFlags="left"
+        />
+        <Key hk:codes="50" hk:keyLabel="2"
+        />
+        <Key hk:codes="51" hk:keyLabel="3"
+        />
+        <Key hk:codes="52" hk:keyLabel="4"
+        />
+        <Key hk:codes="53" hk:keyLabel="5"
+        />
+        <Key hk:codes="54" hk:keyLabel="6"/>
+        <Key hk:codes="55" hk:keyLabel="7"
+        />
+        <Key hk:codes="56" hk:keyLabel="8"/>
+        <Key hk:codes="57" hk:keyLabel="9"/>
+        <Key hk:codes="48" hk:keyLabel="0" 
+                hk:keyEdgeFlags="right"/>
+    </Row>    
+</Keyboard>
