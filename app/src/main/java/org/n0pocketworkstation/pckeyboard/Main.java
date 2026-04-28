@@ -26,9 +26,11 @@ import androidx.core.text.HtmlCompat;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import androidx.appcompat.app.AppCompatActivity;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.PopupMenu;
 import android.view.MenuItem;
 import android.content.res.Configuration;
@@ -155,6 +157,41 @@ public class Main extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 showLanguageMenu(v);
+            }
+        });
+
+        final View testFieldsToggle = findViewById(R.id.test_fields_toggle);
+        final View testFieldsContainer = findViewById(R.id.test_fields_container);
+        final View testFieldsArrow = findViewById(R.id.test_fields_arrow);
+        final View testFieldsClear = findViewById(R.id.test_fields_clear);
+
+        testFieldsToggle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (testFieldsContainer.getVisibility() == View.VISIBLE) {
+                    testFieldsContainer.setVisibility(View.GONE);
+                    testFieldsArrow.setRotation(0);
+                    testFieldsClear.setVisibility(View.GONE);
+                } else {
+                    testFieldsContainer.setVisibility(View.VISIBLE);
+                    testFieldsArrow.setRotation(180);
+                    testFieldsClear.setVisibility(View.VISIBLE);
+                }
+            }
+        });
+
+        testFieldsClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (testFieldsContainer instanceof ViewGroup) {
+                    ViewGroup container = (ViewGroup) testFieldsContainer;
+                    for (int i = 0; i < container.getChildCount(); i++) {
+                        View child = container.getChildAt(i);
+                        if (child instanceof EditText) {
+                            ((EditText) child).setText("");
+                        }
+                    }
+                }
             }
         });
     }

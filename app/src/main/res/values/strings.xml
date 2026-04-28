@@ -98,6 +98,8 @@
         <item>2</item>
     </string-array>
     <!-- Description for auto cap -->
+    <string name="main_test_fields_header">Test fields</string>
+    <string name="main_test_fields_clear">Clear all fields</string>
     <string name="auto_cap_summary">Capitalize the start of a sentence</string>
     <!-- Option to enable auto punctuate -->
     <string name="auto_punctuate">Auto-punctuate</string> 
