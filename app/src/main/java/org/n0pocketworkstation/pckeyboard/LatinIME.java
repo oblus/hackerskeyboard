@@ -1696,26 +1696,25 @@ public class LatinIME extends InputMethodService implements
 
             int caps = getCursorCapsMode(ic, attr);
             int newState = Keyboard.SHIFT_OFF;
+            boolean isAutoCapRecommended = false;
             if ((caps & TextUtils.CAP_MODE_CHARACTERS) != 0) {
                 newState = getCapsOrShiftLockState();
             } else if (caps != 0) {
-                // Use SHIFT_ON (1) for single capitalization (sentences/words)
                 newState = Keyboard.SHIFT_ON;
+                isAutoCapRecommended = true; //Auto-capitalization - turn off by Shift if no need
             }
-            // Auto-capitalization - turn off by Shift when no need
-            if (mShiftManualOverride && newState == Keyboard.SHIFT_ON) {
+            
+            // Apply manual override if active - Auto-capitalization - turn off by Shift if no need
+            if (mShiftManualOverride && isAutoCapRecommended) {
                 newState = Keyboard.SHIFT_OFF;
             }
 
             if (oldState != newState) {
                 mKeyboardSwitcher.setShiftState(newState);
             }
-            // Auto-capitalization - turn off by Shift when no need
-            if (newState == Keyboard.SHIFT_ON) {
-                if (oldState != Keyboard.SHIFT_ON) mIsAutoShift = true;
-            } else {
-                mIsAutoShift = false;
-            }
+            
+            // Update auto-shift tracking - Auto-capitalization - turn off by Shift if no need
+            mIsAutoShift = isAutoCapRecommended && (newState == Keyboard.SHIFT_ON);
         }
         if (ic != null) {
             // Clear modifiers other than shift, to avoid them getting stuck
@@ -2534,6 +2533,7 @@ public class LatinIME extends InputMethodService implements
     }
 
     public void onText(CharSequence text) {
+        mShiftManualOverride = false; //Auto-capitalization - turn off by Shift if no need
         //mDeadAccentBuffer.clear();  // FIXME
         InputConnection ic = getCurrentInputConnection();
         if (ic == null)
@@ -2655,7 +2655,13 @@ public class LatinIME extends InputMethodService implements
         int newState = Keyboard.SHIFT_ON;
         if (mKeyboardSwitcher.isAlphabetMode()) {
             mSavedShiftState = getShiftState();
-            if (mSavedShiftState == Keyboard.SHIFT_LOCKED) newState = Keyboard.SHIFT_CAPS;
+            // Auto-capitalization - turn off by Shift if no need
+            // If currently in auto-shift, we might want to toggle it off
+            if (mIsAutoShift && mSavedShiftState == Keyboard.SHIFT_ON) {
+                newState = Keyboard.SHIFT_ON; // Keep it on during press
+            } else if (mSavedShiftState == Keyboard.SHIFT_LOCKED) {
+                newState = Keyboard.SHIFT_CAPS;
+            }
         }
         handleShiftInternal(true, newState);
     }
@@ -2726,16 +2732,17 @@ public class LatinIME extends InputMethodService implements
             if (forceState) {
                 switcher.setShiftState(newState);
             } else {
-                int currentState = getShiftState(); // Auto-capitalization - turn off by Shift when no need
+                int currentState = getShiftState(); //Auto-capitalization - turn off by Shift if no need
                 if (mIsAutoShift && currentState == Keyboard.SHIFT_ON) {
                     // Manual override of auto-cap
                     mShiftManualOverride = true;
                     mIsAutoShift = false;
                     switcher.setShiftState(Keyboard.SHIFT_OFF);
                 } else {
+                    int nextState = nextShiftState(currentState, true);
                     mShiftManualOverride = false;
                     mIsAutoShift = false;
-                    switcher.setShiftState(nextShiftState(currentState, true));
+                    switcher.setShiftState(nextState);
                 }
             }
         } else {
