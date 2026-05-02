@@ -39,6 +39,10 @@ class ModifierKeyState {
     public boolean isChording() {
         return mState == CHORDING;
     }
+
+    public boolean isPressing() {
+        return mState == PRESSING;
+    }
     
     public String toString() {
     	return "ModifierKeyState:" + mState;
