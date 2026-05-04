@@ -251,6 +251,14 @@
             android:dependency="show_suggestions" />
 
         <CheckBoxPreference app:iconSpaceReserved="false"
+            android:key="auto_punctuate"
+            android:title="@string/auto_punctuate"
+            android:summary="@string/auto_punctuate_summary"
+            android:persistent="true"
+            android:defaultValue="true"
+            android:dependency="auto_complete" />
+
+        <CheckBoxPreference app:iconSpaceReserved="false"
             android:key="recorrection_enabled"
             android:title="@string/prefs_enable_recorrection"
             android:summary="@string/prefs_enable_recorrection_summary"

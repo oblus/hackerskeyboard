@@ -121,6 +121,7 @@ public class LatinIME extends InputMethodService implements
     private static final String PREF_SHOW_SUGGESTIONS = "show_suggestions";
     private static final String PREF_MIN_LETTERS_SUGGESTION = "pref_min_letters_suggestion";
     private static final String PREF_AUTO_COMPLETE = "auto_complete";
+    private static final String PREF_AUTO_PUNCTUATE = "auto_punctuate";
     // private static final String PREF_BIGRAM_SUGGESTIONS =
     // "bigram_suggestion";
     private static final String PREF_VOICE_MODE = "voice_mode";
@@ -208,6 +209,7 @@ public class LatinIME extends InputMethodService implements
     private boolean mAutoSpace;
     private boolean mJustAddedAutoSpace;
     private boolean mAutoCorrectEnabled;
+    private boolean mAutoPunctuate;
     private boolean mReCorrectionEnabled;
     // Bigram Suggestion is disabled in this version.
     private final boolean mBigramSuggestionEnabled = false;
@@ -2862,7 +2864,7 @@ public class LatinIME extends InputMethodService implements
         }
 
         TextEntryState.typedCharacter((char) primaryCode, true);
-        if (TextEntryState.getState() == TextEntryState.State.PUNCTUATION_AFTER_ACCEPTED
+        if (mAutoPunctuate && TextEntryState.getState() == TextEntryState.State.PUNCTUATION_AFTER_ACCEPTED
                 && primaryCode != ASCII_ENTER) {
             swapPunctuationAndSpace();
         } else if (isPredictionOn() && primaryCode == ASCII_SPACE) {
@@ -3990,6 +3992,7 @@ public class LatinIME extends InputMethodService implements
         mAutoCorrectEnabled = sp.getBoolean(PREF_AUTO_COMPLETE, mResources
                 .getBoolean(R.bool.enable_autocorrect))
                 & mShowSuggestions;
+        mAutoPunctuate = sp.getBoolean(PREF_AUTO_PUNCTUATE, true);
         // mBigramSuggestionEnabled = sp.getBoolean(
         // PREF_BIGRAM_SUGGESTIONS, true) & mShowSuggestions;
         updateCorrectionMode();

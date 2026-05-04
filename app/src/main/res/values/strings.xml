@@ -104,7 +104,7 @@
     <!-- Option to enable auto punctuate -->
     <string name="auto_punctuate">Auto-punctuate</string> 
     <!-- Description for auto punctuate -->
-    <string name="auto_punctuate_summary"></string>
+    <string name="auto_punctuate_summary">Swap space with punctuation at end of sentence</string>
     
     <!-- Option to enable quick fixes -->
     <string name="quick_fixes">Quick fixes</string>
