@@ -262,13 +262,6 @@
             android:title="@string/title_suggested_punctuation"
             android:defaultValue="@string/suggested_punctuations" />
 
-        <CheckBoxPreference app:iconSpaceReserved="false"
-            android:key="quick_fixes"
-            android:title="@string/quick_fixes"
-            android:summary="@string/quick_fixes_summary"
-            android:persistent="true"
-            android:defaultValue="@bool/default_quick_fixes" />
-
         <PreferenceScreen app:iconSpaceReserved="false"
             android:title="@string/language_selection_title"
             android:summary="@string/language_selection_summary">

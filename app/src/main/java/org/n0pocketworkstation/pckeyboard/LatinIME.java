@@ -118,7 +118,6 @@ public class LatinIME extends InputMethodService implements
     private static final String PREF_SOUND_ON = "sound_on";
     private static final String PREF_POPUP_ON = "popup_on";
     private static final String PREF_AUTO_CAP = "auto_cap_mode";
-    private static final String PREF_QUICK_FIXES = "quick_fixes";
     private static final String PREF_SHOW_SUGGESTIONS = "show_suggestions";
     private static final String PREF_MIN_LETTERS_SUGGESTION = "pref_min_letters_suggestion";
     private static final String PREF_AUTO_COMPLETE = "auto_complete";
@@ -230,7 +229,6 @@ public class LatinIME extends InputMethodService implements
     private int mAutoCapPref;
     private boolean mAutoCapActive;
     private boolean mDeadKeysActive;
-    private boolean mQuickFixes;
     private boolean mShowSuggestions;
     private boolean mIsShowingHint;
     private boolean mConnectbotTabHack;
@@ -646,8 +644,6 @@ public class LatinIME extends InputMethodService implements
         }
         SharedPreferences sp = PreferenceManager
                 .getDefaultSharedPreferences(this);
-        mQuickFixes = sp.getBoolean(PREF_QUICK_FIXES, localizedRes
-                .getBoolean(R.bool.default_quick_fixes));
 
         int[] dictionaries = getDictionary(localizedRes);
         // CRITICAL: Pass 'this' (the Service context), NOT localizedContext, 
@@ -3918,7 +3914,7 @@ public class LatinIME extends InputMethodService implements
     private void updateCorrectionMode() {
         mHasDictionary = mSuggest != null ? mSuggest.hasMainDictionary()
                 : false;
-        mAutoCorrectOn = (mAutoCorrectEnabled || mQuickFixes)
+        mAutoCorrectOn = mAutoCorrectEnabled
                 && !mInputTypeNoAutoCorrect && mHasDictionary;
         mCorrectionMode = (mAutoCorrectOn && mAutoCorrectEnabled) ? Suggest.CORRECTION_FULL
                 : (mAutoCorrectOn ? Suggest.CORRECTION_BASIC
@@ -3935,11 +3931,7 @@ public class LatinIME extends InputMethodService implements
     }
 
     private void updateAutoTextEnabled(Locale systemLocale) {
-        if (mSuggest == null)
-            return;
-        boolean different = !systemLocale.getLanguage().equalsIgnoreCase(
-                mInputLocale.substring(0, 2));
-        mSuggest.setAutoTextEnabled(!different && mQuickFixes);
+        // AutoText removed
     }
 
     // Version 1: The "Simple" one that gets called by the swipe actions
@@ -3977,7 +3969,6 @@ public class LatinIME extends InputMethodService implements
             sp.edit().putString(PREF_AUTO_CAP, oldVal ? "0" : "2").commit();
         }
         mAutoCapPref = Integer.parseInt(sp.getString(PREF_AUTO_CAP, "0"));
-        mQuickFixes = sp.getBoolean(PREF_QUICK_FIXES, true);
 
         mShowSuggestions = sp.getBoolean(PREF_SHOW_SUGGESTIONS, mResources
                 .getBoolean(R.bool.default_suggestions));

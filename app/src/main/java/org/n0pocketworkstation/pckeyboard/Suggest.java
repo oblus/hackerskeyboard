@@ -24,7 +24,6 @@ import java.util.Locale;
 
 import android.content.Context;
 import androidx.core.os.ConfigurationCompat;
-import android.text.AutoText;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -82,8 +81,6 @@ public class Suggest implements Dictionary.WordCallback {
 
     private static final int PREF_MAX_BIGRAMS = 60;
 
-    private boolean mAutoTextEnabled;
-
     private int[] mPriorities = new int[mPrefMaxSuggestions];
     private int[] mBigramPriorities = new int[PREF_MAX_BIGRAMS];
 
@@ -129,14 +126,6 @@ public class Suggest implements Dictionary.WordCallback {
             StringBuilder sb = new StringBuilder(getApproxMaxWordLength());
             mStringPool.add(sb);
         }
-    }
-
-    public void setAutoTextEnabled(boolean enabled) {
-        mAutoTextEnabled = enabled;
-    }
-
-    public int getCorrectionMode() {
-        return mCorrectionMode;
     }
 
     public void setCorrectionMode(int mode) {
@@ -322,31 +311,6 @@ public class Suggest implements Dictionary.WordCallback {
                 || mCorrectionMode == CORRECTION_FULL_BIGRAM)) {
             if (!haveSufficientCommonality(mLowerOriginalWord, mSuggestions.get(1))) {
                 mHaveCorrection = false;
-            }
-        }
-        if (mAutoTextEnabled) {
-            int i = 0;
-            int max = 6;
-            // Don't autotext the suggestions from the dictionaries
-            if (mCorrectionMode == CORRECTION_BASIC) max = 1;
-            while (i < mSuggestions.size() && i < max) {
-                String suggestedWord = mSuggestions.get(i).toString().toLowerCase();
-                CharSequence autoText =
-                        AutoText.get(suggestedWord, 0, suggestedWord.length(), view);
-                // Is there an AutoText correction?
-                boolean canAdd = autoText != null;
-                // Is that correction already the current prediction (or original word)?
-                canAdd &= !TextUtils.equals(autoText, mSuggestions.get(i));
-                // Is that correction already the next predicted word?
-                if (canAdd && i + 1 < mSuggestions.size() && mCorrectionMode != CORRECTION_BASIC) {
-                    canAdd &= !TextUtils.equals(autoText, mSuggestions.get(i + 1));
-                }
-                if (canAdd) {
-                    mHaveCorrection = true;
-                    mSuggestions.add(i + 1, autoText);
-                    i++;
-                }
-                i++;
             }
         }
         removeDupes();
