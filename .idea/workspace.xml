@@ -148,14 +148,8 @@
   <component name="ChangeListManager">
     <list default="true" id="b725c78f-14b3-47e1-be79-6be0db0157bb" name="Changes" comment="updated README.md&#10;fixed &quot;Minimal numer letters&quot; feature&#10;fixed &quot;Suggestion&quot; festure">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/CandidateView.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/CandidateView.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/KeyboardSwitcher.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/KeyboardSwitcher.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/LatinIME.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/LatinIME.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/Main.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/Main.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/Suggest.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/Suggest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/main.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/main.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/xml/prefs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/xml/prefs.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -189,8 +189,11 @@ public class Main extends AppCompatActivity {
                         View child = container.getChildAt(i);
                         if (child instanceof EditText) {
                             ((EditText) child).setText("");
+                            ((EditText) child).clearFocus();
                         }
                     }
+                    // Request focus on the container or a neutral view to avoid jumping
+                    testFieldsContainer.requestFocus();
                 }
             }
         });
