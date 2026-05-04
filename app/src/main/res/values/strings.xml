@@ -122,6 +122,21 @@
     <string name="summary_min_letters_suggestion">Enter minimum number from which suggestion shows</string>
 
     <!-- Option to enable auto completion -->
+    <string name="title_auto_correction_mode">Auto-correction mode</string>
+    <string-array name="auto_correction_threshold_entries">
+        <item>Balanced (Recommended)</item>
+        <item>Full (Every text field)</item>
+        <item>Off</item>
+    </string-array>
+    <string-array name="auto_correction_threshold_values">
+        <item>1</item>
+        <item>2</item>
+        <item>0</item>
+    </string-array>
+    <string name="summary_auto_correction_balanced">Corrects words in SMS/docs, disabled in Web/Search for safety.</string>
+    <string name="summary_auto_correction_full">Attempts to correct words in all text fields.</string>
+    <string name="summary_auto_correction_off">No automatic corrections.</string>
+
     <string name="auto_complete">Auto-complete</string>
     <!-- Description for auto completion -->
     <string name="auto_complete_summary">Spacebar and punctuation automatically insert highlighted word</string>

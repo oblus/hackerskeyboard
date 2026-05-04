@@ -68,6 +68,7 @@ public class CandidateView extends View {
     
     private final int[] mWordWidth = new int[MAX_SUGGESTIONS];
     private final int[] mWordX = new int[MAX_SUGGESTIONS];
+    private final int[] mWordSource = new int[MAX_SUGGESTIONS];
     private int mPopupPreviewX;
     private int mPopupPreviewY;
 
@@ -244,10 +245,17 @@ public class CandidateView extends View {
             final int wordLength = suggestion.length();
 
             paint.setColor(mColorNormal);
+            int source = mWordSource[i];
             if (mHaveMinimalSuggestion 
                     && ((i == 1 && !typedWordValid) || (i == 0 && typedWordValid))) {
                 paint.setTypeface(Typeface.DEFAULT_BOLD);
-                paint.setColor(mColorRecommended);
+                if (source == Suggest.DIC_MAIN || source == Suggest.DIC_CONTACTS) {
+                    paint.setColor(0xFF28ABB7); // Blue-ish for main dict
+                } else if (source == Suggest.DIC_AUTO || source == Suggest.DIC_USER) {
+                    paint.setColor(0xFFFFE619); // Yellow-ish for learned words
+                } else {
+                    paint.setColor(mColorRecommended);
+                }
                 existsAutoCompletion = true;
             } else if (i != 0 || (wordLength == 1 && count > 1)) {
                 // HACK: even if i == 0, we use mColorOther when this suggestion's length is 1 and
@@ -321,20 +329,25 @@ public class CandidateView extends View {
     }
     
     public void setSuggestions(List<CharSequence> suggestions, boolean completions,
-            boolean typedWordValid, boolean haveMinimalSuggestion) {
+            boolean typedWordValid, boolean haveMinimalSuggestion, int[] sources) {
         clear();
         if (suggestions != null) {
             int insertCount = Math.min(suggestions.size(), MAX_SUGGESTIONS);
-            for (CharSequence suggestion : suggestions) {
-                mSuggestions.add(suggestion);
-                if (--insertCount == 0)
-                    break;
+            for (int i = 0; i < insertCount; i++) {
+                mSuggestions.add(suggestions.get(i));
+                if (sources != null && i < sources.length) {
+                    mWordSource[i] = sources[i];
+                } else {
+                    mWordSource[i] = 0; // DIC_USER_TYPED
+                }
             }
         }
         mShowingCompletions = completions;
         mTypedWordValid = typedWordValid;
-        scrollTo(0, getScrollY());
-        mTargetScrollX = 0;
+        if (getScrollX() != 0) {
+            scrollTo(0, getScrollY());
+            mTargetScrollX = 0;
+        }
         mHaveMinimalSuggestion = haveMinimalSuggestion;
         // Compute the total width
         onDraw(null);
@@ -350,7 +363,7 @@ public class CandidateView extends View {
         ArrayList<CharSequence> suggestions = new ArrayList<CharSequence>();
         suggestions.add(word);
         suggestions.add(mAddToDictionaryHint);
-        setSuggestions(suggestions, false, false, false);
+        setSuggestions(suggestions, false, false, false, null);
         mShowingAddToDictionary = true;
     }
 
@@ -432,7 +445,7 @@ public class CandidateView extends View {
             }
             mSelectedString = null;
             mSelectedIndex = -1;
-            requestLayout();
+            // requestLayout(); // Removed to prevent scrolling reset
             hidePreview();
             invalidate();
             break;

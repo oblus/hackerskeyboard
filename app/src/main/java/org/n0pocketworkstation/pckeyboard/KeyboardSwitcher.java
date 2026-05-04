@@ -328,6 +328,7 @@ public class KeyboardSwitcher implements
 
         mCurrentId = id;
         mInputView.setKeyboard(keyboard);
+        keyboard.applyModernKeyLayout();
         keyboard.setShiftState(Keyboard.SHIFT_OFF);
         keyboard.setImeOptions(mInputMethodService.getResources(), mMode,
                 imeOptions);

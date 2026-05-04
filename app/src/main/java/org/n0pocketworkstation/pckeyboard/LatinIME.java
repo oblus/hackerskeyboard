@@ -120,7 +120,7 @@ public class LatinIME extends InputMethodService implements
     private static final String PREF_AUTO_CAP = "auto_cap_mode";
     private static final String PREF_SHOW_SUGGESTIONS = "show_suggestions";
     private static final String PREF_MIN_LETTERS_SUGGESTION = "pref_min_letters_suggestion";
-    private static final String PREF_AUTO_COMPLETE = "auto_complete";
+    private static final String PREF_AUTO_CORRECTION_MODE = "auto_correction_mode";
     private static final String PREF_AUTO_PUNCTUATE = "auto_punctuate";
     // private static final String PREF_BIGRAM_SUGGESTIONS =
     // "bigram_suggestion";
@@ -209,6 +209,7 @@ public class LatinIME extends InputMethodService implements
     private boolean mAutoSpace;
     private boolean mJustAddedAutoSpace;
     private boolean mAutoCorrectEnabled;
+    private int mAutoCorrectionMode;
     private boolean mAutoPunctuate;
     private boolean mReCorrectionEnabled;
     // Bigram Suggestion is disabled in this version.
@@ -1129,6 +1130,8 @@ public class LatinIME extends InputMethodService implements
         mKeyboardModeOverrideLandscape = 0;
         // sKeyboardSettings.useExtension = false; // Removed to prevent state loss
 
+        loadSettings(); // Load settings before applying logic based on them
+
         switch (attribute.inputType & EditorInfo.TYPE_MASK_CLASS) {
         case EditorInfo.TYPE_CLASS_NUMBER:
         case EditorInfo.TYPE_CLASS_DATETIME:
@@ -1144,39 +1147,61 @@ public class LatinIME extends InputMethodService implements
         case EditorInfo.TYPE_CLASS_TEXT:
             mKeyboardSwitcher.setKeyboardMode(KeyboardSwitcher.MODE_TEXT,
                     attribute.imeOptions, enableVoiceButton);
-            // startPrediction();
             mPredictionOnForMode = true;
-            // Make sure that passwords are not displayed in candidate view
+
             if (mPasswordText) {
                 mPredictionOnForMode = false;
             }
-            if (variation == EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
-                    || variation == EditorInfo.TYPE_TEXT_VARIATION_PERSON_NAME
+
+            boolean isEmail = variation == EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS
+                    || variation == EditorInfo.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS;
+            boolean isUri = variation == EditorInfo.TYPE_TEXT_VARIATION_URI;
+            boolean isFilter = variation == EditorInfo.TYPE_TEXT_VARIATION_FILTER;
+            boolean isWeb = variation == EditorInfo.TYPE_TEXT_VARIATION_WEB_EDIT_TEXT;
+
+            if (isEmail || variation == EditorInfo.TYPE_TEXT_VARIATION_PERSON_NAME
                     || !mLanguageSwitcher.allowAutoSpace()) {
                 mAutoSpace = false;
             } else {
                 mAutoSpace = true;
             }
-            if (variation == EditorInfo.TYPE_TEXT_VARIATION_EMAIL_ADDRESS) {
+
+            if (isEmail) {
                 mPredictionOnForMode = false;
                 mKeyboardSwitcher.setKeyboardMode(KeyboardSwitcher.MODE_EMAIL,
                         attribute.imeOptions, enableVoiceButton);
-            } else if (variation == EditorInfo.TYPE_TEXT_VARIATION_URI) {
+            } else if (isUri) {
                 mPredictionOnForMode = false;
                 mKeyboardSwitcher.setKeyboardMode(KeyboardSwitcher.MODE_URL,
                         attribute.imeOptions, enableVoiceButton);
             } else if (variation == EditorInfo.TYPE_TEXT_VARIATION_SHORT_MESSAGE) {
                 mKeyboardSwitcher.setKeyboardMode(KeyboardSwitcher.MODE_IM,
                         attribute.imeOptions, enableVoiceButton);
-            } else if (variation == EditorInfo.TYPE_TEXT_VARIATION_FILTER) {
+            } else if (isFilter) {
                 mPredictionOnForMode = false;
-            } else if (variation == EditorInfo.TYPE_TEXT_VARIATION_WEB_EDIT_TEXT) {
+            } else if (isWeb) {
                 mKeyboardSwitcher.setKeyboardMode(KeyboardSwitcher.MODE_WEB,
                         attribute.imeOptions, enableVoiceButton);
-                // If it's a browser edit field and auto correct is not ON
-                // explicitly, then
-                // disable auto correction, but keep suggestions on.
-                if ((attribute.inputType & EditorInfo.TYPE_TEXT_FLAG_AUTO_CORRECT) == 0) {
+            }
+
+            // Apply Auto-correction mode logic
+            int variationMasked = attribute.inputType & EditorInfo.TYPE_MASK_VARIATION;
+            if (mAutoCorrectionMode == 0) { // Off
+                mInputTypeNoAutoCorrect = true;
+            } else if (mAutoCorrectionMode == 1) { // Balanced
+                // Disable in Web, Filter, Email, URI, or if it's a password
+                if (isWeb || isFilter || isEmail || isUri || mPasswordText) {
+                    mInputTypeNoAutoCorrect = true;
+                } else if (variationMasked == EditorInfo.TYPE_TEXT_VARIATION_PHONETIC) {
+                    mInputTypeNoAutoCorrect = true;
+                } else if ((attribute.inputType & EditorInfo.TYPE_TEXT_FLAG_AUTO_CORRECT) == 0
+                        && (attribute.inputType & EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE) == 0) {
+                    // Respect system "no autocorrect" for non-multiline fields in Balanced mode
+                    mInputTypeNoAutoCorrect = true;
+                }
+            } else if (mAutoCorrectionMode == 2) { // Full
+                // Only disable for strictly sensitive fields (Passwords, Emails, URIs)
+                if (mPasswordText || isEmail || isUri) {
                     mInputTypeNoAutoCorrect = true;
                 }
             }
@@ -1186,12 +1211,7 @@ public class LatinIME extends InputMethodService implements
                 mPredictionOnForMode = false;
                 mInputTypeNoAutoCorrect = true;
             }
-            // If it's not multiline and the autoCorrect flag is not set, then
-            // don't correct
-            if ((attribute.inputType & EditorInfo.TYPE_TEXT_FLAG_AUTO_CORRECT) == 0
-                    && (attribute.inputType & EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE) == 0) {
-                mInputTypeNoAutoCorrect = true;
-            }
+
             if ((attribute.inputType & EditorInfo.TYPE_TEXT_FLAG_AUTO_COMPLETE) != 0) {
                 mPredictionOnForMode = false;
                 mCompletionOn = isFullscreenMode();
@@ -1205,7 +1225,6 @@ public class LatinIME extends InputMethodService implements
         //    inputView.closing();
         // }
         resetPrediction();
-        loadSettings();
         mAutoCapActive = (mAutoCapPref != 2) && mLanguageSwitcher.allowAutoCap();
         updateShiftKeyState(attribute);
 
@@ -2960,6 +2979,12 @@ public class LatinIME extends InputMethodService implements
     private void setSuggestions(List<CharSequence> suggestions,
             boolean completions, boolean typedWordValid,
             boolean haveMinimalSuggestion) {
+        setSuggestions(suggestions, completions, typedWordValid, haveMinimalSuggestion, null);
+    }
+
+    private void setSuggestions(List<CharSequence> suggestions,
+            boolean completions, boolean typedWordValid,
+            boolean haveMinimalSuggestion, int[] sources) {
 
         if (mIsShowingHint) {
             setCandidatesViewShown(true);
@@ -2968,7 +2993,7 @@ public class LatinIME extends InputMethodService implements
 
         if (mCandidateView != null) {
             mCandidateView.setSuggestions(suggestions, completions,
-                    typedWordValid, haveMinimalSuggestion);
+                    typedWordValid, haveMinimalSuggestion, sources);
         }
     }
 
@@ -2992,7 +3017,7 @@ public class LatinIME extends InputMethodService implements
         }
 
         if (mWord.size() < sKeyboardSettings.minLettersSuggestion) {
-            showSuggestions(null, mWord.getTypedWord(), false, false);
+            showSuggestions(null, mWord.getTypedWord(), false, false, null);
             return;
         }
 
@@ -3007,10 +3032,14 @@ public class LatinIME extends InputMethodService implements
 
     private void showCorrections(WordAlternatives alternatives) {
         List<CharSequence> stringList = alternatives.getAlternatives();
+        int[] sources = null;
+        if (alternatives instanceof TypedWordAlternatives) {
+            sources = mSuggest.getSuggestionSources();
+        }
         ((LatinKeyboard) mKeyboardSwitcher.getInputView().getKeyboard())
                 .setPreferredLetters(null);
         showSuggestions(stringList, alternatives.getOriginalWord(), false,
-                false);
+                false, sources);
     }
 
     private void showSuggestions(WordComposer word) {
@@ -3023,10 +3052,10 @@ public class LatinIME extends InputMethodService implements
         // long stopTime = System.currentTimeMillis(); // TIME MEASUREMENT!
         // Log.d("LatinIME","Suggest Total Time - " + (stopTime - startTime));
 
-        int[] nextLettersFrequencies = mSuggest.getNextLettersFrequencies();
+        // int[] nextLettersFrequencies = mSuggest.getNextLettersFrequencies();
 
-        ((LatinKeyboard) mKeyboardSwitcher.getInputView().getKeyboard())
-                .setPreferredLetters(nextLettersFrequencies);
+        // ((LatinKeyboard) mKeyboardSwitcher.getInputView().getKeyboard())
+        //        .setPreferredLetters(nextLettersFrequencies);
 
         boolean correctionAvailable = !mInputTypeNoAutoCorrect
                 && mSuggest.hasMinimalCorrection();
@@ -3044,14 +3073,25 @@ public class LatinIME extends InputMethodService implements
         correctionAvailable &= !word.isMostlyCaps();
         correctionAvailable &= !TextEntryState.isCorrecting();
 
+        // Special handling for dictionary sources
+        int[] sources = mSuggest.getSuggestionSources();
+        if (sources != null && sources.length > 1 && correctionAvailable && !typedWordValid) {
+            int topSource = sources[1]; // Index 1 is the first real suggestion after typed word at 0
+            // Only auto-correct if it comes from a reliable source (Main or Contacts)
+            if (topSource == Suggest.DIC_AUTO || topSource == Suggest.DIC_USER) {
+                // For learned words, maybe be more conservative?
+                // For now, let's keep it enabled but we could add a check here.
+            }
+        }
+
         showSuggestions(stringList, typedWord, typedWordValid,
-                correctionAvailable);
+                correctionAvailable, sources);
     }
 
     private void showSuggestions(List<CharSequence> stringList,
             CharSequence typedWord, boolean typedWordValid,
-            boolean correctionAvailable) {
-        setSuggestions(stringList, false, typedWordValid, correctionAvailable);
+            boolean correctionAvailable, int[] sources) {
+        setSuggestions(stringList, false, typedWordValid, correctionAvailable, sources);
         setCandidatesViewShown(isCandidateStripVisible() || mSuggestionForceOn || mCompletionOn || (mMacroBar != null && mMacroBar.getVisibility() == View.VISIBLE));
         if (stringList != null && stringList.size() > 0) {
             if (correctionAvailable && !typedWordValid && stringList.size() > 1) {
@@ -3989,9 +4029,12 @@ public class LatinIME extends InputMethodService implements
         mEnableVoice = enableVoice;
         mVoiceOnPrimary = voiceOnPrimary;
 
-        mAutoCorrectEnabled = sp.getBoolean(PREF_AUTO_COMPLETE, mResources
-                .getBoolean(R.bool.enable_autocorrect))
-                & mShowSuggestions;
+        try {
+            mAutoCorrectionMode = Integer.parseInt(sp.getString(PREF_AUTO_CORRECTION_MODE, "1"));
+        } catch (NumberFormatException e) {
+            mAutoCorrectionMode = 1;
+        }
+        mAutoCorrectEnabled = (mAutoCorrectionMode > 0) && mShowSuggestions;
         mAutoPunctuate = sp.getBoolean(PREF_AUTO_PUNCTUATE, true);
         // mBigramSuggestionEnabled = sp.getBoolean(
         // PREF_BIGRAM_SUGGESTIONS, true) & mShowSuggestions;

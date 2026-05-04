@@ -242,12 +242,13 @@
             android:entryValues="@array/auto_cap_modes_values"
             android:defaultValue="0" />
 
-        <CheckBoxPreference app:iconSpaceReserved="false"
-            android:key="auto_complete"
-            android:title="@string/auto_complete"
-            android:summary="@string/auto_complete_summary"
+        <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference app:iconSpaceReserved="false"
+            android:key="auto_correction_mode"
+            android:title="@string/title_auto_correction_mode"
             android:persistent="true"
-            android:defaultValue="@bool/enable_autocorrect"
+            android:entryValues="@array/auto_correction_threshold_values"
+            android:entries="@array/auto_correction_threshold_entries"
+            android:defaultValue="1"
             android:dependency="show_suggestions" />
 
         <CheckBoxPreference app:iconSpaceReserved="false"
@@ -256,7 +257,7 @@
             android:summary="@string/auto_punctuate_summary"
             android:persistent="true"
             android:defaultValue="true"
-            android:dependency="auto_complete" />
+            android:dependency="auto_correction_mode" />
 
         <CheckBoxPreference app:iconSpaceReserved="false"
             android:key="recorrection_enabled"

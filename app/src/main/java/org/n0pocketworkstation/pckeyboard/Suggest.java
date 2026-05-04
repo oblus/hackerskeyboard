@@ -83,6 +83,8 @@ public class Suggest implements Dictionary.WordCallback {
 
     private int[] mPriorities = new int[mPrefMaxSuggestions];
     private int[] mBigramPriorities = new int[PREF_MAX_BIGRAMS];
+    private int[] mSuggestionSource = new int[mPrefMaxSuggestions];
+    private int[] mBigramSuggestionSource = new int[PREF_MAX_BIGRAMS];
 
     // Handle predictive correction for only the first 1280 characters for performance reasons
     // If we support scripts that need latin characters beyond that, we should probably use some
@@ -225,6 +227,7 @@ public class Suggest implements Dictionary.WordCallback {
         mIsAllUpperCase = wordComposer.isAllUpperCase();
         collectGarbage(mSuggestions, mPrefMaxSuggestions);
         Arrays.fill(mPriorities, 0);
+        Arrays.fill(mSuggestionSource, DIC_USER_TYPED);
         Arrays.fill(mNextLettersFrequencies, 0);
 
         // Save a lowercase version of the original word
@@ -241,6 +244,7 @@ public class Suggest implements Dictionary.WordCallback {
                 || mCorrectionMode == CORRECTION_BASIC)) {
             // At first character typed, search only the bigrams
             Arrays.fill(mBigramPriorities, 0);
+            Arrays.fill(mBigramSuggestionSource, DIC_USER_TYPED);
             collectGarbage(mBigramSuggestions, PREF_MAX_BIGRAMS);
 
             if (!TextUtils.isEmpty(prevWordForBigram)) {
@@ -273,7 +277,9 @@ public class Suggest implements Dictionary.WordCallback {
                                 : new StringBuilder(getApproxMaxWordLength());
                         sb.setLength(0);
                         sb.append(mBigramSuggestions.get(i));
-                        mSuggestions.add(count++, sb);
+                        mSuggestions.add(count, sb);
+                        mSuggestionSource[count] = mBigramSuggestionSource[i];
+                        count++;
                         if (count > mPrefMaxSuggestions) break;
                     }
                 }
@@ -303,6 +309,8 @@ public class Suggest implements Dictionary.WordCallback {
         }
         if (mOriginalWord != null) {
             mSuggestions.add(0, mOriginalWord.toString());
+            System.arraycopy(mSuggestionSource, 0, mSuggestionSource, 1, mPrefMaxSuggestions - 1);
+            mSuggestionSource[0] = DIC_USER_TYPED;
         }
 
         // Check if the first suggestion has a minimum number of characters in common
@@ -317,8 +325,8 @@ public class Suggest implements Dictionary.WordCallback {
         return mSuggestions;
     }
 
-    public int[] getNextLettersFrequencies() {
-        return mNextLettersFrequencies;
+    public int[] getSuggestionSources() {
+        return mSuggestionSource;
     }
 
     private void removeDupes() {
@@ -371,14 +379,17 @@ public class Suggest implements Dictionary.WordCallback {
         Dictionary.DataType dataTypeForLog = dataType;
         ArrayList<CharSequence> suggestions;
         int[] priorities;
+        int[] sources;
         int prefMaxSuggestions;
         if(dataType == Dictionary.DataType.BIGRAM) {
             suggestions = mBigramSuggestions;
             priorities = mBigramPriorities;
+            sources = mBigramSuggestionSource;
             prefMaxSuggestions = PREF_MAX_BIGRAMS;
         } else {
             suggestions = mSuggestions;
             priorities = mPriorities;
+            sources = mSuggestionSource;
             prefMaxSuggestions = mPrefMaxSuggestions;
         }
 
@@ -424,6 +435,9 @@ public class Suggest implements Dictionary.WordCallback {
         System.arraycopy(priorities, pos, priorities, pos + 1,
                 prefMaxSuggestions - pos - 1);
         priorities[pos] = freq;
+        System.arraycopy(sources, pos, sources, pos + 1,
+                prefMaxSuggestions - pos - 1);
+        sources[pos] = dicTypeId;
         int poolSize = mStringPool.size();
         StringBuilder sb = poolSize > 0 ? (StringBuilder) mStringPool.remove(poolSize - 1) 
                 : new StringBuilder(getApproxMaxWordLength());
