@@ -26,6 +26,7 @@
         <package android:name="com.anysoftkeyboard.languagepack.german" />
         <package android:name="com.anysoftkeyboard.languagepack.spain" />
         <package android:name="com.menny.anysoftkeyboard.pack.dictionaries" />
+        <package android:name="com.menny.android.anysoftkeyboard" />
         <intent>
             <action android:name="com.menny.android.anysoftkeyboard.DICTIONARY" />
         </intent>

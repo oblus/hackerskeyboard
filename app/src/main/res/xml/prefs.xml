@@ -275,11 +275,17 @@
             <intent android:action="org.n0pocketworkstation.pckeyboard.INPUT_LANGUAGE_SELECTION" />
         </PreferenceScreen>
 
-        <Preference app:iconSpaceReserved="false"
-            android:key="pref_detected_dictionaries"
-            android:title="@string/title_detected_dictionaries"
-            android:persistent="false" />
     </PreferenceCategory>
+
+    <Preference app:iconSpaceReserved="false"
+        android:key="pref_dictionaries_summary_list"
+        android:title="@string/title_detected_dictionaries"
+        android:selectable="false" />
+
+    <Preference app:iconSpaceReserved="false"
+        android:key="pref_clear_auto_dict"
+        android:title="@string/title_clear_auto_dictionary"
+        android:summary="Delete all words learned from your typing (AutoDictionary)" />
 
     <!-- SECTION 6: ADVANCED & INFO -->
     <PreferenceCategory app:iconSpaceReserved="false"

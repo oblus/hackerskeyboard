@@ -409,4 +409,20 @@ public class PluginManager extends BroadcastReceiver {
         }
         return null;
     }
+
+    static int getDictionarySizeByPackage(Context context, String packageName) {
+        for (DictPluginSpec spec : mPluginDicts.values()) {
+            if (spec instanceof DictPluginSpecBase) {
+                if (packageName.equals(((DictPluginSpecBase) spec).mPackageName)) {
+                    BinaryDictionary dict = spec.getDict(context);
+                    if (dict != null) {
+                        int size = dict.getSize();
+                        dict.close();
+                        return size;
+                    }
+                }
+            }
+        }
+        return 0;
+    }
 }

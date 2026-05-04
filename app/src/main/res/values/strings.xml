@@ -757,4 +757,8 @@
     <string name="notification_action_settings">Settings</string>
     <string name="title_revert_theme_color">Invert menu theme color</string>
     <string name="summary_revert_theme_color">Force invert color theme regardless of system default.</string>
+
+    <string name="title_clear_auto_dictionary">Clear Learned Words</string>
+    <string name="dialog_clear_auto_dictionary">This will delete all words learned automatically by the keyboard. Continue?</string>
+    <string name="success_clear_auto_dictionary">Learned words cleared</string>
 </resources>

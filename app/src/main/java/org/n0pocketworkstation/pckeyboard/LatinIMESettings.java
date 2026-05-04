@@ -9,6 +9,10 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import androidx.preference.PreferenceCategory;
+import androidx.preference.PreferenceGroup;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.Preference;
@@ -168,6 +172,28 @@ public class LatinIMESettings extends AppCompatActivity {
                 intent.setType("application/json");
                 importLauncher.launch(intent);
                 return true;
+            } else if ("pref_clear_auto_dict".equals(preference.getKey())) {
+                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                        .setTitle("Clear Learned Words")
+                        .setMessage("This will delete all words learned automatically by the keyboard. Continue?")
+                        .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                            SQLiteDatabase autoDb = null;
+                            try {
+                                autoDb = requireContext().openOrCreateDatabase("auto_dict.db", android.content.Context.MODE_PRIVATE, null);
+                                if (autoDb != null) {
+                                    autoDb.execSQL("DELETE FROM words");
+                                    android.widget.Toast.makeText(requireContext(), "Learned words cleared", android.widget.Toast.LENGTH_SHORT).show();
+                                    updateDetectedDictionaries();
+                                }
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error clearing auto dictionary", e);
+                            } finally {
+                                if (autoDb != null) autoDb.close();
+                            }
+                        })
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .show();
+                return true;
             }
             return super.onPreferenceTreeClick(preference);
         }
@@ -228,15 +254,13 @@ public class LatinIMESettings extends AppCompatActivity {
         }
 
         private void updateDetectedDictionaries() {
-            Preference mDetectedDictionaries = findPreference("pref_detected_dictionaries");
-            if (mDetectedDictionaries == null) return;
+            Preference dictPref = findPreference("pref_dictionaries_summary_list");
+            if (dictPref == null) return;
             
             PackageManager pm = requireContext().getPackageManager();
-            List<CharSequence> dictionaryList = new ArrayList<CharSequence>();
-            
             SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(requireContext());
-            String selectedLanguages = sp.getString(LatinIME.PREF_SELECTED_LANGUAGES, null);
             String currentLanguage = sp.getString(LatinIME.PREF_INPUT_LANGUAGE, null);
+            String selectedLanguages = sp.getString(LatinIME.PREF_SELECTED_LANGUAGES, null);
             
             if (selectedLanguages == null || selectedLanguages.length() < 1) {
                 currentLanguage = java.util.Locale.getDefault().getLanguage();
@@ -247,6 +271,49 @@ public class LatinIMESettings extends AppCompatActivity {
             PluginManager.getPluginDictionaries(requireContext());
             String activePkg = PluginManager.getDictionaryPackageName(currentLanguage);
 
+            SpannableStringBuilder fullInfo = new SpannableStringBuilder();
+
+            // 1. Android System User Dictionary
+            int userDictCount = 0;
+            try {
+                Cursor cursor = requireContext().getContentResolver().query(
+                        android.provider.UserDictionary.Words.CONTENT_URI,
+                        new String[] { "count(*)" }, null, null, null);
+                if (cursor != null) {
+                    if (cursor.moveToFirst()) userDictCount = cursor.getInt(0);
+                    cursor.close();
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error counting user dictionary", e);
+            }
+            
+            int start = fullInfo.length();
+            fullInfo.append("• Android System User Dictionary (").append(String.valueOf(userDictCount)).append(" words)\n");
+            fullInfo.setSpan(new ForegroundColorSpan(0xFF00FF00), start, fullInfo.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+            // 2. Learned words (AutoDictionary)
+            int autoDictCount = 0;
+            SQLiteDatabase autoDb = null;
+            try {
+                autoDb = requireContext().openOrCreateDatabase("auto_dict.db", android.content.Context.MODE_PRIVATE, null);
+                if (autoDb != null) {
+                    Cursor cursor = autoDb.rawQuery("SELECT count(*) FROM words", null);
+                    if (cursor != null) {
+                        if (cursor.moveToFirst()) autoDictCount = cursor.getInt(0);
+                        cursor.close();
+                    }
+                }
+            } catch (Exception e) {
+                // Table might not exist yet
+            } finally {
+                if (autoDb != null) autoDb.close();
+            }
+            
+            start = fullInfo.length();
+            fullInfo.append("• Learned words (AutoDictionary) (").append(String.valueOf(autoDictCount)).append(" words)\n");
+            fullInfo.setSpan(new ForegroundColorSpan(0xFF00FF00), start, fullInfo.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+            // 3. APK Dictionaries
             List<PackageInfo> packages = pm.getInstalledPackages(0);
             for (PackageInfo pkgInfo : packages) {
                 String pkg = pkgInfo.packageName;
@@ -258,50 +325,34 @@ public class LatinIMESettings extends AppCompatActivity {
                     
                     try {
                         String label = pm.getApplicationLabel(pkgInfo.applicationInfo).toString();
-                        String entry = label + " [" + pkg + "]";
                         if (pkg.equals("com.menny.android.anysoftkeyboard")) {
-                            entry = "English from " + entry;
+                            label = "English (AnySoftKeyboard)";
                         }
-                        if (pkg.equals(activePkg)) {
-                            int dictSize = 0;
-                            BinaryDictionary dict = PluginManager.getDictionary(requireContext(), currentLanguage);
-                            if (dict != null) {
-                                dictSize = dict.getSize();
-                                dict.close();
-                            }
 
-                            SpannableStringBuilder ssb = new SpannableStringBuilder(entry);
-                            if (dictSize > 100) {
-                                ssb.setSpan(new ForegroundColorSpan(0xFF00FF00), 0, entry.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            } else {
-                                entry += " (Empty/Error)";
-                                ssb = new SpannableStringBuilder(entry);
-                                ssb.setSpan(new ForegroundColorSpan(0xFFFFA500), 0, entry.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            }
-                            dictionaryList.add(ssb);
-                        } else {
-                            dictionaryList.add(entry);
+                        int dictSize = PluginManager.getDictionarySizeByPackage(requireContext(), pkg);
+                        
+                        start = fullInfo.length();
+                        fullInfo.append("• ").append(label).append(" (").append(String.valueOf(dictSize)).append(" words) [").append(pkg).append("]\n");
+                        
+                        if (pkg.equals(activePkg)) {
+                            fullInfo.setSpan(new ForegroundColorSpan(0xFF00FF00), start, fullInfo.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                         }
                     } catch (Exception e) {
                         Log.e(TAG, "Error processing dictionary package: " + pkg, e);
                     }
                 }
             }
-
-            if (!dictionaryList.isEmpty()) {
-                java.util.Collections.sort(dictionaryList, (a, b) -> a.toString().compareTo(b.toString()));
-
-                SpannableStringBuilder detected = new SpannableStringBuilder();
-                for (int i = 0; i < dictionaryList.size(); i++) {
-                    if (i > 0) detected.append("\n");
-                    detected.append(dictionaryList.get(i));
-                }
-                mDetectedDictionaries.setSummary(detected);
-                mDetectedDictionaries.setEnabled(true);
-            } else {
-                mDetectedDictionaries.setSummary("None");
+            
+            // Trim trailing newline
+            if (fullInfo.length() > 0 && fullInfo.charAt(fullInfo.length() - 1) == '\n') {
+                fullInfo.delete(fullInfo.length() - 1, fullInfo.length());
             }
+
+            dictPref.setTitle("Detected external dictionaries");
+            dictPref.setSummary(fullInfo);
         }
+
+
 
         private String inputTypeDesc(int type) {
             int mask = type & android.text.InputType.TYPE_MASK_CLASS;
