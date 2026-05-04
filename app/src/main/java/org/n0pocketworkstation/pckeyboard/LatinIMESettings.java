@@ -329,10 +329,14 @@ public class LatinIMESettings extends AppCompatActivity {
                             label = "English (AnySoftKeyboard)";
                         }
 
-                        int dictSize = PluginManager.getDictionarySizeByPackage(requireContext(), pkg);
+                        // dictSize actually returns file size in bytes from BinaryDictionary.getSize()
+                        int bytes = PluginManager.getDictionarySizeByPackage(requireContext(), pkg);
+                        String sizeStr;
+                        if (bytes >= 1024) sizeStr = (bytes / 1024) + " KB";
+                        else sizeStr = bytes + " B";
                         
                         start = fullInfo.length();
-                        fullInfo.append("• ").append(label).append(" (").append(String.valueOf(dictSize)).append(" words) [").append(pkg).append("]\n");
+                        fullInfo.append("• ").append(label).append(" (").append(sizeStr).append(") [").append(pkg).append("]\n");
                         
                         if (pkg.equals(activePkg)) {
                             fullInfo.setSpan(new ForegroundColorSpan(0xFF00FF00), start, fullInfo.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
