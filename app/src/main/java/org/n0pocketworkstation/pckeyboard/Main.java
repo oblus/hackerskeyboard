@@ -62,14 +62,12 @@ public class Main extends AppCompatActivity {
         
         // For now, let's assume it might be in assets or we fall back to R.string.main_body
         StringBuilder sb = new StringBuilder();
-        try {
-            InputStream is = getAssets().open("README.md");
-            BufferedReader br = new BufferedReader(new java.io.InputStreamReader(is));
+        try (InputStream is = getAssets().open("README.md");
+             BufferedReader br = new BufferedReader(new java.io.InputStreamReader(is, "UTF-8"))) {
             String line;
             while ((line = br.readLine()) != null) {
                 sb.append(line).append("\n");
             }
-            br.close();
             return sb.toString();
         } catch (IOException e) {
             return null;
@@ -171,7 +169,7 @@ public class Main extends AppCompatActivity {
                 if (testFieldsContainer.getVisibility() == View.VISIBLE) {
                     testFieldsContainer.setVisibility(View.GONE);
                     testFieldsArrow.setRotation(0);
-                    testFieldsClear.setVisibility(View.GONE);
+                    testFieldsClear.setVisibility(View.INVISIBLE);
                 } else {
                     testFieldsContainer.setVisibility(View.VISIBLE);
                     testFieldsArrow.setRotation(180);
@@ -248,8 +246,23 @@ public class Main extends AppCompatActivity {
             {"中文 (繁體)", "zh_TW"}
         };
 
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        String currentLang = sp.getString("pref_ui_language", "");
+        // HEX Color: #FF33B5E5 (Holo Blue)
+        int blueColor = 0xFF33B5E5;
+
         for (int i = 0; i < languages.length; i++) {
-            popup.getMenu().add(0, i, i, languages[i][0]);
+            CharSequence title = languages[i][0];
+            if (languages[i][1].equals(currentLang)) {
+                android.text.SpannableString s = new android.text.SpannableString(title);
+                s.setSpan(new android.text.style.ForegroundColorSpan(blueColor), 0, s.length(), 0);
+                title = s;
+            }
+            MenuItem item = popup.getMenu().add(0, i, i, title);
+            item.setCheckable(true);
+            if (languages[i][1].equals(currentLang)) {
+                item.setChecked(true);
+            }
         }
 
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {

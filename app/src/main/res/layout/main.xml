@@ -111,12 +111,14 @@
                 android:id="@+id/test_fields_clear"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:minHeight="40dp"
+                android:gravity="center_vertical"
                 android:focusable="true"
                 android:clickable="true"
                 android:padding="8dp"
                 android:text="@string/main_test_fields_clear"
-                android:textColor="#FF4081"
-                android:visibility="gone" />
+                android:textColor="#FF33B5E5"
+                android:visibility="invisible" />
         </LinearLayout>
 
         <LinearLayout
