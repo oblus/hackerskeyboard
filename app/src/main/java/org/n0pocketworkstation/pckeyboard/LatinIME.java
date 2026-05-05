@@ -638,6 +638,10 @@ public class LatinIME extends InputMethodService implements
         
         conf.setLocale(locale);
         
+        // CRITICAL: Update global resources configuration BEFORE creating dictionaries
+        // so that openRawResourceFd finds the correct localized version.
+        res.updateConfiguration(conf, res.getDisplayMetrics());
+
         // Use a localized context just for resource lookup to avoid deprecation
         Context localizedContext = createConfigurationContext(conf);
         Resources localizedRes = localizedContext.getResources();
@@ -654,10 +658,6 @@ public class LatinIME extends InputMethodService implements
         // to resolve their own resources/providers.
         mSuggest = new Suggest(this, dictionaries);
         
-        // Also update the global resources for any legacy code that doesn't use the localized one
-        // (This helps with external dictionaries while we transition)
-        res.updateConfiguration(conf, res.getDisplayMetrics());
-
         Locale systemLocale = ConfigurationCompat.getLocales(getResources().getConfiguration()).get(0);
         if (systemLocale == null) {
             systemLocale = Locale.getDefault();
@@ -3330,6 +3330,10 @@ public class LatinIME extends InputMethodService implements
 
     private void setNextSuggestions() {
         setSuggestions(mSuggestPuncList, false, false, false);
+        //int[] sources = new int[mSuggestPuncList.size()];
+        // Fill sources with 0 (DIC_USER_TYPED) to ensure they fall into the 'Orange' category
+        //java.util.Arrays.fill(sources, Suggest.DIC_USER_TYPED);
+        //setSuggestions(mSuggestPuncList, false, false, false, sources);
     }
 
     private void addToDictionaries(CharSequence suggestion, int frequencyDelta) {
@@ -3460,7 +3464,9 @@ public class LatinIME extends InputMethodService implements
         }
         int currentKeyboardMode = mKeyboardSwitcher.getKeyboardMode();
         reloadKeyboards();
-        mKeyboardSwitcher.makeKeyboards(true);
+        if (isInputViewShown()) {
+            mKeyboardSwitcher.makeKeyboards(true);
+        }
         EditorInfo ei = getCurrentInputEditorInfo();
         mKeyboardSwitcher.setKeyboardMode(currentKeyboardMode, (ei != null) ? ei.imeOptions : 0,
                 mEnableVoiceButton && mEnableVoice);
@@ -3473,7 +3479,9 @@ public class LatinIME extends InputMethodService implements
         } else {
             updateShiftKeyState(getCurrentInputEditorInfo());
         }
-        setCandidatesViewShown(isPredictionOn());
+        if (isInputViewShown()) {
+            setCandidatesViewShown(isPredictionOn());
+        }
     }
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
@@ -3484,22 +3492,36 @@ public class LatinIME extends InputMethodService implements
         
         // Apply globally handled shared prefs
         sKeyboardSettings.sharedPreferenceChanged(sharedPreferences, key);
-        if (sKeyboardSettings.hasFlag(GlobalKeyboardSettings.FLAG_PREF_NEED_RELOAD)) {
+        boolean needReloadFlag = sKeyboardSettings.hasFlag(GlobalKeyboardSettings.FLAG_PREF_NEED_RELOAD);
+        boolean newPuncList = sKeyboardSettings.hasFlag(GlobalKeyboardSettings.FLAG_PREF_NEW_PUNC_LIST);
+        boolean recreateInputView = sKeyboardSettings.hasFlag(GlobalKeyboardSettings.FLAG_PREF_RECREATE_INPUT_VIEW);
+        boolean resetModeOverride = sKeyboardSettings.hasFlag(GlobalKeyboardSettings.FLAG_PREF_RESET_MODE_OVERRIDE);
+        boolean resetKeyboards = sKeyboardSettings.hasFlag(GlobalKeyboardSettings.FLAG_PREF_RESET_KEYBOARDS);
+
+        if (needReloadFlag) {
             needReload = true;
         }
-        if (sKeyboardSettings.hasFlag(GlobalKeyboardSettings.FLAG_PREF_NEW_PUNC_LIST)) {
+        if (newPuncList) {
             initSuggestPuncList();
         }
-        if (sKeyboardSettings.hasFlag(GlobalKeyboardSettings.FLAG_PREF_RECREATE_INPUT_VIEW)) {
-            mKeyboardSwitcher.recreateInputView();
+        
+        if (isInputViewShown()) {
+            if (recreateInputView) {
+                mKeyboardSwitcher.recreateInputView();
+            }
+            if (resetModeOverride) {
+                mKeyboardModeOverrideLandscape = 0;
+                mKeyboardModeOverridePortrait = 0;
+            }
+            if (resetKeyboards) {
+                toggleLanguage(true, true);
+            }
+        } else {
+            if (recreateInputView || resetModeOverride || resetKeyboards || needReloadFlag) {
+                mRefreshKeyboardRequired = true;
+            }
         }
-        if (sKeyboardSettings.hasFlag(GlobalKeyboardSettings.FLAG_PREF_RESET_MODE_OVERRIDE)) {
-            mKeyboardModeOverrideLandscape = 0;
-            mKeyboardModeOverridePortrait = 0;
-        }
-        if (sKeyboardSettings.hasFlag(GlobalKeyboardSettings.FLAG_PREF_RESET_KEYBOARDS)) {
-            toggleLanguage(true, true);
-        }
+
         int unhandledFlags = sKeyboardSettings.unhandledFlags();
         if (unhandledFlags != GlobalKeyboardSettings.FLAG_PREF_NONE) {
             Log.w(TAG, "Not all flag settings handled, remaining=" + unhandledFlags);
@@ -3594,7 +3616,11 @@ public class LatinIME extends InputMethodService implements
 
         updateKeyboardOptions();
         if (needReload) {
-            mKeyboardSwitcher.makeKeyboards(true);
+            if (!isInputViewShown()) {
+                mRefreshKeyboardRequired = true;
+            } else {
+                mKeyboardSwitcher.makeKeyboards(true);
+            }
         }
     }
 

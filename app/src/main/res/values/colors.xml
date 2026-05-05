@@ -22,8 +22,9 @@
 -->
 <resources>
     <color name="candidate_normal">#FFFFFFFF</color>
-    <color name="candidate_recommended">#FFFCAE00</color>
-    <color name="candidate_other">#FFFCAE00</color>
+    <color name="candidate_auto">#FFE619</color> <!-- Yellow for AutoDictionary -->
+    <color name="candidate_recommended">#FF33B5E5</color> <!-- Blue for APK/Main dictionaries -->
+    <color name="candidate_other">#FFFCAE00</color> <!-- Orange for others -->
     <color name="latinkeyboard_transparent">#00000000</color>
     <color name="latinkeyboard_bar_language_shadow_white">#80000000</color>
     <color name="latinkeyboard_bar_language_shadow_black">#80FFFFFF</color>

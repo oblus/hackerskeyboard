@@ -76,7 +76,9 @@ public class CandidateView extends View {
     
     private final int mColorNormal;
     private final int mColorRecommended;
+    private final int mColorAuto;
     private final int mColorOther;
+    private final int mColorHoloBlue;
     private final Paint mPaint;
     private final int mDescent;
     private boolean mScrolled;
@@ -117,7 +119,9 @@ public class CandidateView extends View {
         mPreviewPopup.setClippingEnabled(clippingEnabled);
         mColorNormal = ContextCompat.getColor(context, R.color.candidate_normal);
         mColorRecommended = ContextCompat.getColor(context, R.color.candidate_recommended);
+        mColorAuto = ContextCompat.getColor(context, R.color.candidate_auto);
         mColorOther = ContextCompat.getColor(context, R.color.candidate_other);
+        mColorHoloBlue = 0xFF33B5E5; // Holo Blue Light
         mDivider = ContextCompat.getDrawable(context, R.drawable.keyboard_suggest_strip_divider);
         mAddToDictionaryHint = res.getString(R.string.hint_add_to_dictionary);
 
@@ -243,24 +247,34 @@ public class CandidateView extends View {
             CharSequence suggestion = mSuggestions.get(i);
             if (suggestion == null) continue;
             final int wordLength = suggestion.length();
+            
+            // Check if it's punctuation: single char, not letter or digit
+            boolean isPunctuation = wordLength == 1 && !Character.isLetterOrDigit(suggestion.charAt(0));
 
-            paint.setColor(mColorNormal);
             int source = mWordSource[i];
-            if (mHaveMinimalSuggestion 
-                    && ((i == 1 && !typedWordValid) || (i == 0 && typedWordValid))) {
-                paint.setTypeface(Typeface.DEFAULT_BOLD);
-                if (source == Suggest.DIC_MAIN || source == Suggest.DIC_CONTACTS) {
-                    paint.setColor(0xFF28ABB7); // Blue-ish for main dict
-                } else if (source == Suggest.DIC_AUTO || source == Suggest.DIC_USER) {
-                    paint.setColor(0xFFFFE619); // Yellow-ish for learned words
+            boolean isAutoCompletion = mHaveMinimalSuggestion
+                    && ((i == 1 && !typedWordValid) || (i == 0 && typedWordValid));
+
+            if (isPunctuation) {
+                paint.setColor(mColorOther); // Orange: Punctuation
+            } else if (!typedWordValid && i == 0) {
+                paint.setColor(mColorNormal); // White: not in dictionary
+            } else if ((!typedWordValid && i == 1) || (typedWordValid && i == 0)) {
+                // The main suggestion (Yellow if AutoDictionary, otherwise Blue)
+                if (source == Suggest.DIC_AUTO) {
+                    paint.setColor(mColorAuto); // Yellow: AutoDictionary
                 } else {
-                    paint.setColor(mColorRecommended);
+                    paint.setColor(mColorRecommended); // Blue: APK/Main dictionaries
                 }
+            } else {
+                paint.setColor(mColorOther); // Orange: rest (other/subsequent)
+            }
+
+            if (isAutoCompletion) {
+                paint.setTypeface(Typeface.DEFAULT_BOLD);
                 existsAutoCompletion = true;
-            } else if (i != 0 || (wordLength == 1 && count > 1)) {
-                // HACK: even if i == 0, we use mColorOther when this suggestion's length is 1 and
-                // there are multiple suggestions, such as the default punctuation list.
-                paint.setColor(mColorOther);
+            } else {
+                paint.setTypeface(Typeface.DEFAULT);
             }
             int wordWidth;
             if ((wordWidth = mWordWidth[i]) == 0) {
@@ -285,7 +299,7 @@ public class CandidateView extends View {
 
             if (canvas != null) {
                 canvas.drawText(suggestion, 0, wordLength, x + wordWidth / 2, y, paint);
-                paint.setColor(mColorOther);
+                paint.setTypeface(Typeface.DEFAULT);
                 canvas.translate(x + wordWidth, 0);
                 // Draw a divider unless it's after the hint
                 if (!(mShowingAddToDictionary && i == 1)) {
@@ -293,7 +307,6 @@ public class CandidateView extends View {
                 }
                 canvas.translate(-x - wordWidth, 0);
             }
-            paint.setTypeface(Typeface.DEFAULT);
             x += wordWidth;
         }
         if (!isInEditMode())

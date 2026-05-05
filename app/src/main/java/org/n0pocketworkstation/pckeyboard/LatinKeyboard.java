@@ -83,6 +83,7 @@ public class LatinKeyboard extends Keyboard {
     private final boolean mIsAlphaFullKeyboard;
     private final boolean mIsFnFullKeyboard;
     private CharSequence m123Label;
+    private CharSequence mAlphabetLabel;
     private boolean mCurrentlyInSpace;
     private SlidingLocaleDrawable mSlidingLocaleIcon;
     private int[] mPrefLetterFrequencies;
@@ -240,6 +241,15 @@ public class LatinKeyboard extends Keyboard {
             m123Key = key;
             m123Label = key.label;
             break;
+        case KEYCODE_SHIFT:
+            if (mIsAlphaKeyboard) {
+                mAlphabetLabel = key.label;
+            } else if (key.label != null && key.label.length() < 4) {
+                // Heuristic: Symbols keyboard "ABC" label is usually short.
+                // Avoid using "Shift" or other long labels from full layouts.
+                mAlphabetLabel = key.label;
+            }
+            break;
         }
 
         return key;
@@ -363,6 +373,11 @@ public class LatinKeyboard extends Keyboard {
                 m123Key.iconPreview = null;
                 m123Key.label = m123Label;
             }
+        } else if (m123Key != null && !mIsAlphaKeyboard) {
+            // Ensure 123 key label is reset on non-alpha keyboards (Bug 3)
+            m123Key.label = mAlphabetLabel;
+            m123Key.popupCharacters = null;
+            m123Key.popupResId = 0;
         }
     }
 
