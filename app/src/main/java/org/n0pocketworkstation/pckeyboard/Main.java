@@ -44,6 +44,11 @@ import androidx.preference.PreferenceManager;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.TextView.BufferType;
+import android.text.Html;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.content.ClipboardManager;
+import android.content.ClipData;
 import java.io.InputStream;
 
 import java.io.BufferedReader;
@@ -84,8 +89,8 @@ public class Main extends AppCompatActivity {
     }
 
     private void updateInputConnectionInfo() {
-        TextView packageText = (TextView) findViewById(R.id.main_input_package_name);
-        TextView typeText = (TextView) findViewById(R.id.main_input_type);
+        TextView packageText = findViewById(R.id.main_input_package_name);
+        TextView typeText = findViewById(R.id.main_input_type);
         
         if (packageText == null || typeText == null) return;
 
@@ -174,34 +179,86 @@ public class Main extends AppCompatActivity {
         String readmeContent = readReadme();
         String html;
         if (readmeContent != null && !readmeContent.trim().isEmpty()) {
-            // Very basic Markdown to HTML conversion for display
-            html = readmeContent.replace("\n", "<br/>");
-            // Highlight headers
-            html = html.replaceAll("(?m)^# (.*)$", "<h1>$1</h1>");
-            html = html.replaceAll("(?m)^## (.*)$", "<h2>$1</h2>");
-            // Bold
-            html = html.replaceAll("\\*\\*(.*?)\\*\\*", "<b>$1</b>");
-            // Links
-            html = html.replaceAll("\\[(.*?)\\]\\((.*?)\\)", "<a href='$2'>$1</a>");
+            String htmlContent = readmeContent;
+            String syntaxColor = "#808080"; // Gray for Markdown symbols
+            String headerColor = "#D19A66"; // Peach/Orange for hashes (AS style)
+
+            // 1. Headers (Color symbols and text in AS-style)
+            htmlContent = htmlContent.replaceAll("(?m)^### (.*?) ?(###)?$", "<font color='" + headerColor + "'>### <b>$1</b> $2</font>");
+            htmlContent = htmlContent.replaceAll("(?m)^## (.*?) ?(##)?$", "<font color='" + headerColor + "'>## <b>$1</b> $2</font>");
+            htmlContent = htmlContent.replaceAll("(?m)^# (.*?) ?(#)?$", "<font color='" + headerColor + "'># <b>$1</b> $2</font>");
+
+            // 2. Bullet points
+            htmlContent = htmlContent.replaceAll("(?m)^([ \t]*)- (.*)$", "$1<font color='" + syntaxColor + "'>-</font> $2");
+
+            // 3. Bold and Italic (Keep symbols)
+            htmlContent = htmlContent.replaceAll("\\*\\*\\*(.*?)\\*\\*\\*", "<font color='" + syntaxColor + "'>***</font><b><i>$1</i></b><font color='" + syntaxColor + "'>***</font>");
+            htmlContent = htmlContent.replaceAll("\\*\\*(.*?)\\*\\*", "<font color='" + syntaxColor + "'>**</font><b>$1</b><font color='" + syntaxColor + "'>**</font>");
+            htmlContent = htmlContent.replaceAll("(?<!\\*)\\*(?!\\*)(.*?)(?<!\\*)\\*(?!\\*)", "<font color='" + syntaxColor + "'>*</font><i>$1</i><font color='" + syntaxColor + "'>*</font>");
+
+            // 4. Inline Code
+            htmlContent = htmlContent.replaceAll("`(.*?)`", "<font color='#A9B7C6' face='monospace'>$1</font>");
+
+            // 5. Images (Convert Markdown image syntax to HTML img tag)
+            // Process images BEFORE links so the link regex doesn't eat the image syntax
+            // Use double quotes and ensure we don't match links
+            htmlContent = htmlContent.replaceAll("!\\[(.*?)\\]\\((.*?)\\)", "<br/><img src=\"$2\" alt=\"$1\"/><br/>");
+
+            // 6. Links (Hide URL, show blue text in gray brackets)
+            // Use negative lookbehind to avoid matching image syntax if it somehow survived
+            htmlContent = htmlContent.replaceAll("(?<!\\!)\\[(.*?)\\]\\((.*?)\\)",
+                    "<font color='" + syntaxColor + "'>[</font><a href=\"$2\">$1</a><font color='" + syntaxColor + "'>]</font>");
+
+            // 7. Line breaks
+            html = htmlContent.replace("\n", "<br/>");
         } else {
             html = getString(R.string.main_body);
         }
 
         html += "<p><i>Version: " + BuildConfig.VERSION_NAME + " (" + BuildConfig.VERSION_CODE + ")</i></p>";
-        Spanned content = HtmlCompat.fromHtml(html, HtmlCompat.FROM_HTML_MODE_LEGACY);
-        TextView description = (TextView) findViewById(R.id.main_description);
+        
+        // Use ImageGetter to load images from assets
+        Spanned content = HtmlCompat.fromHtml(html, HtmlCompat.FROM_HTML_MODE_LEGACY, new Html.ImageGetter() {
+            @Override
+            public Drawable getDrawable(String source) {
+                if (source == null) return null;
+                try {
+                    InputStream is = getAssets().open(source);
+                    Drawable d = Drawable.createFromStream(is, source);
+                    if (d != null) {
+                        int intrinsicWidth = d.getIntrinsicWidth();
+                        int intrinsicHeight = d.getIntrinsicHeight();
+                        if (intrinsicWidth <= 0) intrinsicWidth = 500;
+                        if (intrinsicHeight <= 0) intrinsicHeight = 300;
+
+                        // Scale image to fit width while maintaining aspect ratio
+                        int screenWidth = getResources().getDisplayMetrics().widthPixels - 100; // padding
+                        double ratio = (double) intrinsicWidth / (double) intrinsicHeight;
+                        int width = screenWidth; // Force stretch to screen width as requested
+                        int height = (int) (width / ratio);
+                        d.setBounds(0, 0, width, height);
+                    }
+                    return d;
+                } catch (java.io.IOException e) {
+                    return null;
+                }
+            }
+        }, null);
+        
+        TextView description = findViewById(R.id.main_description);
+        description.setLinkTextColor(Color.parseColor("#58a6ff"));
         description.setMovementMethod(LinkMovementMethod.getInstance());
         description.setText(content, BufferType.SPANNABLE);
 
 
-        final Button setup1 = (Button) findViewById(R.id.main_setup_btn_configure_imes);
+        final Button setup1 = findViewById(R.id.main_setup_btn_configure_imes);
         setup1.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 startActivity(new Intent(android.provider.Settings.ACTION_INPUT_METHOD_SETTINGS));
             }
         });
 
-        final Button setup2 = (Button) findViewById(R.id.main_setup_btn_set_ime);
+        final Button setup2 = findViewById(R.id.main_setup_btn_set_ime);
         setup2.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 InputMethodManager mgr = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
@@ -211,14 +268,14 @@ public class Main extends AppCompatActivity {
         
         final Activity that = this;
 
-        final Button setup4 = (Button) findViewById(R.id.main_setup_btn_input_lang);
+        final Button setup4 = findViewById(R.id.main_setup_btn_input_lang);
         setup4.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 startActivity(new Intent(that, InputLanguageSelection.class));
             }
         });
 
-        final Button setup3 = (Button) findViewById(R.id.main_setup_btn_get_dicts);
+        final Button setup3 = findViewById(R.id.main_setup_btn_get_dicts);
         setup3.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 Intent it = new Intent(Intent.ACTION_VIEW, Uri.parse(MARKET_URI));
@@ -234,14 +291,14 @@ public class Main extends AppCompatActivity {
         });
         // PluginManager.getPluginDictionaries(getApplicationContext()); // why?
 
-        final Button setup5 = (Button) findViewById(R.id.main_setup_btn_settings);
+        final Button setup5 = findViewById(R.id.main_setup_btn_settings);
         setup5.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 startActivity(new Intent(that, LatinIMESettings.class));
             }
         });
 
-        final Button uiLangBtn = (Button) findViewById(R.id.main_setup_btn_ui_language);
+        final Button uiLangBtn = findViewById(R.id.main_setup_btn_ui_language);
         uiLangBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -253,6 +310,27 @@ public class Main extends AppCompatActivity {
         final View testFieldsContainer = findViewById(R.id.test_fields_container);
         final View testFieldsArrow = findViewById(R.id.test_fields_arrow);
         final View testFieldsClear = findViewById(R.id.test_fields_clear);
+        final View copyBtn = findViewById(R.id.main_input_copy);
+        if (copyBtn != null) {
+            copyBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    TextView pkgTv = findViewById(R.id.main_input_package_name);
+                    TextView typeTv = findViewById(R.id.main_input_type);
+                    
+                    if (pkgTv == null || typeTv == null) return;
+
+                    String data = "Package: " + pkgTv.getText() + "\nInput Type: " + typeTv.getText();
+                    
+                    ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                    ClipData clip = ClipData.newPlainText("InputConnectionDetails", data);
+                    if (clipboard != null) {
+                        clipboard.setPrimaryClip(clip);
+                        Toast.makeText(Main.this, "Copied to clipboard", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
 
         testFieldsToggle.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -272,19 +350,29 @@ public class Main extends AppCompatActivity {
         testFieldsClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // Focus the toggle header to keep the ScrollView anchored here and prevent jumping
+                testFieldsToggle.requestFocus();
+
                 if (testFieldsContainer instanceof ViewGroup) {
                     ViewGroup container = (ViewGroup) testFieldsContainer;
+                    // Briefly hide the container to prevent multiple layout passes and jumps during mass clearing
+                    container.setVisibility(View.INVISIBLE);
                     for (int i = 0; i < container.getChildCount(); i++) {
                         View child = container.getChildAt(i);
                         if (child instanceof EditText) {
                             ((EditText) child).setText("");
-                            ((EditText) child).clearFocus();
                         }
                     }
-                    // Request focus on the container or a neutral view to avoid jumping
-                    testFieldsContainer.requestFocus();
+                    container.setVisibility(View.VISIBLE);
                 }
-                updateInputConnectionInfo();
+                
+                // Small delay to allow the keyboard/UI to settle before updating connection info
+                v.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateInputConnectionInfo();
+                    }
+                }, 100);
             }
         });
         

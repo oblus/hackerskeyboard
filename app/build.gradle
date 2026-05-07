@@ -40,7 +40,21 @@ android {
         buildConfig = true
     }   //noinspection debug option - to remove 16.04.2026 22:21 //
     tasks.withType(JavaCompile).configureEach {options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"}
- }
+}
+
+tasks.register('copyReadme', Copy) {
+    from "../README.md"
+    into "src/main/assets"
+}
+
+project.afterEvaluate {
+    if (tasks.findByName("generateDebugAssets")) {
+        tasks.named("generateDebugAssets").configure { dependsOn copyReadme }
+    }
+    if (tasks.findByName("generateReleaseAssets")) {
+        tasks.named("generateReleaseAssets").configure { dependsOn copyReadme }
+    }
+}
 
 dependencies {
     implementation libs.kotlin.stdlib
