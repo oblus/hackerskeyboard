@@ -23,6 +23,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.core.text.HtmlCompat;
+import android.text.InputType;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
@@ -35,7 +36,9 @@ import android.widget.PopupMenu;
 import android.view.MenuItem;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import java.util.ArrayList;
 import java.util.Locale;
+import java.util.List;
 import android.content.SharedPreferences;
 import androidx.preference.PreferenceManager;
 import android.widget.TextView;
@@ -72,6 +75,94 @@ public class Main extends AppCompatActivity {
         } catch (IOException e) {
             return null;
         }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updateInputConnectionInfo();
+    }
+
+    private void updateInputConnectionInfo() {
+        TextView packageText = (TextView) findViewById(R.id.main_input_package_name);
+        TextView typeText = (TextView) findViewById(R.id.main_input_type);
+        
+        if (packageText == null || typeText == null) return;
+
+        String pkg = LatinIME.sKeyboardSettings.editorPackageName;
+        int inputType = LatinIME.sKeyboardSettings.editorInputType;
+
+        if (pkg == null || pkg.isEmpty()) {
+            packageText.setText("[No active connection]");
+        } else {
+            packageText.setText("[" + pkg + "]");
+        }
+        
+        typeText.setText(getTechnicalInputType(inputType));
+    }
+
+    private String getTechnicalInputType(int type) {
+        if (type == InputType.TYPE_NULL) return "TYPE_NULL";
+        
+        List<String> flags = new ArrayList<>();
+        int cls = type & InputType.TYPE_MASK_CLASS;
+        int variation = type & InputType.TYPE_MASK_VARIATION;
+        int flagsMask = type & InputType.TYPE_MASK_FLAGS;
+
+        if (cls == InputType.TYPE_CLASS_TEXT) {
+            flags.add("TYPE_CLASS_TEXT");
+            switch (variation) {
+                case InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS: flags.add("TYPE_TEXT_VARIATION_EMAIL_ADDRESS"); break;
+                case InputType.TYPE_TEXT_VARIATION_EMAIL_SUBJECT: flags.add("TYPE_TEXT_VARIATION_EMAIL_SUBJECT"); break;
+                case InputType.TYPE_TEXT_VARIATION_FILTER: flags.add("TYPE_TEXT_VARIATION_FILTER"); break;
+                case InputType.TYPE_TEXT_VARIATION_LONG_MESSAGE: flags.add("TYPE_TEXT_VARIATION_LONG_MESSAGE"); break;
+                case InputType.TYPE_TEXT_VARIATION_NORMAL: flags.add("TYPE_TEXT_VARIATION_NORMAL"); break;
+                case InputType.TYPE_TEXT_VARIATION_PASSWORD: flags.add("TYPE_TEXT_VARIATION_PASSWORD"); break;
+                case InputType.TYPE_TEXT_VARIATION_PERSON_NAME: flags.add("TYPE_TEXT_VARIATION_PERSON_NAME"); break;
+                case InputType.TYPE_TEXT_VARIATION_PHONETIC: flags.add("TYPE_TEXT_VARIATION_PHONETIC"); break;
+                case InputType.TYPE_TEXT_VARIATION_POSTAL_ADDRESS: flags.add("TYPE_TEXT_VARIATION_POSTAL_ADDRESS"); break;
+                case InputType.TYPE_TEXT_VARIATION_SHORT_MESSAGE: flags.add("TYPE_TEXT_VARIATION_SHORT_MESSAGE"); break;
+                case InputType.TYPE_TEXT_VARIATION_URI: flags.add("TYPE_TEXT_VARIATION_URI"); break;
+                case InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD: flags.add("TYPE_TEXT_VARIATION_VISIBLE_PASSWORD"); break;
+                case InputType.TYPE_TEXT_VARIATION_WEB_EDIT_TEXT: flags.add("TYPE_TEXT_VARIATION_WEB_EDIT_TEXT"); break;
+                case InputType.TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS: flags.add("TYPE_TEXT_VARIATION_WEB_EMAIL_ADDRESS"); break;
+                case InputType.TYPE_TEXT_VARIATION_WEB_PASSWORD: flags.add("TYPE_TEXT_VARIATION_WEB_PASSWORD"); break;
+            }
+            if ((flagsMask & InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE) != 0) flags.add("TYPE_TEXT_FLAG_AUTO_COMPLETE");
+            if ((flagsMask & InputType.TYPE_TEXT_FLAG_AUTO_CORRECT) != 0) flags.add("TYPE_TEXT_FLAG_AUTO_CORRECT");
+            if ((flagsMask & InputType.TYPE_TEXT_FLAG_CAP_CHARACTERS) != 0) flags.add("TYPE_TEXT_FLAG_CAP_CHARACTERS");
+            if ((flagsMask & InputType.TYPE_TEXT_FLAG_CAP_SENTENCES) != 0) flags.add("TYPE_TEXT_FLAG_CAP_SENTENCES");
+            if ((flagsMask & InputType.TYPE_TEXT_FLAG_CAP_WORDS) != 0) flags.add("TYPE_TEXT_FLAG_CAP_WORDS");
+            if ((flagsMask & InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE) != 0) flags.add("TYPE_TEXT_FLAG_IME_MULTI_LINE");
+            if ((flagsMask & InputType.TYPE_TEXT_FLAG_MULTI_LINE) != 0) flags.add("TYPE_TEXT_FLAG_MULTI_LINE");
+            if ((flagsMask & InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS) != 0) flags.add("TYPE_TEXT_FLAG_NO_SUGGESTIONS");
+        } else if (cls == InputType.TYPE_CLASS_NUMBER) {
+            flags.add("TYPE_CLASS_NUMBER");
+            switch (variation) {
+                case InputType.TYPE_NUMBER_VARIATION_NORMAL: flags.add("TYPE_NUMBER_VARIATION_NORMAL"); break;
+                case InputType.TYPE_NUMBER_VARIATION_PASSWORD: flags.add("TYPE_NUMBER_VARIATION_PASSWORD"); break;
+            }
+            if ((flagsMask & InputType.TYPE_NUMBER_FLAG_DECIMAL) != 0) flags.add("TYPE_NUMBER_FLAG_DECIMAL");
+            if ((flagsMask & InputType.TYPE_NUMBER_FLAG_SIGNED) != 0) flags.add("TYPE_NUMBER_FLAG_SIGNED");
+        } else if (cls == InputType.TYPE_CLASS_PHONE) {
+            flags.add("TYPE_CLASS_PHONE");
+        } else if (cls == InputType.TYPE_CLASS_DATETIME) {
+            flags.add("TYPE_CLASS_DATETIME");
+            switch (variation) {
+                case InputType.TYPE_DATETIME_VARIATION_NORMAL: flags.add("TYPE_DATETIME_VARIATION_NORMAL"); break;
+                case InputType.TYPE_DATETIME_VARIATION_DATE: flags.add("TYPE_DATETIME_VARIATION_DATE"); break;
+                case InputType.TYPE_DATETIME_VARIATION_TIME: flags.add("TYPE_DATETIME_VARIATION_TIME"); break;
+            }
+        }
+
+        if (flags.isEmpty()) return "0x" + Integer.toHexString(type);
+        
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < flags.size(); i++) {
+            if (i > 0) sb.append(" | ");
+            sb.append(flags.get(i));
+        }
+        return sb.toString();
     }
 
     @Override
@@ -193,8 +284,33 @@ public class Main extends AppCompatActivity {
                     // Request focus on the container or a neutral view to avoid jumping
                     testFieldsContainer.requestFocus();
                 }
+                updateInputConnectionInfo();
             }
         });
+        
+        // Add listeners to test fields to update info when they get focus
+        if (testFieldsContainer instanceof ViewGroup) {
+            ViewGroup container = (ViewGroup) testFieldsContainer;
+            for (int i = 0; i < container.getChildCount(); i++) {
+                View child = container.getChildAt(i);
+                if (child instanceof EditText) {
+                    child.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                        @Override
+                        public void onFocusChange(View v, boolean hasFocus) {
+                            if (hasFocus) {
+                                // Small delay to allow LatinIME to update sKeyboardSettings
+                                v.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        updateInputConnectionInfo();
+                                    }
+                                }, 200);
+                            }
+                        }
+                    });
+                }
+            }
+        }
     }
 
     private void showLanguageMenu(View v) {

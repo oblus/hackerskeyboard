@@ -382,6 +382,7 @@ public class CandidateView extends View {
 
     public boolean dismissAddToDictionaryHint() {
         if (!mShowingAddToDictionary) return false;
+        mShowingAddToDictionary = false; // Ensure flag is reset first
         clear();
         return true;
     }
@@ -445,14 +446,17 @@ public class CandidateView extends View {
             if (!mScrolled) {
                 if (mSelectedString != null) {
                     if (mShowingAddToDictionary) {
+                        // Tapping either the word (index 0) or the "Add to dictionary" hint (index 1)
+                        // will save the word.
                         longPressFirstWord();
                         clear();
                     } else {
-                        if (!mShowingCompletions) {
-                            //TextEntryState.acceptedSuggestion(mSuggestions.get(0), mSelectedString);
-                            //TextEntryState.manualTyped(mSelectedString);
-                        }
                         mService.pickSuggestionManually(mSelectedIndex, mSelectedString);
+                    }
+                } else {
+                    // Tap on empty space of candidate bar also dismisses the hint
+                    if (mShowingAddToDictionary) {
+                        dismissAddToDictionaryHint();
                     }
                 }
             }

@@ -206,6 +206,7 @@ public class LatinIME extends InputMethodService implements
     private boolean mPredictionOnPref;    
     private boolean mCompletionOn;
     private boolean mHasDictionary;
+    private boolean mIgnoreNextUpdateSelection;
     private boolean mAutoSpace;
     private boolean mJustAddedAutoSpace;
     private boolean mAutoCorrectEnabled;
@@ -275,6 +276,7 @@ public class LatinIME extends InputMethodService implements
     private CharSequence mJustRevertedSeparator;
     private int mDeleteCount;
     private long mLastKeyTime;
+    private long mLastSpaceTime;
 
     // Modifier keys state
     private ModifierKeyState mShiftKeyState = new ModifierKeyState();
@@ -1114,7 +1116,13 @@ public class LatinIME extends InputMethodService implements
         mEnableVoiceButton = shouldShowVoiceButton(attribute);
         final boolean enableVoiceButton = mEnableVoiceButton && mEnableVoice;
 
-        
+        // Dismiss "Touch again to save" hint if user touches text / starts new input
+        if (mCandidateView != null && mCandidateView.isShowingAddToDictionaryHint()) {
+            mCandidateView.dismissAddToDictionaryHint();
+            setCandidatesViewShown(isCandidateStripVisible());
+            postUpdateSuggestions();
+        }
+
         mInputTypeNoAutoCorrect = false;
         mPredictionOnForMode = false;
         mCompletionOn = false;
@@ -1313,6 +1321,23 @@ public class LatinIME extends InputMethodService implements
             int candidatesEnd) {
         super.onUpdateSelection(oldSelStart, oldSelEnd, newSelStart, newSelEnd,
                 candidatesStart, candidatesEnd);
+
+        // added to use for Dismiss "Touch again to save" hint if user touches text
+        if (mIgnoreNextUpdateSelection) {
+            mIgnoreNextUpdateSelection = false;
+            return;
+        }
+
+        // Dismiss "Touch again to save" hint if user touches text
+        if (mCandidateView != null && mCandidateView.isShowingAddToDictionaryHint()) {
+            mCandidateView.dismissAddToDictionaryHint();
+            mPredicting = false;
+            setNextSuggestions();
+            // Force a refresh
+            setCandidatesViewShown(isCandidateStripVisible());
+            // Notify UI
+            Log.i(TAG, "Hint dismissed via onUpdateSelection");
+        }
 
         // If the current selection in the text view changes, we should
         // clear whatever candidate text we have.
@@ -1852,9 +1877,18 @@ public class LatinIME extends InputMethodService implements
     }
 
     private void doubleSpace() {
-        // if (!mAutoPunctuate) return;
+        if (!mAutoPunctuate) return;
+        if (!mAutoCorrectEnabled) return;
         if (mCorrectionMode == Suggest.CORRECTION_NONE)
             return;
+
+        final long now = SystemClock.uptimeMillis();
+        // Only trigger if the second space was pressed quickly after something else.
+        // For a true "double-tap space", we would need to track the previous space time.
+        if (now - mLastSpaceTime > 500) { // 500ms threshold for "double-tap"
+            return;
+        }
+
         final InputConnection ic = getCurrentInputConnection();
         if (ic == null)
             return;
@@ -2396,6 +2430,16 @@ public class LatinIME extends InputMethodService implements
     // Implementation of KeyboardViewListener
 
     public void onKey(int primaryCode, int[] keyCodes, int x, int y) {
+        mIgnoreNextUpdateSelection = false;
+        // Always dismiss the "Touch again to save" message on any key press
+        if (mCandidateView != null && mCandidateView.dismissAddToDictionaryHint()) {
+            mPredicting = false;
+            setNextSuggestions();
+            // If we just dismissed the hint, we should NOT process this key as a word separator/space
+            // to avoid inserting unintended punctuation (like a dot).
+            return;
+        }
+
         long when = SystemClock.uptimeMillis();
         if (primaryCode != Keyboard.KEYCODE_SHIFT) { // Auto-capitalization - turn off by Shift when no need
             mShiftManualOverride = false;
@@ -2405,6 +2449,9 @@ public class LatinIME extends InputMethodService implements
             mDeleteCount = 0;
         }
         mLastKeyTime = when;
+        if (primaryCode == ASCII_SPACE) {
+            mLastSpaceTime = when; //when we will be ready to add doubleSpace() to HK
+        }
         final boolean distinctMultiTouch = mKeyboardSwitcher
                 .hasDistinctMultitouch();
         switch (primaryCode) {
@@ -2869,7 +2916,9 @@ public class LatinIME extends InputMethodService implements
                 commitTyped(ic, true);
             }
         }
-        if (mJustAddedAutoSpace && primaryCode == ASCII_ENTER) {
+        if (mAutoCorrectEnabled && mJustAddedAutoSpace && primaryCode == ASCII_ENTER) {
+            // Remove trailing space if we just added one and the user hits Enter.
+            // This is part of auto-correction behavior to avoid trailing spaces at end of lines.
             removeTrailingSpace();
             mJustAddedAutoSpace = false;
         }
@@ -2887,7 +2936,11 @@ public class LatinIME extends InputMethodService implements
                 && primaryCode != ASCII_ENTER) {
             swapPunctuationAndSpace();
         } else if (isPredictionOn() && primaryCode == ASCII_SPACE) {
-            doubleSpace();
+            // doubleSpace() is currently disabled because it triggers on any second space,
+            // not just fast double-taps. Even with the timing check, it can be intrusive.
+            // If you want to use double-tap space for period, you must first ensure
+            // the logic is solid and doesn't interfere with manual text editing.
+            // doubleSpace();
         }
         if (pickedDefault) {
             TextEntryState.backToAcceptedDefault(mWord.getTypedWord());
@@ -3122,7 +3175,7 @@ public class LatinIME extends InputMethodService implements
         if (mBestWord != null && mBestWord.length() > 0) {
             TextEntryState.acceptedDefault(mWord.getTypedWord(), mBestWord);
             mJustAccepted = true;
-            pickSuggestion(mBestWord, false);
+            pickSuggestion(mBestWord, false, true);
             // Add the word to the auto dictionary if it's not a known word
             addToDictionaries(mBestWord, AutoDictionary.FREQUENCY_FOR_TYPED);
             return true;
@@ -3169,42 +3222,46 @@ public class LatinIME extends InputMethodService implements
             }
             return;
         }
-        mJustAccepted = true;
-        pickSuggestion(suggestion, correcting);
-        // Add the word to the auto dictionary if it's not a known word
-        if (index == 0) {
-            addToDictionaries(suggestion, AutoDictionary.FREQUENCY_FOR_PICKED);
-        } else {
-            addToBigramDictionary(suggestion, 1);
-        }
-        TextEntryState.acceptedSuggestion(mComposing.toString(), suggestion);
-        // Follow it with a space
-        if (mAutoSpace && !correcting) {
-            sendSpace();
-            mJustAddedAutoSpace = true;
-        }
-
+        // Hint should be shown if it is not a known word.
         final boolean showingAddToDictionaryHint = index == 0
-                && mCorrectionMode > 0 && !mSuggest.isValidWord(suggestion)
+                && mSuggest != null
+                && !mSuggest.isValidWord(suggestion)
                 && !mSuggest.isValidWord(suggestion.toString().toLowerCase());
 
-        if (!correcting) {
-            // Fool the state watcher so that a subsequent backspace will not do
-            // a revert, unless
-            // we just did a correction, in which case we need to stay in
-            // TextEntryState.State.PICKED_SUGGESTION state.
-            TextEntryState.typedCharacter((char) ASCII_SPACE, true);
-            setNextSuggestions();
-        } else if (!showingAddToDictionaryHint) {
-            // If we're not showing the "Touch again to save", then show
-            // corrections again.
-            // In case the cursor position doesn't change, make sure we show the
-            // suggestions again.
-            clearSuggestions();
-            postUpdateOldSuggestions();
-        }
+        mJustAccepted = true;
+        mIgnoreNextUpdateSelection = showingAddToDictionaryHint;
+        pickSuggestion(suggestion, correcting, !showingAddToDictionaryHint);
+
         if (showingAddToDictionaryHint) {
             mCandidateView.showAddToDictionaryHint(suggestion);
+        } else {
+            if (index == 0) {
+                addToDictionaries(suggestion, AutoDictionary.FREQUENCY_FOR_PICKED);
+            } else {
+                addToBigramDictionary(suggestion, 1);
+            }
+            TextEntryState.acceptedSuggestion(mComposing.toString(), suggestion);
+            // Follow it with a space
+            if (mAutoSpace && !correcting) {
+                sendSpace();
+                mJustAddedAutoSpace = true;
+            }
+
+            if (!correcting) {
+                // Fool the state watcher so that a subsequent backspace will not do
+                // a revert, unless
+                // we just did a correction, in which case we need to stay in
+                // TextEntryState.State.PICKED_SUGGESTION state.
+                TextEntryState.typedCharacter((char) ASCII_SPACE, true);
+                setNextSuggestions();
+            } else {
+                // If we're not showing the "Touch again to save", then show
+                // corrections again.
+                // In case the cursor position doesn't change, make sure we show the
+                // suggestions again.
+                clearSuggestions();
+                postUpdateOldSuggestions();
+            }
         }
         if (ic != null) {
             ic.endBatchEdit();
@@ -3224,7 +3281,7 @@ public class LatinIME extends InputMethodService implements
      * @param correcting
      *            whether this is due to a correction of an existing word.
      */
-    private void pickSuggestion(CharSequence suggestion, boolean correcting) {
+    private void pickSuggestion(CharSequence suggestion, boolean correcting, boolean showNextSuggestions) {
         LatinKeyboardView inputView = mKeyboardSwitcher.getInputView();
         int shiftState = getShiftState();
         if (shiftState == Keyboard.SHIFT_LOCKED || shiftState == Keyboard.SHIFT_CAPS_LOCKED) {
@@ -3240,7 +3297,7 @@ public class LatinIME extends InputMethodService implements
         mCommittedLength = suggestion.length();
         ((LatinKeyboard) inputView.getKeyboard()).setPreferredLetters(null);
         // If we just corrected a word, then don't show punctuations
-        if (!correcting) {
+        if (!correcting && showNextSuggestions) {
             setNextSuggestions();
         }
         updateShiftKeyStateDelayed();

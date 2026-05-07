@@ -281,13 +281,23 @@
 
     <Preference app:iconSpaceReserved="false"
         android:key="pref_dictionaries_summary_list"
-        android:title="@string/title_detected_dictionaries"
+        android:title="Detected dictionaries"
         android:selectable="false" />
 
     <Preference app:iconSpaceReserved="false"
         android:key="pref_clear_auto_dict"
-        android:title="@string/title_clear_auto_dictionary"
+        android:title="Clear Learned Words (AutoDict)"
         android:summary="Delete all words learned from your typing (AutoDictionary)" />
+
+    <Preference app:iconSpaceReserved="false"
+        android:key="pref_clear_user_dict"
+        android:title="Clear Learned Words (UserDict)"
+        android:summary="Delete all words from the Android System User Dictionary" />
+
+    <Preference app:iconSpaceReserved="false"
+        android:key="pref_go_to_user_dict_settings"
+        android:title="Go to UserDictionary settings"
+        android:summary="Open Android system settings for personal dictionary" />
 
     <!-- SECTION 6: ADVANCED & INFO -->
     <PreferenceCategory app:iconSpaceReserved="false"
@@ -309,10 +319,6 @@
             android:defaultValue="false"
             android:summaryOn="@string/summary_touch_pos_true"
             android:summaryOff="@string/summary_touch_pos_false" />
-
-        <Preference app:iconSpaceReserved="false"
-            android:key="input_connection_info"
-            android:title="@string/title_input_connection_details" />
 
         <Preference app:iconSpaceReserved="false"
             android:key="export_settings"

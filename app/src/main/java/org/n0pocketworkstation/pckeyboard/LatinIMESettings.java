@@ -194,6 +194,39 @@ public class LatinIMESettings extends AppCompatActivity {
                         .setNegativeButton(android.R.string.cancel, null)
                         .show();
                 return true;
+            } else if ("pref_clear_user_dict".equals(preference.getKey())) {
+                new androidx.appcompat.app.AlertDialog.Builder(requireContext())
+                        .setTitle("Clear User Dictionary")
+                        .setMessage("This will delete ALL words from the Android System User Dictionary. Continue?")
+                        .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                            try {
+                                int deleted = requireContext().getContentResolver().delete(
+                                        android.provider.UserDictionary.Words.CONTENT_URI, null, null);
+                                android.widget.Toast.makeText(requireContext(), "Deleted " + deleted + " words from User Dictionary", android.widget.Toast.LENGTH_SHORT).show();
+                                updateDetectedDictionaries();
+                            } catch (Exception e) {
+                                Log.e(TAG, "Error clearing user dictionary", e);
+                            }
+                        })
+                        .setNegativeButton(android.R.string.cancel, null)
+                        .show();
+                return true;
+            } else if ("pref_go_to_user_dict_settings".equals(preference.getKey())) {
+                try {
+                    Intent intent = new Intent("android.settings.USER_DICTIONARY_SETTINGS");
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                } catch (Exception e) {
+                    try {
+                        // Fallback for some Android versions
+                        Intent intent = new Intent(android.provider.Settings.ACTION_INPUT_METHOD_SETTINGS);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                    } catch (Exception e2) {
+                        Log.e(TAG, "Could not open dictionary settings", e2);
+                    }
+                }
+                return true;
             }
             return super.onPreferenceTreeClick(preference);
         }
@@ -240,12 +273,6 @@ public class LatinIMESettings extends AppCompatActivity {
         }
 
         private void updateSummaries() {
-            Preference info = findPreference("input_connection_info");
-            if (info != null) {
-                info.setSummary(String.format("%s type=%s",
-                        LatinIME.sKeyboardSettings.editorPackageName,
-                        inputTypeDesc(LatinIME.sKeyboardSettings.editorInputType)));
-            }
             updateDetectedDictionaries();
             Preference voice = findPreference("voice_mode");
             if (voice instanceof androidx.preference.ListPreference) {
@@ -273,25 +300,7 @@ public class LatinIMESettings extends AppCompatActivity {
 
             SpannableStringBuilder fullInfo = new SpannableStringBuilder();
 
-            // 1. Android System User Dictionary
-            int userDictCount = 0;
-            try {
-                Cursor cursor = requireContext().getContentResolver().query(
-                        android.provider.UserDictionary.Words.CONTENT_URI,
-                        new String[] { "count(*)" }, null, null, null);
-                if (cursor != null) {
-                    if (cursor.moveToFirst()) userDictCount = cursor.getInt(0);
-                    cursor.close();
-                }
-            } catch (Exception e) {
-                Log.e(TAG, "Error counting user dictionary", e);
-            }
-            
-            int start = fullInfo.length();
-            fullInfo.append("• Android System User Dictionary (").append(String.valueOf(userDictCount)).append(" words)\n");
-            fullInfo.setSpan(new ForegroundColorSpan(0xFF00FF00), start, fullInfo.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-
-            // 2. Learned words (AutoDictionary)
+            // 1. Learned words (AutoDictionary)
             int autoDictCount = 0;
             SQLiteDatabase autoDb = null;
             try {
@@ -309,8 +318,28 @@ public class LatinIMESettings extends AppCompatActivity {
                 if (autoDb != null) autoDb.close();
             }
             
-            start = fullInfo.length();
+            int start = fullInfo.length();
             fullInfo.append("• Learned words (AutoDictionary) (").append(String.valueOf(autoDictCount)).append(" words)\n");
+            fullInfo.setSpan(new ForegroundColorSpan(0xFF00FF00), start, fullInfo.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+            // 2. Android System User Dictionary
+            int userDictCount = 0;
+            try {
+                // Querying with null projection and count(*) often fails on some Android versions, 
+                // so we query ID to be safe and get accurate count
+                Cursor cursor = requireContext().getContentResolver().query(
+                        android.provider.UserDictionary.Words.CONTENT_URI,
+                        new String[] { android.provider.UserDictionary.Words._ID }, null, null, null);
+                if (cursor != null) {
+                    userDictCount = cursor.getCount();
+                    cursor.close();
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Error counting user dictionary", e);
+            }
+            
+            start = fullInfo.length();
+            fullInfo.append("• Android System User Dictionary (").append(String.valueOf(userDictCount)).append(" words)\n");
             fullInfo.setSpan(new ForegroundColorSpan(0xFF00FF00), start, fullInfo.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
             // 3. APK Dictionaries
@@ -354,17 +383,6 @@ public class LatinIMESettings extends AppCompatActivity {
 
             dictPref.setTitle("Detected external dictionaries");
             dictPref.setSummary(fullInfo);
-        }
-
-
-
-        private String inputTypeDesc(int type) {
-            int mask = type & android.text.InputType.TYPE_MASK_CLASS;
-            if (mask == android.text.InputType.TYPE_CLASS_TEXT) return "text";
-            if (mask == android.text.InputType.TYPE_CLASS_NUMBER) return "number";
-            if (mask == android.text.InputType.TYPE_CLASS_PHONE) return "phone";
-            if (mask == android.text.InputType.TYPE_CLASS_DATETIME) return "datetime";
-            return "unknown";
         }
     }
 }
