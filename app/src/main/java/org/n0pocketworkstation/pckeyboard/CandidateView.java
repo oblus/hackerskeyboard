@@ -250,25 +250,39 @@ public class CandidateView extends View {
             
             // Check if it's punctuation: single char, not letter or digit
             boolean isPunctuation = wordLength == 1 && !Character.isLetterOrDigit(suggestion.charAt(0));
-
             int source = mWordSource[i];
-            boolean isAutoCompletion = mHaveMinimalSuggestion
-                    && ((i == 1 && !typedWordValid) || (i == 0 && typedWordValid));
-
-            if (isPunctuation) {
-                paint.setColor(mColorOther); // Orange: Punctuation
-            } else if (!typedWordValid && i == 0) {
-                paint.setColor(mColorNormal); // White: not in dictionary
-            } else if ((!typedWordValid && i == 1) || (typedWordValid && i == 0)) {
-                // The main suggestion (Yellow if AutoDictionary, otherwise Blue)
-                if (source == Suggest.DIC_AUTO) {
-                    paint.setColor(mColorAuto); // Yellow: AutoDictionary
+            
+            // Logic for 4-color candidate bar based on state and source
+            if (mShowingAddToDictionary || isPunctuation) {
+                paint.setColor(mColorOther); // Orange for "Add to dictionary" or punctuation
+            } else if (source == Suggest.DIC_AUTO || source == Suggest.DIC_USER) {
+                paint.setColor(mColorAuto);  // Yellow: Always for Learned/User dictionary
+            } else if (!typedWordValid) {
+                // STATE A: Word NOT in dictionary
+                if (i == 0) {
+                    paint.setColor(mColorNormal); // White: exactly what user typed
+                } else if (i == 1) {
+                    // Index 1 is the auto-correction candidate. 
+                    paint.setColor(mColorAuto);   // Yellow
+                } else if (i == 2) {
+                    paint.setColor(mColorRecommended); // Blue: main dictionary suggestion
                 } else {
-                    paint.setColor(mColorRecommended); // Blue: APK/Main dictionaries
+                    paint.setColor(mColorOther); // Orange: rest
                 }
             } else {
-                paint.setColor(mColorOther); // Orange: rest (other/subsequent)
+                // STATE B: Word IS in dictionary
+                if (i == 0) {
+                    // Valid word at index 0 is the active choice.
+                    paint.setColor(mColorAuto); // Yellow
+                } else if (i == 1) {
+                    paint.setColor(mColorRecommended); // Blue: next suggestion
+                } else {
+                    paint.setColor(mColorOther); // Orange: rest
+                }
             }
+
+            boolean isAutoCompletion = mHaveMinimalSuggestion
+                    && ((i == 1 && !typedWordValid) || (i == 0 && typedWordValid));
 
             if (isAutoCompletion) {
                 paint.setTypeface(Typeface.DEFAULT_BOLD);

@@ -287,9 +287,12 @@ public class Suggest implements Dictionary.WordCallback {
 
         } else if (wordComposer.size() > 1) {
             // At second character typed, search the unigrams (scores being affected by bigrams)
-            if (mUserDictionary != null || mContactsDictionary != null) {
+            if (mUserDictionary != null || mContactsDictionary != null || mAutoDictionary != null) {
                 if (mUserDictionary != null) {
                     mUserDictionary.getWords(wordComposer, this, mNextLettersFrequencies);
+                }
+                if (mAutoDictionary != null) {
+                    mAutoDictionary.getWords(wordComposer, this, mNextLettersFrequencies);
                 }
                 if (mContactsDictionary != null) {
                     mContactsDictionary.getWords(wordComposer, this, mNextLettersFrequencies);
@@ -354,6 +357,12 @@ public class Suggest implements Dictionary.WordCallback {
         if (garbage != null && garbage instanceof StringBuilder) {
             mStringPool.add(garbage);
         }
+        // Shift the sources to match the new suggestions list
+        if (index < mPrefMaxSuggestions - 1) {
+            System.arraycopy(mSuggestionSource, index + 1, mSuggestionSource, index,
+                    mPrefMaxSuggestions - index - 1);
+        }
+        mSuggestionSource[mPrefMaxSuggestions - 1] = DIC_USER_TYPED;
     }
 
     public boolean hasMinimalCorrection() {
