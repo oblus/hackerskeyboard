@@ -160,6 +160,7 @@ public class LatinIME extends InputMethodService implements
     private static final int MSG_UPDATE_SHIFT_STATE = 2;
     private static final int MSG_VOICE_RESULTS = 3;
     private static final int MSG_UPDATE_OLD_SUGGESTIONS = 4;
+    private static final int MSG_ABORT_RECORRECTION = 5;
 
     // How many continuous deletes at which to start deleting at a higher speed.
     private static final int DELETE_ACCELERATE_AT = 20;
@@ -200,6 +201,7 @@ public class LatinIME extends InputMethodService implements
     private WordComposer mWord = new WordComposer();
     private int mCommittedLength;
     private boolean mPredicting;
+    private long mLastWordTouchTime; // GEM FIX: Anti-flicker hysteresis
     private boolean mEnableVoiceButton;
     private CharSequence mBestWord;
     private boolean mPredictionOnForMode;
@@ -376,6 +378,9 @@ public class LatinIME extends InputMethodService implements
                 break;
             case MSG_UPDATE_OLD_SUGGESTIONS:
                 setOldSuggestions();
+                break;
+            case MSG_ABORT_RECORRECTION:
+                abortCorrection(true);
                 break;
             case MSG_UPDATE_SHIFT_STATE:
                 updateShiftKeyState(getCurrentInputEditorInfo());
@@ -1280,7 +1285,7 @@ public class LatinIME extends InputMethodService implements
             mLastSelectionEnd = et.startOffset + et.selectionEnd;
 
             // Then look for possible corrections in a delayed fashion
-            if (!TextUtils.isEmpty(et.text) && isCursorTouchingWord()) {
+            if (!TextUtils.isEmpty(et.text) && isCursorInsideWord()) {
                 postUpdateOldSuggestions();
             }
         }
@@ -1368,33 +1373,23 @@ public class LatinIME extends InputMethodService implements
         mLastSelectionStart = newSelStart;
         mLastSelectionEnd = newSelEnd;
 
-        if (mReCorrectionEnabled) {
+        if (mReCorrectionEnabled && mShowSuggestions) {
             // Don't look for corrections if the keyboard is not visible
             if (mKeyboardSwitcher != null
                     && mKeyboardSwitcher.getInputView() != null
                     && mKeyboardSwitcher.getInputView().isShown()) {
                 // Check if we should go in or out of correction mode.
+                // GEM FIX: Stop the feedback loop by only triggering on actual user cursor movement
                 if (isPredictionOn()
                         && mJustRevertedSeparator == null
-                        && (candidatesStart == candidatesEnd
-                                || newSelStart != oldSelStart || TextEntryState
-                                .isCorrecting())
+                        && (newSelStart != oldSelStart || newSelEnd != oldSelEnd || candidatesStart == candidatesEnd)
                         && (newSelStart < newSelEnd - 1 || (!mPredicting))) {
-                    if (isCursorTouchingWord()
-                            || mLastSelectionStart < mLastSelectionEnd) {
+                    if (isCursorInsideWord()
+                            || (newSelStart < newSelEnd)) {
                         postUpdateOldSuggestions();
                     } else {
                         abortCorrection(false);
-                        // Show the punctuation suggestions list if the current
-                        // one is not
-                        // and if not showing "Touch again to save".
-                        if (mCandidateView != null
-                                && !mSuggestPuncList.equals(mCandidateView
-                                        .getSuggestions())
-                                && !mCandidateView
-                                        .isShowingAddToDictionaryHint()) {
-                            setNextSuggestions();
-                        }
+                        postUpdateSuggestions();
                     }
                 }
             }
@@ -2829,7 +2824,7 @@ public class LatinIME extends InputMethodService implements
 
         if (isAlphabet(primaryCode) && isPredictionOn()
                 && !mModCtrl && !mModAlt && !mModMeta
-                && !isCursorTouchingWord()) {
+                && !isCursorInsideWord()) {
             if (!mPredicting) {
                 mPredicting = true;
                 mComposing.setLength(0);
@@ -2984,6 +2979,7 @@ public class LatinIME extends InputMethodService implements
 
     private void postUpdateSuggestions() {
         mHandler.removeMessages(MSG_UPDATE_SUGGESTIONS);
+        mHandler.removeMessages(MSG_ABORT_RECORRECTION); // Clear safety brake if user is active
         mHandler.sendMessageDelayed(mHandler
                 .obtainMessage(MSG_UPDATE_SUGGESTIONS), 100);
     }
@@ -3065,6 +3061,10 @@ public class LatinIME extends InputMethodService implements
         }
 
         if (!mPredicting) {
+            // GEM FIX: Prevent flicker by not jumping to punctuation if cursor is still inside a word.
+            if (isCursorInsideWord()) {
+                return;
+            }
             setNextSuggestions();
             return;
         }
@@ -3374,6 +3374,9 @@ public class LatinIME extends InputMethodService implements
                 if (applyTypedAlternatives(touching)) {
                     TextEntryState.selectedForCorrection();
                     EditingUtil.underlineWord(ic, touching);
+                    // GEM FIX: Start safety brake timer (5 seconds) to hide suggestions if unused
+                    mHandler.removeMessages(MSG_ABORT_RECORRECTION);
+                    mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_ABORT_RECORRECTION), 5000);
                     return;
                 }
             }
@@ -3438,21 +3441,18 @@ public class LatinIME extends InputMethodService implements
         }
     }
 
-    private boolean isCursorTouchingWord() {
+    private boolean isCursorInsideWord() {
         InputConnection ic = getCurrentInputConnection();
-        if (ic == null)
-            return false;
+        if (ic == null) return false;
         CharSequence toLeft = ic.getTextBeforeCursor(1, 0);
         CharSequence toRight = ic.getTextAfterCursor(1, 0);
-        if (!TextUtils.isEmpty(toLeft) && !isWordSeparator(toLeft.charAt(0))
-                && !isSuggestedPunctuation(toLeft.charAt(0))) {
-            return true;
-        }
-        if (!TextUtils.isEmpty(toRight) && !isWordSeparator(toRight.charAt(0))
-                && !isSuggestedPunctuation(toRight.charAt(0))) {
-            return true;
-        }
-        return false;
+        if (TextUtils.isEmpty(toLeft) || TextUtils.isEmpty(toRight)) return false;
+        
+        char l = toLeft.charAt(0);
+        char r = toRight.charAt(0);
+        
+        // Strict check: must be a letter on both sides to be "inside"
+        return Character.isLetter(l) && Character.isLetter(r);
     }
 
     private boolean sameAsTextBeforeCursor(InputConnection ic, CharSequence text) {
@@ -3632,6 +3632,10 @@ public class LatinIME extends InputMethodService implements
                     PREF_SHOW_SUGGESTIONS, res.getBoolean(R.bool.default_suggestions));
             mSuggestionForceOff = false;
             mSuggestionForceOn = false;
+            if (!mShowSuggestions) {
+                abortCorrection(true);
+                mHandler.removeMessages(MSG_ABORT_RECORRECTION);
+            }
             // setCandidatesViewShown(mShowSuggestions); // Removed to prevent hang in settings
             needReload = true;
         } else if (PREF_MIN_LETTERS_SUGGESTION.equals(key)) {

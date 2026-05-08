@@ -1,5 +1,4 @@
 .gradle/
 .cxx/
 app/.cxx/
-AGENTS.md
 .idea/project.prompts.xml
