@@ -43,6 +43,11 @@ public class ClickablePreferenceCategory extends PreferenceCategory {
     public void onBindViewHolder(PreferenceViewHolder holder) {
         super.onBindViewHolder(holder);
         
+        View titleView = holder.findViewById(android.R.id.title);
+        if (titleView instanceof android.widget.TextView) {
+            ((android.widget.TextView) titleView).setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+        }
+
         holder.itemView.setClickable(true);
         holder.itemView.setFocusable(true);
         

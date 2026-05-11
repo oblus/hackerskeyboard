@@ -20,10 +20,9 @@
             android:layout_width="40dp"
             android:layout_height="@dimen/candidate_strip_height"
             android:background="?android:attr/selectableItemBackground"
-            android:src="@android:drawable/ic_menu_edit"
-            android:tint="#FF00FFFF"
-            android:padding="8dp"
-            android:scaleType="centerInside" />
+            android:src="@drawable/ic_macro_m"
+            android:padding="0dp"
+            android:scaleType="fitCenter" />
 
         <org.n0pocketworkstation.pckeyboard.CandidateView
             android:id="@+id/candidates"

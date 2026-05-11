@@ -29,6 +29,10 @@
             app:iconSpaceReserved="false" />
         <Preference
             android:key="macro_control_info_1"
+            android:title=""
+            app:allowDividerAbove="false"
+            app:iconSpaceReserved="false" />
+        <Preference
             android:title="@string/macro_control_checkbox"
             android:summary="@string/macro_control_summary"
             app:iconSpaceReserved="false" />
@@ -60,6 +64,10 @@
             app:iconSpaceReserved="false" />
         <Preference
             android:key="macro_control_info_2"
+            android:title=""
+            app:allowDividerAbove="false"
+            app:iconSpaceReserved="false" />
+        <Preference
             android:title="@string/macro_control_checkbox"
             android:summary="@string/macro_control_summary"
             app:iconSpaceReserved="false" />
@@ -91,6 +99,10 @@
             app:iconSpaceReserved="false" />
         <Preference
             android:key="macro_control_info_3"
+            android:title=""
+            app:allowDividerAbove="false"
+            app:iconSpaceReserved="false" />
+        <Preference
             android:title="@string/macro_control_checkbox"
             android:summary="@string/macro_control_summary"
             app:iconSpaceReserved="false" />
@@ -122,6 +134,10 @@
             app:iconSpaceReserved="false" />
         <Preference
             android:key="macro_control_info_4"
+            android:title=""
+            app:allowDividerAbove="false"
+            app:iconSpaceReserved="false" />
+        <Preference
             android:title="@string/macro_control_checkbox"
             android:summary="@string/macro_control_summary"
             app:iconSpaceReserved="false" />
@@ -153,6 +169,10 @@
             app:iconSpaceReserved="false" />
         <Preference
             android:key="macro_control_info_5"
+            android:title=""
+            app:allowDividerAbove="false"
+            app:iconSpaceReserved="false" />
+        <Preference
             android:title="@string/macro_control_checkbox"
             android:summary="@string/macro_control_summary"
             app:iconSpaceReserved="false" />

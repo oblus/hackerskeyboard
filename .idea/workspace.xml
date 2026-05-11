@@ -5,6 +5,11 @@
       <config />
     </shared>
     <layouts>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/drawable/ic_macro_m.xml">
+        <config>
+          <theme>@style/AppTheme</theme>
+        </config>
+      </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/drawable/icon.xml">
         <config>
           <theme>@android:style/Theme.Material.Light</theme>
@@ -100,6 +105,11 @@
           <theme>@android:style/Theme.Material.Light</theme>
         </config>
       </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/preference_macro_editor.xml">
+        <config>
+          <theme>@style/AppTheme</theme>
+        </config>
+      </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/recognition_status.xml">
         <config>
           <theme>@android:style/Theme.Material.Light</theme>
@@ -146,7 +156,31 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b725c78f-14b3-47e1-be79-6be0db0157bb" name="Changes" comment="gitignore" />
+    <list default="true" id="b725c78f-14b3-47e1-be79-6be0db0157bb" name="Changes" comment="gitignore">
+      <change afterPath="$PROJECT_DIR$/.idea/assetWizardSettings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/caches/deviceStreaming.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/AGENTS.md" beforeDir="false" afterPath="$PROJECT_DIR$/AGENTS.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/ClickablePreferenceCategory.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/ClickablePreferenceCategory.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/InputLanguageSelection.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/InputLanguageSelection.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/LatinIME.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/LatinIME.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/LatinIMESettings.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/LatinIMESettings.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/LatinKeyboard.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/LatinKeyboard.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/MacroEditorPreference.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/MacroEditorPreference.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/PrefScreenActions.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/PrefScreenActions.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/PrefScreenFeedback.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/PrefScreenFeedback.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/PrefScreenMacros.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/PrefScreenMacros.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/PrefScreenView.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/PrefScreenView.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/candidates.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/candidates.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/language_selection.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/language_selection.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/preference_macro_editor.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/preference_macro_editor.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/settings_activity.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/settings_activity.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/values/styles.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/values/styles.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/res/xml/prefs_macros.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/xml/prefs_macros.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build/reports/problems/problems-report.html" beforeDir="false" afterPath="$PROJECT_DIR$/build/reports/problems/problems-report.html" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -206,35 +240,35 @@
   <component name="ProjectViewState">
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;Android App.New Run Config.executor&quot;: &quot;Run&quot;,
-    &quot;Android App.app.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.Configure Daemon JVM Criteria.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.syncG&amp;buildApk.executor&quot;: &quot;Run&quot;,
-    &quot;GradleDaemonJvmCriteriaMigrationNotification.isNotificationDisabled&quot;: &quot;true&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;cf.first.check.clang-format&quot;: &quot;false&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;com.google.services.firebase.aqiPopupShown&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;new-approach&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Project&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.17&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;,
-    &quot;recommended.upgrade.do.not.ask.for.project&quot;: &quot;true&quot;,
-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;com.android.studio.ml.templates&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_MARK_IGNORED_FILES_AS_EXCLUDED": "true",
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Android App.New Run Config.executor": "Run",
+    "Android App.app.executor": "Run",
+    "Gradle.Configure Daemon JVM Criteria.executor": "Run",
+    "Gradle.syncG&buildApk.executor": "Run",
+    "GradleDaemonJvmCriteriaMigrationNotification.isNotificationDisabled": "true",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "cf.first.check.clang-format": "false",
+    "cidr.known.project.marker": "true",
+    "com.google.services.firebase.aqiPopupShown": "true",
+    "git-widget-placeholder": "new-approach",
+    "kotlin-language-version-configured": "true",
+    "project.structure.last.edited": "Project",
+    "project.structure.proportion": "0.17",
+    "project.structure.side.proportion": "0.0",
+    "recommended.upgrade.do.not.ask.for.project": "true",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "com.android.studio.ml.templates"
   }
-}</component>
+}]]></component>
   <component name="RunManager" selected="Android App.app">
     <configuration name="New Run Config" type="AndroidRunConfigurationType" factoryName="Android App" activateToolWindowBeforeRun="false">
       <module name="hackerskeyboard-master.app" />
@@ -516,6 +550,27 @@
     <MESSAGE value="gitignore" />
     <option name="LAST_COMMIT_MESSAGE" value="gitignore" />
   </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/ClickablePreferenceCategory.java</url>
+          <line>46</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/ClickablePreferenceCategory.java</url>
+          <line>53</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/app/src/main/java/org/n0pocketworkstation/pckeyboard/LatinKeyboard.java</url>
+          <line>266</line>
+          <option name="timeStamp" value="4" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+  </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/hackerskeyboard_master$syncG_buildApk.ic" NAME="syncG&amp;buildApk Coverage Results" MODIFIED="1776099772130" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="idea" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="true" />
   </component>
@@ -524,12 +579,12 @@
       <map>
         <entry key="org.n0pocketworkstation.pckeyboard">
           <value>
-            <CheckInfo lastCheckTimestamp="1778190300109" />
+            <CheckInfo lastCheckTimestamp="1778363383178" />
           </value>
         </entry>
         <entry key="org.n0pocketworkstation.pckeyboard.test">
           <value>
-            <CheckInfo lastCheckTimestamp="1778190300113" />
+            <CheckInfo lastCheckTimestamp="1778363383179" />
           </value>
         </entry>
         <entry key="org.nopocketworkstation.pckeyboard">

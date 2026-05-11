@@ -34,7 +34,12 @@ public class PrefScreenView extends AppCompatActivity {
         PCKeyboardApp.updateLocale(this);
         super.onCreate(icicle);
         setContentView(R.layout.settings_activity);
-        setTitle(R.string.pref_screen_view_title);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeAsUpIndicator(android.R.drawable.ic_menu_revert);
+            getSupportActionBar().setTitle(R.string.pref_screen_view_title);
+        }
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
@@ -49,6 +54,15 @@ public class PrefScreenView extends AppCompatActivity {
                     .replace(R.id.settings_container, new ViewFragment())
                     .commit();
         }
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(android.view.MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     public static class ViewFragment extends PreferenceFragmentCompat

@@ -858,7 +858,7 @@ public class LatinIME extends InputMethodService implements
             setupMacroButtons();
             mMacroBar.setVisibility(View.VISIBLE);
             // mMacroBar.setBackgroundColor(0xFFFF0000); // RED FOR TESTING (Commented out)
-            
+
             // Adjust this number to change the height of the M1-M5 bar
             int barHeight = (int) (30 * getResources().getDisplayMetrics().density);
             LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) mMacroBar.getLayoutParams();
@@ -929,19 +929,20 @@ public class LatinIME extends InputMethodService implements
 
     private void showMacroMenu(View v, int groupIndex) {
         final SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(this);
+        // Fix: each category has exactly 5 macros
         int startIdx = (groupIndex - 1) * 5 + 1;
 
-        // Use PopupWindow with focusable=false to avoid stealing focus from keyboard (prevents flickering)
+        // Use PopupWindow with focusable=false to avoid stealing focus from keyboard
         LinearLayout layout = new LinearLayout(new ContextThemeWrapper(this, R.style.MacroPopupTheme));
         layout.setOrientation(LinearLayout.VERTICAL);
-        layout.setBackgroundColor(0xFF111111); // Dark background
+        layout.setBackgroundColor(0xFF111111);
         layout.setPadding(4, 4, 4, 4);
 
         final android.widget.PopupWindow popupWindow = new android.widget.PopupWindow(
                 layout,
                 android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
                 android.view.ViewGroup.LayoutParams.WRAP_CONTENT,
-                false); // Focusable = false, critical to avoid IME reload
+                false);
 
         popupWindow.setOutsideTouchable(true);
         popupWindow.setTouchable(true);
@@ -949,7 +950,9 @@ public class LatinIME extends InputMethodService implements
         for (int i = 0; i < 5; i++) {
             final int macroIdx = startIdx + i;
             String content = sp.getString("macro_content_" + macroIdx, "");
-            if (content.isEmpty()) continue; // Skip empty macros
+            boolean enabled = sp.getBoolean("macro_control_" + macroIdx, false);
+            if (content.isEmpty()) continue; // Skip if empty (enabled check is secondary)
+
             String menuTitle = content.length() > 30 ? content.substring(0, 27) + "..." : content;
 
             Button btn = new Button(new ContextThemeWrapper(this, R.style.MacroPopupTheme));
@@ -1528,28 +1531,15 @@ public class LatinIME extends InputMethodService implements
         // REFINED LOGIC: If suggestions are disabled in landscape, but macros are enabled,
         // we should show the macro bar directly if it's active, OR show the toggle if it's not.
         // HOWEVER, the user wants the macro bar ALWAYS visible if suggestions are off.
-        
+
         boolean macrosAllowedInMode = isPortrait() || mMacrosInLandscape;
         
-        // If macros are allowed and suggestions are NOT, force the macro bar to be open
-        if (!suggestionAllowedInMode && macrosAllowedInMode) {
-            macroVisible = true;
-            if (mMacroBar != null) {
-                setupMacroButtons();
-                mMacroBar.setVisibility(View.VISIBLE);
-                // mMacroBar.setBackgroundColor(0xFFFF0000); // RED FOR TESTING (Commented out)
-                
-                // Adjust this number to change the height of the M1-M5 bar (Landscape)
-                int barHeight = (int) (32 * getResources().getDisplayMetrics().density);
-                ViewGroup.LayoutParams lp = mMacroBar.getLayoutParams();
-                if (lp != null) {
-                    lp.height = barHeight;
-                    mMacroBar.setLayoutParams(lp);
-                }
-            }
-        }
+        // REFINED LOGIC: Macro Bar visibility should be independent from suggestion bar.
+        // If suggestions are OFF but macros are ALLOWED, we should still be able to see the macro bar.
+        // If suggestions are OFF and macros are NOT currently toggled on, we might still want to show
+        // the toggle (pencil) if macros are allowed, so the user can turn them on.
 
-        boolean forceVisible = suggestionVisible || mSuggestionForceOn || (macroVisible && macrosAllowedInMode) || (toggleAllowed && suggestionAllowedInMode);
+        boolean forceVisible = suggestionVisible || mSuggestionForceOn || (macroVisible && macrosAllowedInMode) || (toggleAllowed && macrosAllowedInMode);
         
         super.setCandidatesViewShown(forceVisible);
         
@@ -1567,9 +1557,8 @@ public class LatinIME extends InputMethodService implements
                 }
                 
                 // 2. Determine if the macro toggle is needed
-                // It's needed only if both suggestions and macros are allowed, so we can switch.
-                // If only macros are allowed, we don't need the toggle (pencil), just the macro bar.
-                boolean toggleNeeded = suggestionAllowedInMode && macrosAllowedInMode;
+                // It's needed if macros are allowed in this mode.
+                boolean toggleNeeded = macrosAllowedInMode;
                 View toggle = strip.findViewById(R.id.macro_toggle);
                 if (toggle != null) {
                     toggle.setVisibility(toggleNeeded ? View.VISIBLE : View.GONE);
@@ -1721,11 +1710,6 @@ public class LatinIME extends InputMethodService implements
         InputConnection ic = getCurrentInputConnection();
         if (ic != null && attr != null && mKeyboardSwitcher.isAlphabetMode()) {
             int oldState = getShiftState();
-            
-            // If user manually locked shift/caps, don't auto-change it
-            if (oldState == Keyboard.SHIFT_CAPS_LOCKED || oldState == Keyboard.SHIFT_LOCKED) {
-                return;
-            }
 
             if (mShiftKeyState.isChording()) {
                 return;
@@ -1746,7 +1730,8 @@ public class LatinIME extends InputMethodService implements
                 newState = Keyboard.SHIFT_OFF;
             }
 
-            if (oldState != newState) {
+            // Only change state if not manually locked
+            if (oldState != newState && oldState != Keyboard.SHIFT_LOCKED && oldState != Keyboard.SHIFT_CAPS_LOCKED) {
                 mKeyboardSwitcher.setShiftState(newState);
             }
             
@@ -2805,6 +2790,10 @@ public class LatinIME extends InputMethodService implements
                 }
             }
         } else {
+            // In symbols mode, the Shift key often acts as ALT or Shift-Sym.
+            // Do not trigger editor-side shift logic (like "am" -> "AM" via touch-to-correct)
+            // by avoiding standard shift state propagation if we're just toggling symbols.
+            mShiftManualOverride = true; // Prevent updateShiftKeyState from changing it back immediately
             switcher.toggleShift();
         }
     }
@@ -3002,11 +2991,11 @@ public class LatinIME extends InputMethodService implements
         boolean suggestionsVisible = (mShowSuggestions || mSuggestionForceOn) && !suggestionsDisabled();
         boolean macrosVisible = (mMacroBar != null && mMacroBar.getVisibility() == View.VISIBLE) && (isPortrait() || mMacrosInLandscape);
         
-        // Pasek jest wymagany jeśli cokolwiek w nim chcemy pokazać, LUB jeśli chcemy mieć dostęp do ołówka
-        // Ołówek powinien być dostępny jeśli sugestie LUB makra są dozwolone w danym trybie
-        boolean toggleAllowed = (isPortrait() || mSuggestionsInLandscape || mMacrosInLandscape);
+        // Pasek jest wymagany jeśli cokolievable w nim chcemy pokazać, LUB jeśli chcemy mieć dostęp do ołówka
+        // Ołówek powinien być dostępny jeśli makra są dozwolone w danym trybie
+        boolean macrosAllowedInMode = isPortrait() || mMacrosInLandscape;
         
-        return suggestionsVisible || macrosVisible || mSuggestionForceOn || toggleAllowed;
+        return suggestionsVisible || macrosVisible || mSuggestionForceOn || macrosAllowedInMode;
     }
 
     private void switchToKeyboardView() {
@@ -3284,7 +3273,7 @@ public class LatinIME extends InputMethodService implements
     private void pickSuggestion(CharSequence suggestion, boolean correcting, boolean showNextSuggestions) {
         LatinKeyboardView inputView = mKeyboardSwitcher.getInputView();
         int shiftState = getShiftState();
-        if (shiftState == Keyboard.SHIFT_LOCKED || shiftState == Keyboard.SHIFT_CAPS_LOCKED) {
+        if (mKeyboardSwitcher.isAlphabetMode() && (shiftState == Keyboard.SHIFT_LOCKED || shiftState == Keyboard.SHIFT_CAPS_LOCKED)) {
             suggestion = suggestion.toString().toUpperCase(); // all UPPERCASE
         }
         InputConnection ic = getCurrentInputConnection();
@@ -3300,7 +3289,7 @@ public class LatinIME extends InputMethodService implements
         if (!correcting && showNextSuggestions) {
             setNextSuggestions();
         }
-        updateShiftKeyStateDelayed();
+        updateShiftKeyState(getCurrentInputEditorInfo());
     }
 
     /**
@@ -3673,6 +3662,8 @@ public class LatinIME extends InputMethodService implements
             mVolDownAction = sharedPreferences.getString(PREF_VOL_DOWN, res.getString(R.string.default_vol_down));
         } else if (PREF_VIBRATE_LEN.equals(key)) {
             mVibrateLen = getPrefInt(sharedPreferences, PREF_VIBRATE_LEN, getResources().getString(R.string.vibrate_duration_ms));
+        } else if (key != null && (key.startsWith("macro_label_") || key.startsWith("macro_content_") || key.startsWith("macro_control_"))) {
+            setupMacroButtons();
         }
 
         updateKeyboardOptions();

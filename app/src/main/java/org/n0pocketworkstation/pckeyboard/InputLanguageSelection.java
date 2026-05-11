@@ -43,6 +43,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
+import android.view.MenuItem;
 import android.widget.EditText;
 
 public class InputLanguageSelection extends AppCompatActivity {
@@ -77,6 +78,12 @@ public class InputLanguageSelection extends AppCompatActivity {
         super.onCreate(icicle);
         setContentView(R.layout.language_selection);
 
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeAsUpIndicator(android.R.drawable.ic_menu_revert);
+            getSupportActionBar().setTitle(R.string.language_selection_title);
+        }
+
         if (icicle == null) {
             mFragment = new LanguageSelectionFragment();
             getSupportFragmentManager()
@@ -102,6 +109,15 @@ public class InputLanguageSelection extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override

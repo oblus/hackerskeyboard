@@ -31,6 +31,7 @@ import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
 import androidx.annotation.NonNull;
 import androidx.activity.OnBackPressedCallback;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.preference.CheckBoxPreference;
 import androidx.preference.Preference;
@@ -45,6 +46,12 @@ public class PrefScreenFeedback extends AppCompatActivity {
         super.onCreate(icicle);
         setContentView(R.layout.settings_activity);
 
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setHomeAsUpIndicator(android.R.drawable.ic_menu_revert);
+        }
+
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -58,6 +65,12 @@ public class PrefScreenFeedback extends AppCompatActivity {
                     .replace(R.id.settings_container, new FeedbackFragment())
                     .commit();
         }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
     }
 
     public static class FeedbackFragment extends PreferenceFragmentCompat

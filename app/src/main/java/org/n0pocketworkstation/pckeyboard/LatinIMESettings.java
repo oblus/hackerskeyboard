@@ -43,6 +43,7 @@ public class LatinIMESettings extends AppCompatActivity {
         setContentView(R.layout.settings_activity);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeAsUpIndicator(android.R.drawable.ic_menu_revert);
         }
         if (icicle == null) {
             getSupportFragmentManager()

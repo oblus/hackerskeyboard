@@ -119,11 +119,17 @@ public class LatinKeyboard extends Keyboard {
         this(context, xmlLayoutResId, 0, 0);
     }
 
+    private static boolean isAlphaLayout(int xmlLayoutResId) {
+        return xmlLayoutResId == R.xml.kbd_qwerty
+                || xmlLayoutResId == R.xml.kbd_full
+                || xmlLayoutResId == R.xml.kbd_compact
+                || xmlLayoutResId == R.xml.kbd_full_fn
+                || xmlLayoutResId == R.xml.kbd_compact_fn;
+    }
+
     public LatinKeyboard(Context context, int xmlLayoutResId, int mode, float kbHeightPercent) {
         super(context, 0, xmlLayoutResId, mode, kbHeightPercent);
         final Resources res = context.getResources();
-        //Log.i("PCKeyboard", "keyHeight=" + this.getKeyHeight());
-        //this.setKeyHeight(30); // is useless, see http://code.google.com/p/android/issues/detail?id=4532
         mContext = context;
         mMode = mode;
         mRes = res;
@@ -146,7 +152,17 @@ public class LatinKeyboard extends Keyboard {
         setDefaultBounds(m123MicPreviewIcon);
         sSpacebarVerticalCorrection = res.getDimensionPixelOffset(
                 R.dimen.spacebar_vertical_correction);
-        mIsAlphaKeyboard = xmlLayoutResId == R.xml.kbd_qwerty;
+
+        boolean hasAlphabet = false;
+        // Verify if it's really an alpha keyboard by looking for common letters
+        for (Key key : getKeys()) {
+            if (key.codes != null && key.codes.length > 0 && key.codes[0] >= 'a' && key.codes[0] <= 'z') {
+                hasAlphabet = true;
+                break;
+            }
+        }
+        mIsAlphaKeyboard = isAlphaLayout(xmlLayoutResId) && hasAlphabet;
+
         mIsAlphaFullKeyboard = xmlLayoutResId == R.xml.kbd_full;
         mIsFnFullKeyboard = xmlLayoutResId == R.xml.kbd_full_fn || xmlLayoutResId == R.xml.kbd_compact_fn;
         // The index of space key is available only after Keyboard constructor has finished.
@@ -155,6 +171,16 @@ public class LatinKeyboard extends Keyboard {
         mVerticalGap = super.getVerticalGap();
 
         applyModernKeyLayout();
+    }
+
+    private boolean isReallyAlpha() {
+        // If we have 'a'-'z' keys, it's an alpha keyboard.
+        for (Key key : getKeys()) {
+            if (key.codes != null && key.codes.length > 0 && key.codes[0] >= 'a' && key.codes[0] <= 'z') {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean mModernLayoutApplied = false;
@@ -240,14 +266,21 @@ public class LatinKeyboard extends Keyboard {
         case KEYCODE_MODE_CHANGE:
             m123Key = key;
             m123Label = key.label;
+            // During parsing, mIsAlphaKeyboard is not yet set. 
+            // We use the label to detect the "ABC" button in symbol modes.
+            if (key.label != null) {
+                String l = key.label.toString();
+                if (l.contains("ABC") || l.equalsIgnoreCase("ABC")) {
+                    mAlphabetLabel = key.label;
+                }
+            }
             break;
         case KEYCODE_SHIFT:
-            if (mIsAlphaKeyboard) {
-                mAlphabetLabel = key.label;
-            } else if (key.label != null && key.label.length() < 4) {
-                // Heuristic: Symbols keyboard "ABC" label is usually short.
-                // Avoid using "Shift" or other long labels from full layouts.
-                mAlphabetLabel = key.label;
+            // Only use Shift label as alphabet return label if it's not "ALT"
+            if (key.label != null && key.label.length() < 4 && !key.label.toString().equalsIgnoreCase("ALT")) {
+                if (mAlphabetLabel == null) {
+                    mAlphabetLabel = key.label;
+                }
             }
             break;
         }
@@ -318,10 +351,18 @@ public class LatinKeyboard extends Keyboard {
     @Override
     public boolean setShiftState(int shiftState) {
         if (mShiftKey != null) {
-            // Tri-state LED tracks "on" and "lock" states, icon shows Caps state.
-            mShiftKey.on = shiftState == SHIFT_ON || shiftState == SHIFT_LOCKED;
-            mShiftKey.locked = shiftState == SHIFT_LOCKED || shiftState == SHIFT_CAPS_LOCKED;
-            mShiftKey.icon = (shiftState == SHIFT_OFF || shiftState == SHIFT_ON || shiftState == SHIFT_LOCKED) ?
+            String label = mShiftKey.label == null ? "" : mShiftKey.label.toString();
+            boolean isAlt = label.equalsIgnoreCase("ALT") || label.equalsIgnoreCase("ALT_SYM");
+            boolean isAlpha = mIsAlphaKeyboard;
+            
+            // For ALT key or non-alpha layouts, never show the "on" indicator (blue bar)
+            // or the "locked" indicator (red bar).
+            mShiftKey.on = isAlpha && !isAlt && (shiftState == SHIFT_ON || shiftState == SHIFT_LOCKED);
+            mShiftKey.locked = isAlpha && !isAlt && (shiftState == SHIFT_LOCKED || shiftState == SHIFT_CAPS_LOCKED);
+
+            // Icon selection: use the normal icon for ALT or when not locked.
+            // mShiftLockIcon often has a hardcoded red bar.
+            mShiftKey.icon = (shiftState == SHIFT_OFF || shiftState == SHIFT_ON || shiftState == SHIFT_LOCKED || isAlt || !isAlpha) ?
                     mOldShiftIcon : mShiftLockIcon;
             return super.setShiftState(shiftState, false);
         } else {
@@ -374,8 +415,10 @@ public class LatinKeyboard extends Keyboard {
                 m123Key.label = m123Label;
             }
         } else if (m123Key != null && !mIsAlphaKeyboard) {
-            // Ensure 123 key label is reset on non-alpha keyboards (Bug 3)
+            // Ensure 123 key label is reset on non-alpha keyboards
             m123Key.label = mAlphabetLabel;
+            m123Key.icon = null;
+            m123Key.iconPreview = null;
             m123Key.popupCharacters = null;
             m123Key.popupResId = 0;
         }

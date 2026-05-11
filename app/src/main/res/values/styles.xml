@@ -54,6 +54,12 @@
 
     <style name="AppTheme" parent="Theme.AppCompat.DayNight.DarkActionBar">
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
+        <item name="actionBarSize">?android:attr/actionBarSize</item>
+        <item name="toolbarStyle">@style/AppToolbar</item>
+    </style>
+
+    <style name="AppToolbar" parent="Widget.AppCompat.Toolbar">
+        <item name="contentInsetStartWithNavigation">0dp</item>
     </style>
 
     <style name="MacroPopupMenu" parent="Widget.AppCompat.PopupMenu">
