@@ -210,6 +210,7 @@ public class LatinIME extends InputMethodService implements
     private boolean mCompletionOn;
     private boolean mHasDictionary;
     private boolean mIgnoreNextUpdateSelection;
+    private boolean mIgnoreNextReset;
     private boolean mAutoSpace;
     private boolean mJustAddedAutoSpace;
     private boolean mAutoCorrectEnabled;
@@ -797,6 +798,7 @@ public class LatinIME extends InputMethodService implements
                     .findViewById(R.id.candidates);
             mCandidateView.setPadding(0, 0, 0, 0);
             mCandidateView.setService(this);
+            mCandidateView.resetScroll();
 
             View macroToggle = mCandidateViewContainer.findViewById(R.id.macro_toggle);
             if (macroToggle != null) {
@@ -1105,6 +1107,10 @@ public class LatinIME extends InputMethodService implements
 
         mKeyboardSwitcher.makeKeyboards(false);
 
+        if (mCandidateView != null) {
+            mCandidateView.resetScroll();
+        }
+
         TextEntryState.newSession(this);
 
         // Most such things we decide below in the switch statement, but we need to know
@@ -1330,10 +1336,23 @@ public class LatinIME extends InputMethodService implements
         super.onUpdateSelection(oldSelStart, oldSelEnd, newSelStart, newSelEnd,
                 candidatesStart, candidatesEnd);
 
-        // added to use for Dismiss "Touch again to save" hint if user touches text
         if (mIgnoreNextUpdateSelection) {
             mIgnoreNextUpdateSelection = false;
+            mIgnoreNextReset = false;
             return;
+        }
+
+        boolean cursorMoved = oldSelStart != newSelStart || oldSelEnd != newSelEnd;
+        if (mCandidateView != null && cursorMoved) {
+            if (mIgnoreNextReset) {
+                mIgnoreNextReset = false;
+            } else {
+                // Reset scroll if cursor jumped (likely a tap) or if we are in punctuation mode
+                // where list content stays the same but we want to return to start on tap.
+                if (Math.abs(newSelStart - oldSelStart) > 1 || !mPredicting) {
+                    mCandidateView.resetScroll();
+                }
+            }
         }
 
         // Dismiss "Touch again to save" hint if user touches text
@@ -3051,7 +3070,8 @@ public class LatinIME extends InputMethodService implements
 
         if (!mPredicting) {
             // GEM FIX: Prevent flicker by not jumping to punctuation if cursor is still inside a word.
-            if (isCursorInsideWord()) {
+            // Exception: If we just manually picked a character from the punctuation bar, keep showing it.
+            if (isCursorInsideWord() && TextEntryState.getState() != TextEntryState.State.MANUAL_TYPED) {
                 return;
             }
             setNextSuggestions();
@@ -3203,9 +3223,29 @@ public class LatinIME extends InputMethodService implements
                 && (isWordSeparator(suggestion.charAt(0)) || isSuggestedPunctuation(suggestion
                         .charAt(0)))) {
             final char primaryCode = suggestion.charAt(0);
-            onKey(primaryCode, new int[] { primaryCode },
-                    LatinKeyboardBaseView.NOT_A_TOUCH_COORDINATE,
-                    LatinKeyboardBaseView.NOT_A_TOUCH_COORDINATE);
+            
+            // Just commit the character directly to bypass dictionary/auto-correct logic
+            if (ic != null) {
+                ic.commitText(suggestion, 1);
+            }
+            
+            // Reset state to not be in a "predicting" or "correcting" state
+            // This prevents "Suggested punctuation" with letters (like < d >) 
+            // from triggering dictionary lookups or auto-caps.
+            mPredicting = false;
+            mComposing.setLength(0);
+            mWord.reset();
+            
+            // Set flags to prevent scroll reset and recorrection in onUpdateSelection
+            mIgnoreNextReset = true;
+            mIgnoreNextUpdateSelection = true;
+            
+            // Use manualTyped to avoid triggering "Auto-punctuation" state machine
+            TextEntryState.manualTyped(suggestion.toString());
+            
+            // Stay in punctuation mode
+            setNextSuggestions();
+
             if (ic != null) {
                 ic.endBatchEdit();
             }
@@ -3243,6 +3283,9 @@ public class LatinIME extends InputMethodService implements
                 // TextEntryState.State.PICKED_SUGGESTION state.
                 TextEntryState.typedCharacter((char) ASCII_SPACE, true);
                 setNextSuggestions();
+                if (mCandidateView != null) {
+                    mCandidateView.resetScroll();
+                }
             } else {
                 // If we're not showing the "Touch again to save", then show
                 // corrections again.

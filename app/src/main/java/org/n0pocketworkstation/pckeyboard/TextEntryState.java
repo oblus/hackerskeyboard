@@ -61,7 +61,8 @@ public class TextEntryState {
         SPACE_AFTER_PICKED,
         UNDO_COMMIT,
         CORRECTING,
-        PICKED_CORRECTION;
+        PICKED_CORRECTION,
+        MANUAL_TYPED;
     }
 
     private static State sState = State.UNKNOWN;
@@ -143,7 +144,7 @@ public class TextEntryState {
     }
 
     public static void manualTyped(CharSequence typedWord) {
-        sState = State.START;
+        sState = State.MANUAL_TYPED;
         displayState();
     }
 

@@ -55,22 +55,17 @@
             android:name="org.n0pocketworkstation.pckeyboard.LatinIME"
             android:label="@string/english_ime_name"
             android:permission="android.permission.BIND_INPUT_METHOD"
-            android:exported="true"
+            android:exported="true">
+            <!--
             android:directBootAware="true"
-            tools:targetApi="24">
-            <!--Since you are enabling Direct Boot,
-            you must ensure your keyboard doesn't
-            crash by trying to access encrypted data
-            before the user unlocks the phone.
-            In your LatinIME service (and any other
-            parts that run at startup), you should use
-            createDeviceProtectedStorageContext()
-            to access files if needed before unlock
-            If you only use the default PreferenceManager
-            or getSharedPreferences without this context,
-            the app will not be able to read its settings
-            until the user enters their PIN/pattern for the
-            first time after a reboot -->
+            tools:targetApi="24"
+
+            TODO: To enable Direct Boot (typing PIN before user unlock), we must migrate
+            PreferenceManager.getDefaultSharedPreferences() calls in PCKeyboardApp.java
+            and LatinIME.java to use context.createDeviceProtectedStorageContext().
+            Currently, it causes a crash on boot because it tries to read encrypted
+            SharedPreferences before the user data partition is decrypted.
+            -->
             <intent-filter>
                 <action android:name="android.view.InputMethod" />
             </intent-filter>

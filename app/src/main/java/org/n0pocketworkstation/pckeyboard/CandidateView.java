@@ -357,6 +357,22 @@ public class CandidateView extends View {
     
     public void setSuggestions(List<CharSequence> suggestions, boolean completions,
             boolean typedWordValid, boolean haveMinimalSuggestion, int[] sources) {
+        boolean changed = false;
+        if (suggestions == null) {
+            if (!mSuggestions.isEmpty()) {
+                changed = true;
+            }
+        } else if (suggestions.size() != mSuggestions.size()) {
+            changed = true;
+        } else {
+            for (int i = 0; i < suggestions.size(); i++) {
+                if (!suggestions.get(i).equals(mSuggestions.get(i))) {
+                    changed = true;
+                    break;
+                }
+            }
+        }
+
         clear();
         if (suggestions != null) {
             int insertCount = Math.min(suggestions.size(), MAX_SUGGESTIONS);
@@ -371,7 +387,7 @@ public class CandidateView extends View {
         }
         mShowingCompletions = completions;
         mTypedWordValid = typedWordValid;
-        if (getScrollX() != 0) {
+        if (changed && getScrollX() != 0) {
             scrollTo(0, getScrollY());
             mTargetScrollX = 0;
         }
@@ -380,6 +396,13 @@ public class CandidateView extends View {
         onDraw(null);
         invalidate();
         requestLayout();
+    }
+
+    public void resetScroll() {
+        if (getScrollX() != 0) {
+            scrollTo(0, getScrollY());
+            mTargetScrollX = 0;
+        }
     }
 
     public boolean isShowingAddToDictionaryHint() {
