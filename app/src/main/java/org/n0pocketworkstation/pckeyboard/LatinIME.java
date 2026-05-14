@@ -122,6 +122,7 @@ public class LatinIME extends InputMethodService implements
     private static final String PREF_MIN_LETTERS_SUGGESTION = "pref_min_letters_suggestion";
     private static final String PREF_AUTO_CORRECTION_MODE = "auto_correction_mode";
     private static final String PREF_AUTO_PUNCTUATE = "auto_punctuate";
+    private static final String PREF_PUNCTUATION_SWAP_LIST = "pref_punctuation_swap_list";
     // private static final String PREF_BIGRAM_SUGGESTIONS =
     // "bigram_suggestion";
     private static final String PREF_VOICE_MODE = "voice_mode";
@@ -691,8 +692,7 @@ public class LatinIME extends InputMethodService implements
         mSuggest.setAutoDictionary(mAutoDictionary);
         updateCorrectionMode();
         mWordSeparators = res.getString(R.string.word_separators);
-        mSentenceSeparators = res
-                .getString(R.string.sentence_separators);
+        mSentenceSeparators = sp.getString(PREF_PUNCTUATION_SWAP_LIST, res.getString(R.string.sentence_separators));
         initSuggestPuncList();
     }
 
@@ -2920,11 +2920,11 @@ public class LatinIME extends InputMethodService implements
                 && primaryCode != ASCII_ENTER) {
             swapPunctuationAndSpace();
         } else if (isPredictionOn() && primaryCode == ASCII_SPACE) {
-            // doubleSpace() is currently disabled because it triggers on any second space,
-            // not just fast double-taps. Even with the timing check, it can be intrusive.
-            // If you want to use double-tap space for period, you must first ensure
-            // the logic is solid and doesn't interfere with manual text editing.
-            // doubleSpace();
+            // doubleSpace() is disabled by request. 
+            // Do NOT re-enable this unless explicitly requested by the developer.
+            /*
+            doubleSpace();
+            */
         }
         if (pickedDefault) {
             TextEntryState.backToAcceptedDefault(mWord.getTypedWord());
@@ -3550,7 +3550,14 @@ public class LatinIME extends InputMethodService implements
         if (newPuncList) {
             initSuggestPuncList();
         }
-        
+
+        if (PREF_AUTO_PUNCTUATE.equals(key)) {
+            mAutoPunctuate = sharedPreferences.getBoolean(PREF_AUTO_PUNCTUATE, true);
+        }
+        if (PREF_PUNCTUATION_SWAP_LIST.equals(key)) {
+            mSentenceSeparators = sharedPreferences.getString(PREF_PUNCTUATION_SWAP_LIST, ".,!?");
+        }
+
         if (isInputViewShown()) {
             if (recreateInputView) {
                 mKeyboardSwitcher.recreateInputView();
@@ -4114,6 +4121,7 @@ public class LatinIME extends InputMethodService implements
         }
         mAutoCorrectEnabled = (mAutoCorrectionMode > 0) && mShowSuggestions;
         mAutoPunctuate = sp.getBoolean(PREF_AUTO_PUNCTUATE, true);
+        mSentenceSeparators = sp.getString(PREF_PUNCTUATION_SWAP_LIST, ".,!?");
         // mBigramSuggestionEnabled = sp.getBoolean(
         // PREF_BIGRAM_SUGGESTIONS, true) & mShowSuggestions;
         updateCorrectionMode();

@@ -78,8 +78,8 @@
 
         <CheckBoxPreference app:iconSpaceReserved="false"
             android:key="pref_swap_action_keys"
-            android:title="Modern Action Keys"
-            android:summary="Swaps Enter and Backspace to match modern mobile layouts"
+            android:title="@string/pref_swap_action_keys_title"
+            android:summary="@string/pref_swap_action_keys_summary"
             android:defaultValue="false" />
 
         <CheckBoxPreference app:iconSpaceReserved="false"
@@ -116,7 +116,7 @@
 
     <!-- SECTION 3: PC KEYBOARD COMPATIBILITY -->
     <PreferenceCategory app:iconSpaceReserved="false"
-        android:title="PC Compatibility"
+        android:title="@string/title_pc_compatibility"
         android:key="pc_compatibility_settings">
 
         <CheckBoxPreference app:iconSpaceReserved="false"
@@ -145,8 +145,8 @@
 
         <PreferenceScreen app:iconSpaceReserved="false"
             android:key="custom_key_codes_screen"
-            android:title="Custom Key Codes"
-            android:summary="Configure Ctrl, Alt, and Meta key behavior">
+            android:title="@string/title_custom_key_codes"
+            android:summary="@string/summary_custom_key_codes">
             <intent android:action="org.n0pocketworkstation.pckeyboard.PREFS_ACTIONS" />
         </PreferenceScreen>
 
@@ -161,7 +161,7 @@
         <PreferenceScreen app:iconSpaceReserved="false"
             android:key="macro_settings_screen"
             android:title="@string/title_macro_settings"
-            android:summary="Configure custom text and control sequences">
+            android:summary="@string/summary_macro_settings">
             <intent android:action="org.n0pocketworkstation.pckeyboard.PREFS_MACROS" />
         </PreferenceScreen>
     </PreferenceCategory>
@@ -222,6 +222,12 @@
             android:persistent="true"
             android:defaultValue="@bool/default_suggestions" />
 
+        <org.n0pocketworkstation.pckeyboard.AutoSummaryEditTextPreference app:iconSpaceReserved="false"
+            android:key="pref_suggested_punctuation"
+            android:title="@string/title_pref_suggested_punctuation"
+            android:defaultValue="@string/suggested_punctuations"
+            android:dependency="show_suggestions" />
+
         <org.n0pocketworkstation.pckeyboard.SeekBarPreferenceString app:iconSpaceReserved="false"
             android:key="pref_min_letters_suggestion"
             android:title="@string/title_min_letters_suggestion"
@@ -260,10 +266,12 @@
             android:dependency="auto_correction_mode" />
 
         <org.n0pocketworkstation.pckeyboard.AutoSummaryEditTextPreference app:iconSpaceReserved="false"
-            android:key="pref_suggested_punctuation"
-            android:title="Suggested punctuation in suggestion bar"
-            android:defaultValue="@string/suggested_punctuations"
-            android:dependency="show_suggestions" />
+            android:key="pref_punctuation_swap_list"
+            android:title="@string/title_pref_punctuation_swap_list"
+            android:summary="@string/summary_title_pref_punctuation_swap"
+            android:defaultValue=".,!?"
+            android:digits=".,!?;:()[]{}&lt;&gt;&quot;&apos;-+=/@#$%^&amp;*~_|\\"
+            android:dependency="auto_punctuate" />
 
         <org.n0pocketworkstation.pckeyboard.AutoSummaryListPreference app:iconSpaceReserved="false"
             android:key="auto_cap_mode"
@@ -283,27 +291,27 @@
 
     <Preference app:iconSpaceReserved="false"
         android:key="pref_dictionaries_summary_list"
-        android:title="Detected dictionaries"
+        android:title="@string/pref_dictionaries_title"
         android:selectable="false" />
 
     <Preference app:iconSpaceReserved="false"
         android:key="pref_clear_auto_dict"
-        android:title="Clear Learned Words (AutoDict)"
-        android:summary="Delete all words learned from your typing (AutoDictionary)" />
+        android:title="@string/pref_clear_auto_dict_title"
+        android:summary="@string/pref_clear_auto_dict_summary" />
 
     <Preference app:iconSpaceReserved="false"
         android:key="pref_clear_user_dict"
-        android:title="Clear Learned Words (UserDict)"
-        android:summary="Delete all words from the Android System User Dictionary" />
+        android:title="@string/pref_clear_user_dict_title"
+        android:summary="@string/pref_clear_user_dict_summary" />
 
     <Preference app:iconSpaceReserved="false"
         android:key="pref_go_to_user_dict_settings"
-        android:title="Go to UserDictionary settings"
-        android:summary="Open Android system settings for personal dictionary" />
+        android:title="@string/pref_go_to_user_dict_settings_title"
+        android:summary="@string/pref_go_to_user_dict_settings_summary" />
 
     <!-- SECTION 6: ADVANCED & INFO -->
     <PreferenceCategory app:iconSpaceReserved="false"
-        android:title="Advanced &amp; About"
+        android:title="@string/title_advanced_about"
         android:key="debugging">
 
         <CheckBoxPreference app:iconSpaceReserved="false"
@@ -324,12 +332,12 @@
 
         <Preference app:iconSpaceReserved="false"
             android:key="export_settings"
-            android:title="Export Settings (JSON)"
+            android:title="@string/title_export_settings"
             android:summary="" />
 
         <Preference app:iconSpaceReserved="false"
             android:key="import_settings"
-            android:title="Import Settings (JSON)"
+            android:title="@string/title_import_settings"
             android:summary="" />
 
         <CheckBoxPreference app:iconSpaceReserved="false"

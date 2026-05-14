@@ -19,6 +19,13 @@ import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
 import androidx.preference.PreferenceGroup;
 import androidx.preference.PreferenceManager;
+import androidx.preference.EditTextPreference;
+import android.text.InputFilter;
+import android.text.Spanned;
+import android.text.InputType;
+import android.widget.EditText;
+import android.text.TextWatcher;
+import android.text.Editable;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -114,6 +121,60 @@ public class LatinIMESettings extends AppCompatActivity {
                 sp.edit().putString(key, oldVal ? "0" : "2").commit();
             }
             addPreferencesFromResource(R.xml.prefs);
+
+            EditTextPreference punctuationPref = findPreference("pref_punctuation_swap_list");
+            if (punctuationPref != null) {
+                punctuationPref.setOnBindEditTextListener(new EditTextPreference.OnBindEditTextListener() {
+                    @Override
+                    public void onBindEditText(@NonNull final EditText editText) {
+                        editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
+                        // Force real-time filtering
+                        editText.addTextChangedListener(new TextWatcher() {
+                            private boolean isFiltering = false;
+                            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+                            @Override
+                            public void afterTextChanged(Editable s) {
+                                if (isFiltering) return;
+                                isFiltering = true;
+                                String original = s.toString();
+                                // Strictly exclude letters, digits, and whitespace
+                                String filtered = original.replaceAll("[\\p{L}\\p{N}\\s]", "");
+                                if (!original.equals(filtered)) {
+                                    s.replace(0, s.length(), filtered);
+                                }
+                                isFiltering = false;
+                            }
+                        });
+                    }
+                });
+
+                punctuationPref.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                    @Override
+                    public boolean onPreferenceChange(@NonNull Preference preference, Object newValue) {
+                        String val = (String) newValue;
+                        // Final strict validation: remove any letters, digits, or whitespace that might have bypassed TextWatcher
+                        String filtered = val.replaceAll("[\\p{L}\\p{N}\\s]", "");
+                        
+                        // Deduplicate
+                        StringBuilder sb = new StringBuilder();
+                        for (int i = 0; i < filtered.length(); i++) {
+                            char c = filtered.charAt(i);
+                            if (sb.indexOf(String.valueOf(c)) == -1) {
+                                sb.append(c);
+                            }
+                        }
+                        String result = sb.toString();
+                        if (result.isEmpty()) result = ".,!?";
+                        
+                        if (!val.equals(result)) {
+                            ((EditTextPreference) preference).setText(result);
+                            return false;
+                        }
+                        return true;
+                    }
+                });
+            }
         }
 
         @Override
@@ -137,9 +198,13 @@ public class LatinIMESettings extends AppCompatActivity {
                 return;
             }
 
+            String key = preference.getKey();
             if (preference instanceof SeekBarPreference) {
-                androidx.fragment.app.DialogFragment f = SeekBarPreferenceDialogFragmentCompat.newInstance(preference.getKey());
-                // Explicitly set target fragment for AndroidX compatibility
+                androidx.fragment.app.DialogFragment f = SeekBarPreferenceDialogFragmentCompat.newInstance(key);
+                f.setTargetFragment(this, 0);
+                f.show(getParentFragmentManager(), "androidx.preference.PreferenceFragment.DIALOG");
+            } else if ("pref_punctuation_swap_list".equals(key) || "pref_suggested_punctuation".equals(key)) {
+                androidx.fragment.app.DialogFragment f = PunctuationEditTextPreferenceDialogFragmentCompat.newInstance(key);
                 f.setTargetFragment(this, 0);
                 f.show(getParentFragmentManager(), "androidx.preference.PreferenceFragment.DIALOG");
             } else {
@@ -147,7 +212,62 @@ public class LatinIMESettings extends AppCompatActivity {
             }
         }
 
+        public static class PunctuationEditTextPreferenceDialogFragmentCompat extends androidx.preference.EditTextPreferenceDialogFragmentCompat {
+            public static PunctuationEditTextPreferenceDialogFragmentCompat newInstance(String key) {
+                final PunctuationEditTextPreferenceDialogFragmentCompat fragment = new PunctuationEditTextPreferenceDialogFragmentCompat();
+                final Bundle b = new Bundle(1);
+                b.putString(ARG_KEY, key);
+                fragment.setArguments(b);
+                return fragment;
+            }
+
+            @Override
+            protected void onPrepareDialogBuilder(@NonNull androidx.appcompat.app.AlertDialog.Builder builder) {
+                super.onPrepareDialogBuilder(builder);
+                // We set a non-null listener to ensure the button is created and enabled
+                builder.setNeutralButton(R.string.reset_to_defaults, (dialog, which) -> {
+                    // This will be mostly overridden by the View.OnClickListener in onStart
+                    // but we keep it to ensure the button exists.
+                });
+            }
+
+            @Override
+            public void onStart() {
+                super.onStart();
+                final androidx.appcompat.app.AlertDialog dialog = (androidx.appcompat.app.AlertDialog) getDialog();
+                if (dialog != null) {
+                    android.widget.Button neutralButton = dialog.getButton(android.content.DialogInterface.BUTTON_NEUTRAL);
+                    if (neutralButton != null) {
+                        neutralButton.setOnClickListener(v -> {
+                            // Find the EditText every time to be safe against view recreation
+                            EditText editText = dialog.findViewById(android.R.id.edit);
+                            if (editText != null && getContext() != null) {
+                                String key = getArguments() != null ? getArguments().getString(ARG_KEY) : null;
+                                String defaultValue;
+                                if ("pref_punctuation_swap_list".equals(key)) {
+                                    defaultValue = ".,!?";
+                                } else {
+                                    defaultValue = getContext().getString(R.string.suggested_punctuations);
+                                }
+                                editText.setText(defaultValue);
+                                editText.setSelection(defaultValue.length());
+                                editText.requestFocus();
+                            }
+                            // Crucially: NOT calling any dismiss logic here!
+                        });
+                    }
+                }
+            }
+        }
+
         public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
+            if ("pref_punctuation_swap_list".equals(key)) {
+                String val = prefs.getString(key, ".,!?");
+                String filtered = val.replaceAll("[\\p{L}\\p{N}\\s]", "");
+                if (!val.equals(filtered)) {
+                    prefs.edit().putString(key, filtered).apply();
+                }
+            }
             if ("pref_revert_theme_color".equals(key)) {
                 ((PCKeyboardApp) requireActivity().getApplication()).updateTheme();
             } else if ("pref_ui_language".equals(key)) {
@@ -278,6 +398,23 @@ public class LatinIMESettings extends AppCompatActivity {
             Preference voice = findPreference("voice_mode");
             if (voice instanceof androidx.preference.ListPreference) {
                 voice.setSummary(((androidx.preference.ListPreference) voice).getEntry());
+            }
+            
+            Preference punctuation = findPreference("pref_punctuation_swap_list");
+            if (punctuation instanceof androidx.preference.EditTextPreference) {
+                String val = ((androidx.preference.EditTextPreference) punctuation).getText();
+                if (val == null || val.isEmpty()) val = ".,!?";
+                String baseSummary = getString(R.string.summary_title_pref_punctuation_swap);
+                punctuation.setSummary(baseSummary + ": " + val);
+            }
+
+            Preference suggestedPunctuation = findPreference("pref_suggested_punctuation");
+            if (suggestedPunctuation instanceof androidx.preference.EditTextPreference) {
+                String val = ((androidx.preference.EditTextPreference) suggestedPunctuation).getText();
+                String defaultVal = getString(R.string.suggested_punctuations);
+                if (val == null || val.isEmpty()) val = defaultVal;
+                String baseSummary = getString(R.string.summary_title_pref_suggested_punctuation);
+                suggestedPunctuation.setSummary(baseSummary + ": " + val);
             }
         }
 

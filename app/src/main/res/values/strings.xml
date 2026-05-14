@@ -85,6 +85,12 @@
     <!-- Description for text prediction -->
     <string name="prediction_landscape_summary">Hide word suggestions in landscape view</string>
 	
+    <string name="auto_punctuate">Auto-Punctuate</string>
+    <string name="auto_punctuate_summary">Swap space and punctuation for common marks</string>
+    <string name="title_pref_punctuation_swap_list">Punctuation in swapping</string>
+    <string name="summary_title_pref_punctuation_swap">You can set Your own punctuation marks</string>
+    <string name="title_pref_suggested_punctuation">Suggested punctuation</string>
+    <string name="summary_title_pref_suggested_punctuation">You can set in suggestion bar \nYour own punctuation marks</string>
     <!-- Option to enable auto capitalization of sentences -->
     <string name="auto_cap">Auto-capitalization</string>
     <string-array name="auto_cap_modes_labels">
@@ -101,11 +107,7 @@
     <string name="main_test_fields_header">Test fields</string>
     <string name="main_test_fields_clear">Clear all fields</string>
     <string name="auto_cap_summary">Capitalize the start of a sentence</string>
-    <!-- Option to enable auto punctuate -->
-    <string name="auto_punctuate">Auto-punctuate</string> 
-    <!-- Description for auto punctuate -->
-    <string name="auto_punctuate_summary">Swap space with punctuation at end of sentence</string>
-    
+
     <!-- Option to enable quick fixes -->
     <string name="quick_fixes">Quick fixes</string>
     <!-- Description for quick fixes -->
@@ -304,6 +306,8 @@
 
     <!-- Label on button to stop recognition. Must be short to fit on button. -->
     <string name="cancel">Cancel</string>
+
+    <string name="reset_to_defaults">Reset to defaults</string>
 
     <!-- Label on button when an error occurs -->
     <string name="ok">OK</string>
@@ -776,4 +780,22 @@
     <string name="title_clear_auto_dictionary">Clear Learned Words</string>
     <string name="dialog_clear_auto_dictionary">This will delete all words learned automatically by the keyboard. Continue?</string>
     <string name="success_clear_auto_dictionary">Learned words cleared</string>
+
+    <!-- Missing strings for prefs.xml -->
+    <string name="pref_swap_action_keys_title">Modern Action Keys</string>
+    <string name="pref_swap_action_keys_summary">Swaps Enter and Backspace to match modern mobile layouts</string>
+    <string name="title_pc_compatibility">PC Compatibility</string>
+    <string name="title_custom_key_codes">Custom Key Codes</string>
+    <string name="summary_custom_key_codes">Configure Ctrl, Alt, and Meta key behavior</string>
+    <string name="summary_macro_settings">Configure custom text and control sequences</string>
+    <string name="pref_dictionaries_title">Detected dictionaries</string>
+    <string name="pref_clear_auto_dict_title">Clear Learned Words (AutoDict)</string>
+    <string name="pref_clear_auto_dict_summary">Delete all words learned from your typing (AutoDictionary)</string>
+    <string name="pref_clear_user_dict_title">Clear Learned Words (UserDict)</string>
+    <string name="pref_clear_user_dict_summary">Delete all words from the Android System User Dictionary</string>
+    <string name="pref_go_to_user_dict_settings_title">Go to UserDictionary settings</string>
+    <string name="pref_go_to_user_dict_settings_summary">Open Android system settings for personal dictionary</string>
+    <string name="title_advanced_about">Advanced &amp; About</string>
+    <string name="title_export_settings">Export Settings (JSON)</string>
+    <string name="title_import_settings">Import Settings (JSON)</string>
 </resources>

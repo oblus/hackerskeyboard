@@ -29,9 +29,10 @@ public class AutoSummaryEditTextPreference extends EditTextPreference {
         a.recycle();
     }
 
-    @Override
-    public void setText(String text) {
-        super.setText(text);
-        setSummary(text);
-    }
+    // Note: We deliberately do NOT override setText(String) here to set the summary.
+    // In this project, punctuation settings (suggested_punctuation, punctuation_swap_list)
+    // require custom descriptive summaries (e.g., "Description: value") which are
+    // managed manually in LatinIMESettings.updateSummaries().
+    // Overriding setText to call setSummary(text) would overwrite those custom summaries
+    // with raw values whenever the preference is updated.
 }
