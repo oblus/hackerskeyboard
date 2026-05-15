@@ -2868,6 +2868,18 @@ public class LatinIME extends InputMethodService implements
         } else {
             sendModifiableKeyChar((char) primaryCode);
         }
+        
+        // GEM FIX: Synchronous shift revert for fast typing.
+        // When auto-capitalization is active (mIsAutoShift), we must revert to SHIFT_OFF 
+        // immediately after the first character is processed. 
+        // Relying only on the 50ms delayed update (updateShiftKeyStateDelayed) 
+        // causes a race condition during very fast typing (e.g., "Mama" becoming "MAMA")
+        // because the second key event arrives before the MSG_UPDATE_SHIFT_STATE is handled.
+        if (mIsAutoShift && mKeyboardSwitcher.isAlphabetMode()) {
+            mIsAutoShift = false;
+            mKeyboardSwitcher.setShiftState(Keyboard.SHIFT_OFF);
+        }
+
         updateShiftKeyStateDelayed();
         TextEntryState.typedCharacter((char) primaryCode,
                 isWordSeparator(primaryCode));
