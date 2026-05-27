@@ -2885,6 +2885,12 @@ public class LatinIME extends InputMethodService implements
                 isWordSeparator(primaryCode));
     }
 
+    private boolean isCorrectionTrigger(int code) {
+        return code == ASCII_SPACE
+                || code == ASCII_ENTER
+                || (mSentenceSeparators != null && mSentenceSeparators.contains(String.valueOf((char) code)));
+    }
+
     private void handleSeparator(int primaryCode) {
 
         // Should dismiss the "Touch again to save" message when handling
@@ -2909,7 +2915,7 @@ public class LatinIME extends InputMethodService implements
             // elision
             // requires the last vowel to be removed.
             if (mAutoCorrectOn
-                    && primaryCode != '\''
+                    && isCorrectionTrigger(primaryCode)
                     && (mJustRevertedSeparator == null
                             || mJustRevertedSeparator.length() == 0
                             || mJustRevertedSeparator.charAt(0) != primaryCode)) {
