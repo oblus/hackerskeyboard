@@ -73,6 +73,7 @@ import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import androidx.appcompat.view.ContextThemeWrapper;
@@ -812,9 +813,14 @@ public class LatinIME extends InputMethodService implements
         }
 
         if (mCandidateViewContainer != null && mCandidateViewContainer.findViewById(R.id.macro_bar_container) == null) {
+            FrameLayout layers = (FrameLayout) mCandidateViewContainer.findViewById(R.id.candidates_layers);
             mMacroBar = getLayoutInflater().inflate(R.layout.macro_bar, null);
             mMacroBar.setVisibility(View.GONE);
-            mCandidateViewContainer.addView(mMacroBar, 0); 
+            if (layers != null) {
+                layers.addView(mMacroBar);
+            } else {
+                mCandidateViewContainer.addView(mMacroBar, 0);
+            }
             setupMacroButtons();
         }
     }
@@ -853,21 +859,78 @@ public class LatinIME extends InputMethodService implements
         if (mMacroBar == null) return;
 
         boolean currentlyVisible = mMacroBar.getVisibility() == View.VISIBLE;
+        
+        // Determine if we should use overlay mode (slide-over)
+        boolean isLandscape = mOrientation == Configuration.ORIENTATION_LANDSCAPE;
+        boolean canShowSuggestions = mShowSuggestions && (!isLandscape || mSuggestionsInLandscape);
+        boolean useOverlay = !isLandscape || canShowSuggestions;
+
         if (currentlyVisible) {
-            mMacroBar.setVisibility(View.GONE);
+            if (useOverlay) {
+                // Animate out
+                mMacroBar.animate()
+                    .translationX(-mMacroBar.getWidth())
+                    .alpha(0.0f)
+                    .setDuration(200)
+                    .withEndAction(new Runnable() {
+                        @Override
+                        public void run() {
+                            mMacroBar.setVisibility(View.GONE);
+                        }
+                    });
+            } else {
+                mMacroBar.setVisibility(View.GONE);
+            }
             mSuggestionForceOn = false;
         } else {
             setupMacroButtons();
-            mMacroBar.setVisibility(View.VISIBLE);
-            // mMacroBar.setBackgroundColor(0xFFFF0000); // RED FOR TESTING (Commented out)
+            
+            ViewGroup.LayoutParams lp = mMacroBar.getLayoutParams();
+            if (useOverlay) {
+                // Setup for animation
+                mMacroBar.setAlpha(0.0f);
+                
+                // Now that the FrameLayout is beside the M button, we can just slide from left
+                // mMacroBar.getWidth() might be 0 if not yet measured, but setTranslationX
+                // can be updated in a post-layout if needed. For now using a large enough negative value.
+                mMacroBar.setTranslationX(-1000); 
+                
+                // Set height to match suggestion strip height
+                int barHeight = getResources().getDimensionPixelSize(R.dimen.candidate_strip_height);
+                if (lp != null) {
+                    lp.height = barHeight;
+                    // Remove the left margin since the container starts after the M button
+                    if (lp instanceof FrameLayout.LayoutParams) {
+                        ((FrameLayout.LayoutParams) lp).leftMargin = 0;
+                    }
+                    mMacroBar.setLayoutParams(lp);
+                }
 
-            // Adjust this number to change the height of the M1-M5 bar
-            int barHeight = (int) (30 * getResources().getDisplayMetrics().density);
-            LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) mMacroBar.getLayoutParams();
-            if (lp != null) {
-                lp.height = barHeight;
-                mMacroBar.setLayoutParams(lp);
+                mMacroBar.setVisibility(View.VISIBLE);
+                // Use post to ensure width is measured for correct initial translation
+                mMacroBar.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mMacroBar.setTranslationX(-mMacroBar.getWidth());
+                        mMacroBar.animate()
+                            .translationX(0)
+                            .alpha(1.0f)
+                            .setDuration(250)
+                            .start();
+                    }
+                });
+            } else {
+                // Adjust this number to change the height of the M1-M5 bar for non-overlay mode
+                int barHeight = (int) (30 * getResources().getDisplayMetrics().density);
+                if (lp != null) {
+                    lp.height = barHeight;
+                    mMacroBar.setLayoutParams(lp);
+                }
+                mMacroBar.setTranslationX(0);
+                mMacroBar.setAlpha(1.0f);
+                mMacroBar.setVisibility(View.VISIBLE);
             }
+
             mSuggestionForceOn = true;
         }
         
